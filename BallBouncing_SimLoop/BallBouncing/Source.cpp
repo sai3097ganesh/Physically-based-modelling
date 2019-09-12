@@ -29,14 +29,14 @@ float spinup = 0.0;
 
 float timeSinceLast = 0;
 int frameTime = 0;
-static const int SFPS = 500;
+static const int SFPS = 1000;
 float h = 1.0/SFPS; // Step size changes
 float d = 0.0; //air resistance constant
 float mu = 0.3; //friction constant
 
 clock_t initialTime = clock(), finalTime;
 float timeTaken, timestepmain, f, newPos[3];
-static const int FPS = 100;
+static const int FPS = 30;
 const int tMAX = 10;
 
 void display(void)
@@ -318,16 +318,23 @@ void idle(void)
 		if (spinup < -89.0) spinup = -89.0;
 	}
 
+
+
+//	if (FPS > SFPS) {
+	
+	for (float t = 0; t < 1.0/30; t += h) {
+		IntegrateNextStep();
+	}
+	
 	finalTime = clock();
 	timeTaken = (float)((finalTime - initialTime)) / CLOCKS_PER_SEC;
 	initialTime = finalTime;
 	timeSinceLast += timeTaken;
-
-//	if (FPS > SFPS) {
-		if (timeSinceLast > h) {
-			IntegrateNextStep();
+	while ((timeSinceLast + (float)(clock() - initialTime) / CLOCKS_PER_SEC)  < 1.0 / FPS);
+		//if (timeSinceLast > h) {
+		//	IntegrateNextStep();
 			timeSinceLast = 0;
-		}
+		//}
 		glutPostRedisplay();
 
 //	}
@@ -342,8 +349,6 @@ void idle(void)
 }
 
 void timer(int v) {
-
-	glutPostRedisplay();
 	glutTimerFunc(1000 / FPS, timer, v);
 }
 
