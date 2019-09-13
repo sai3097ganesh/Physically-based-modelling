@@ -29,14 +29,14 @@ float spinup = 0.0;
 
 float timeSinceLast = 0;
 int frameTime = 0;
-static const int SFPS = 1000;
+static const int SFPS = 30;
 float h = 1.0/SFPS; // Step size changes
 float d = 0.0; //air resistance constant
-float mu = 0.3; //friction constant
+float mu = 10; //friction constant
 
 clock_t initialTime = clock(), finalTime;
 float timeTaken, timestepmain, f, newPos[3];
-static const int FPS = 30;
+static const int FPS = 60;
 const int tMAX = 10;
 
 void display(void)
@@ -53,9 +53,9 @@ void display(void)
 
 	GLfloat box_diffuse[] = { 0.7, 0.7, 0.7 };
 	GLfloat box_specular[] = { 0.1, 0.1, 0.1 };
-	GLfloat box_shininess[] = { 1.0 };
-	GLfloat ball_ambient[] = { 0.4, 0.0, 0.0 };
-	GLfloat ball_diffuse[] = { 0.3, 0.0, 0.0 };
+	GLfloat box_shininess[] = { 0.0 };
+	GLfloat ball_ambient[] = { 0.2, 0.1, 0.0 };
+	GLfloat ball_diffuse[] = { 0.1, 0.05, 0.0 };
 	GLfloat ball_specular[] = { 0.3, 0.3, 0.3 };
 	GLfloat ball_shininess[] = { 10.0 };
 
@@ -85,6 +85,9 @@ void display(void)
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, box_diffuse);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, box_specular);
 	glMaterialfv(GL_FRONT, GL_SHININESS, box_shininess);
+	glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+	//glColor4f(0.0, 0.0, 1.0, 1.0);
 
 	glBegin(GL_QUADS);
 	//back face
@@ -130,12 +133,35 @@ void display(void)
 	glVertex3f(boxxh, boxyh, boxzh);
 
 	glEnd();
+	glDisable(GL_BLEND);
+	/*
+	glLineWidth(2.0);
+	glBegin(GL_LINE_STRIP);
+	GLfloat lineColor[3] = { 0.2,0.5,0.0 };
+	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
+	glVertex3f(boxxl, boxyl, boxzl);
+	glVertex3f(boxxh, boxyl, boxzl);
+	glVertex3f(boxxh, boxyh, boxzl);
+	glVertex3f(boxxl, boxyh, boxzl);
+	glVertex3f(boxxl, boxyl, boxzl);
+	glEnd();
+
+	glBegin(GL_LINE_STRIP);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
+	glVertex3f(boxxl, boxyl, boxzh);
+	glVertex3f(boxxl, boxyl, boxzl);
+	glVertex3f(boxxl, boxyh, boxzl);
+	glVertex3f(boxxl, boxyh, boxzh);
+	glVertex3f(boxxl, boxyh, boxzh);
+	glEnd();
+	*/
 
 	//draw the ball
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ball_ambient);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, ball_diffuse);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ball_specular);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, ball_shininess);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, smallrgb);
 	glPushMatrix();
 	glTranslatef(ball.getPos()[0], ball.getPos()[1], ball.getPos()[2]);
 	glutSolidSphere(5, 10, 10);
@@ -153,6 +179,10 @@ void init(void)
 	glEnable(GL_CULL_FACE);
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_LIGHTING);
+	//glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	//glEnable(GL_COLOR_MATERIAL);
+	//glEnable(GL_BLEND);
+	
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHT1);
 	glMatrixMode(GL_PROJECTION);
@@ -178,9 +208,6 @@ void init(void)
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, light1color);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, light1color);
 
-	//Initialize ball position
-	ballx = 0.0; bally = 0.0; ballz = 0.0;
-
 	//Initialize box boundaries
 	boxxl = -100;
 	boxxh = 100;
@@ -199,6 +226,7 @@ void reshapeFunc(GLint newWidth, GLint newHeight)
 	init();
 	glutPostRedisplay();
 }
+
 void IntegrateNextStep()
 {
 	timestepmain = h;
@@ -318,10 +346,6 @@ void idle(void)
 		if (spinup < -89.0) spinup = -89.0;
 	}
 
-
-
-//	if (FPS > SFPS) {
-	
 	for (float t = 0; t < 1.0/30; t += h) {
 		IntegrateNextStep();
 	}
@@ -331,21 +355,9 @@ void idle(void)
 	initialTime = finalTime;
 	timeSinceLast += timeTaken;
 	while ((timeSinceLast + (float)(clock() - initialTime) / CLOCKS_PER_SEC)  < 1.0 / FPS);
-		//if (timeSinceLast > h) {
-		//	IntegrateNextStep();
-			timeSinceLast = 0;
-		//}
-		glutPostRedisplay();
 
-//	}
-//	else {
-		//while ((timeSinceLast + (float)(clock()-initialTime) / CLOCKS_PER_SEC)  < 1.0/FPS);
-//		if (timeSinceLast < h)
-	//	IntegrateNextStep();
-		//glutPostRedisplay();
-		//timeSinceLast = 0;
-	//}
-
+	timeSinceLast = 0;
+	glutPostRedisplay();
 }
 
 void timer(int v) {
@@ -387,7 +399,7 @@ int main(int argc, char** argv)
 	GLint SubMenu1, SubMenu2, SubMenu3, SubMenu4;
 
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(500, 500);
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("Ball in Cube Demo");
