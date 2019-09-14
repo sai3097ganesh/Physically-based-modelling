@@ -30,8 +30,10 @@ float spinup = 0.0;
 float timeSinceLast = 0;
 int frameTime = 0;
 static const int SFPS = 30;
-float h = 1.0/SFPS; // Step size changes
-float d = 0.0; //air resistance constant
+
+float h = 1.0/SFPS; // Step size 
+float d = 0.2; //air resistance constant
+float wind[3] = { 0.0,0.0,0.0 };
 float mu = 10; //friction constant
 
 clock_t initialTime = clock(), finalTime;
@@ -242,7 +244,7 @@ void IntegrateNextStep()
 
 		if (newPos[0] > (boxxh - 10)) {
 			f = ((boxxh - 10) - ball.getPos()[0]) / (newPos[0] - ball.getPos()[0]);
-			ball.update(f*h, d);
+			ball.update(f*h, d, wind);
 			for (int i = 0; i < 3; i++) {
 				newPos[i] = ball.getPos()[i];
 			}
@@ -256,7 +258,7 @@ void IntegrateNextStep()
 		}
 		else if (newPos[0] < (boxxl + 10)) {
 			f = ((boxxl + 10) - ball.getPos()[0]) / (newPos[0] - ball.getPos()[0]);
-			ball.update(f*h, d);
+			ball.update(f*h, d, wind);
 			for (int i = 0; i < 3; i++) {
 				newPos[i] = ball.getPos()[i];
 			}
@@ -270,7 +272,7 @@ void IntegrateNextStep()
 		}
 		else if (newPos[1] > (boxyh - 10)) {
 			f = ((boxyh - 10) - ball.getPos()[1]) / (newPos[1] - ball.getPos()[1]);
-			ball.update(f*h, d);
+			ball.update(f*h, d, wind);
 			for (int i = 0; i < 3; i++) {
 				newPos[i] = ball.getPos()[i];
 			}
@@ -284,7 +286,7 @@ void IntegrateNextStep()
 		}
 		else if (newPos[1] < (boxyl + 10)) {
 			f = ((boxyl + 10.1) - ball.getPos()[1]) / (newPos[1] - ball.getPos()[1]);
-			ball.update(f*h, d);
+			ball.update(f*h, d, wind);
 			for (int i = 0; i < 3; i++) {
 				newPos[i] = ball.getPos()[i];
 			}
@@ -298,7 +300,7 @@ void IntegrateNextStep()
 		}
 		else if (newPos[2] > (boxzh - 10)) {
 			f = ((boxzh - 10) - ball.getPos()[2]) / (newPos[2] - ball.getPos()[2]);
-			ball.update(f*h, d);
+			ball.update(f*h, d, wind);
 			for (int i = 0; i < 3; i++) {
 				newPos[i] = ball.getPos()[i];
 			}
@@ -312,7 +314,7 @@ void IntegrateNextStep()
 		}
 		else if (newPos[2] < (boxzl + 10)) {
 			f = ((boxzl + 10) - ball.getPos()[2]) / (newPos[2] - ball.getPos()[2]);
-			ball.update(f*h, d);
+			ball.update(f*h, d, wind);
 			for (int i = 0; i < 3; i++) {
 				newPos[i] = ball.getPos()[i];
 			}
@@ -326,10 +328,10 @@ void IntegrateNextStep()
 		}
 		else //if not just update the state to the next time step
 		{
-			ball.update(timestepmain, d);
+			ball.update(timestepmain, d, wind);
 			timestepmain = 0;
 		}
-
+		
 	}//End of while loop
 
 }
@@ -393,6 +395,56 @@ void motion(int x, int y)
 	ychange = y - lasty;
 }
 
+void Keyboard(unsigned char key, int x, int y)
+{
+	switch (key)
+	{
+	case 27:             // ESCAPE key
+		exit(0);
+		break;
+	case 'w':
+		wind[1] += 1.0;
+		break;
+	case 's':
+		wind[1] -= 1.0;
+		break;
+	case 'a':
+		wind[0] -= 1.0;
+		break;
+	case 'd': 
+		wind[0] += 1.0;
+	case 'i':
+		wind[2] += 1.0;
+		break;
+	case 'k':
+		wind[2] -= 1.0;
+		break;
+	}
+}
+
+void KeyboardUp(unsigned char key, int x, int y)
+{
+	switch (key)
+	{
+	case 'w':
+		wind[1] = 0.0;
+		break;
+	case 's':
+		wind[1] = 0.0;
+		break;
+	case 'a':
+		wind[0] = 0.0;
+		break;
+	case 'd':
+		wind[0] = 0.0;
+	case 'i':
+		wind[2] = 0.0;
+		break;
+	case 'k':
+		wind[2] = 0.0;
+		break;
+	}
+}
 
 int main(int argc, char** argv)
 {
@@ -409,6 +461,8 @@ int main(int argc, char** argv)
 	glutDisplayFunc(display);
 	glutTimerFunc(100, timer, 0);
 	glutMouseFunc(mouse);
+	glutKeyboardFunc(Keyboard);
+	glutKeyboardUpFunc(KeyboardUp);
 	glutMotionFunc(motion);
 	glutIdleFunc(idle);
 	glutReshapeFunc(reshapeFunc);

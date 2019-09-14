@@ -12,7 +12,7 @@ public:
 
 	Ball();
 	float * getPos();
-	void update(float h, float d);
+	void update(float h, float d, float * wind);
 	~Ball();
 };
 
