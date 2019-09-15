@@ -35,17 +35,18 @@ float h = 1.0/SFPS; // Step size
 float d = 0.2; //air resistance constant
 float wind[3] = { 0.0,0.0,0.0 };
 float mu = 10; //friction constant
+char Gravity;
 
 clock_t initialTime = clock(), finalTime;
 float timeTaken, timestepmain, f, newPos[3];
-static const int FPS = 60;
+static const int FPS = 30;
 const int tMAX = 10;
 
 void display(void)
 {
 
 	GLfloat box_ambient[] = { 0.1, 0.1, 0.1 };
-	GLfloat smallr00[] = { 0.1, 0.0, 0.0 };
+	GLfloat smallr00[] = { 0.0, 0.0, 0.0 };
 	GLfloat small0g0[] = { 0.0, 0.1, 0.0 };
 	GLfloat small00b[] = { 0.0, 0.0, 0.1 };
 	GLfloat smallrg0[] = { 0.1, 0.1, 0.0 };
@@ -93,7 +94,7 @@ void display(void)
 
 	glBegin(GL_QUADS);
 	//back face
-	glMaterialfv(GL_FRONT, GL_AMBIENT, smallrgb);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, small0g0);
 	glVertex3f(boxxl, boxyl, boxzl);
 	glVertex3f(boxxh, boxyl, boxzl);
 	glVertex3f(boxxh, boxyh, boxzl);
@@ -107,28 +108,28 @@ void display(void)
 	glVertex3f(boxxl, boxyh, boxzh);
 
 	//right face
-	glMaterialfv(GL_FRONT, GL_AMBIENT, small00b);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, small0g0);
 	glVertex3f(boxxh, boxyl, boxzh);
 	glVertex3f(boxxh, boxyh, boxzh);
 	glVertex3f(boxxh, boxyh, boxzl);
 	glVertex3f(boxxh, boxyl, boxzl);
 
 	//bottom face
-	glMaterialfv(GL_FRONT, GL_AMBIENT, smallrg0);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, small0g0);
 	glVertex3f(boxxh, boxyl, boxzh);
 	glVertex3f(boxxh, boxyl, boxzl);
 	glVertex3f(boxxl, boxyl, boxzl);
 	glVertex3f(boxxl, boxyl, boxzh);
 
 	//top face
-	glMaterialfv(GL_FRONT, GL_AMBIENT, smallr0b);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, small0g0);
 	glVertex3f(boxxh, boxyh, boxzh);
 	glVertex3f(boxxl, boxyh, boxzh);
 	glVertex3f(boxxl, boxyh, boxzl);
 	glVertex3f(boxxh, boxyh, boxzl);
 
 	//front face
-	glMaterialfv(GL_FRONT, GL_AMBIENT, small0gb);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, small0g0);
 	glVertex3f(boxxh, boxyl, boxzh);
 	glVertex3f(boxxl, boxyl, boxzh);
 	glVertex3f(boxxl, boxyh, boxzh);
@@ -136,10 +137,10 @@ void display(void)
 
 	glEnd();
 	glDisable(GL_BLEND);
-	/*
-	glLineWidth(2.0);
+	
+	glLineWidth(3.0);
 	glBegin(GL_LINE_STRIP);
-	GLfloat lineColor[3] = { 0.2,0.5,0.0 };
+	GLfloat lineColor[3] = { 0.0,0.3,0.0 };
 	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
 	glVertex3f(boxxl, boxyl, boxzl);
 	glVertex3f(boxxh, boxyl, boxzl);
@@ -156,14 +157,49 @@ void display(void)
 	glVertex3f(boxxl, boxyh, boxzh);
 	glVertex3f(boxxl, boxyh, boxzh);
 	glEnd();
-	*/
+	
+	glBegin(GL_LINE_STRIP);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
+	glVertex3f(boxxh, boxyl, boxzh);
+	glVertex3f(boxxh, boxyh, boxzh);
+	glVertex3f(boxxh, boxyh, boxzl);
+	glVertex3f(boxxh, boxyl, boxzl);
+	glVertex3f(boxxh, boxyl, boxzh);
+	glEnd();
+
+	glBegin(GL_LINE_STRIP);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
+	glVertex3f(boxxh, boxyl, boxzh);
+	glVertex3f(boxxh, boxyl, boxzl);
+	glVertex3f(boxxl, boxyl, boxzl);
+	glVertex3f(boxxl, boxyl, boxzh);
+	glVertex3f(boxxh, boxyl, boxzh);
+	glEnd();
+
+	glBegin(GL_LINE_STRIP);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
+	glVertex3f(boxxh, boxyh, boxzh);
+	glVertex3f(boxxl, boxyh, boxzh);
+	glVertex3f(boxxl, boxyh, boxzl);
+	glVertex3f(boxxh, boxyh, boxzl);
+	glVertex3f(boxxh, boxyh, boxzh);
+	glEnd();
+
+	glBegin(GL_LINE_STRIP);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
+	glVertex3f(boxxh, boxyl, boxzh);
+	glVertex3f(boxxl, boxyl, boxzh);
+	glVertex3f(boxxl, boxyh, boxzh);
+	glVertex3f(boxxh, boxyh, boxzh);
+	glVertex3f(boxxh, boxyl, boxzh);
+	glEnd();
 
 	//draw the ball
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ball_ambient);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, ball_diffuse);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ball_specular);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, ball_shininess);
-	glMaterialfv(GL_FRONT, GL_AMBIENT, smallrgb);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, smallr0b);
 	glPushMatrix();
 	glTranslatef(ball.getPos()[0], ball.getPos()[1], ball.getPos()[2]);
 	glutSolidSphere(5, 10, 10);
@@ -244,7 +280,7 @@ void IntegrateNextStep()
 
 		if (newPos[0] > (boxxh - 10)) {
 			f = ((boxxh - 10) - ball.getPos()[0]) / (newPos[0] - ball.getPos()[0]);
-			ball.update(f*h, d, wind);
+			ball.update(f*h, d, wind, Gravity);
 			for (int i = 0; i < 3; i++) {
 				newPos[i] = ball.getPos()[i];
 			}
@@ -258,7 +294,7 @@ void IntegrateNextStep()
 		}
 		else if (newPos[0] < (boxxl + 10)) {
 			f = ((boxxl + 10) - ball.getPos()[0]) / (newPos[0] - ball.getPos()[0]);
-			ball.update(f*h, d, wind);
+			ball.update(f*h, d, wind, Gravity);
 			for (int i = 0; i < 3; i++) {
 				newPos[i] = ball.getPos()[i];
 			}
@@ -272,7 +308,7 @@ void IntegrateNextStep()
 		}
 		else if (newPos[1] > (boxyh - 10)) {
 			f = ((boxyh - 10) - ball.getPos()[1]) / (newPos[1] - ball.getPos()[1]);
-			ball.update(f*h, d, wind);
+			ball.update(f*h, d, wind, Gravity);
 			for (int i = 0; i < 3; i++) {
 				newPos[i] = ball.getPos()[i];
 			}
@@ -286,7 +322,7 @@ void IntegrateNextStep()
 		}
 		else if (newPos[1] < (boxyl + 10)) {
 			f = ((boxyl + 10.1) - ball.getPos()[1]) / (newPos[1] - ball.getPos()[1]);
-			ball.update(f*h, d, wind);
+			ball.update(f*h, d, wind, Gravity);
 			for (int i = 0; i < 3; i++) {
 				newPos[i] = ball.getPos()[i];
 			}
@@ -300,7 +336,7 @@ void IntegrateNextStep()
 		}
 		else if (newPos[2] > (boxzh - 10)) {
 			f = ((boxzh - 10) - ball.getPos()[2]) / (newPos[2] - ball.getPos()[2]);
-			ball.update(f*h, d, wind);
+			ball.update(f*h, d, wind, Gravity);
 			for (int i = 0; i < 3; i++) {
 				newPos[i] = ball.getPos()[i];
 			}
@@ -314,7 +350,7 @@ void IntegrateNextStep()
 		}
 		else if (newPos[2] < (boxzl + 10)) {
 			f = ((boxzl + 10) - ball.getPos()[2]) / (newPos[2] - ball.getPos()[2]);
-			ball.update(f*h, d, wind);
+			ball.update(f*h, d, wind, Gravity);
 			for (int i = 0; i < 3; i++) {
 				newPos[i] = ball.getPos()[i];
 			}
@@ -328,7 +364,7 @@ void IntegrateNextStep()
 		}
 		else //if not just update the state to the next time step
 		{
-			ball.update(timestepmain, d, wind);
+			ball.update(timestepmain, d, wind, Gravity);
 			timestepmain = 0;
 		}
 		
@@ -348,7 +384,8 @@ void idle(void)
 		if (spinup < -89.0) spinup = -89.0;
 	}
 
-	for (float t = 0; t < 1.0/30; t += h) {
+
+	for (float t = 0; t < 1.0/FPS; t += h) {
 		IntegrateNextStep();
 	}
 	
@@ -394,7 +431,30 @@ void motion(int x, int y)
 	xchange = x - lastx;
 	ychange = y - lasty;
 }
-
+void VelocityControl(int key, int x, int y)
+{
+	switch (key)
+	{
+	case GLUT_KEY_DOWN:
+		ball.velocity[1] -= 100;
+		break;
+	case GLUT_KEY_UP:
+		ball.velocity[1] += 100;
+		break;
+	case GLUT_KEY_LEFT:
+		ball.velocity[0] -= 100;
+		break;
+	case GLUT_KEY_RIGHT:
+		ball.velocity[0] += 100;
+		break;
+	case GLUT_KEY_PAGE_UP:
+		ball.velocity[2] += 100;
+		break;
+	case GLUT_KEY_PAGE_DOWN:
+		ball.velocity[2] -= 100;
+		break;
+	}
+}
 void Keyboard(unsigned char key, int x, int y)
 {
 	switch (key)
@@ -414,10 +474,19 @@ void Keyboard(unsigned char key, int x, int y)
 	case 'd': 
 		wind[0] += 1.0;
 	case 'i':
-		wind[2] += 1.0;
+		wind[2] -= 1.0;
 		break;
 	case 'k':
-		wind[2] -= 1.0;
+		wind[2] += 1.0;
+		break;
+	case 'c':
+		ball.velocity[0] += -ball.position[0];
+		ball.velocity[1] += -ball.position[1];
+		ball.velocity[2] += -ball.position[2];
+	case 'o':
+		wind[0] = -100.0/ball.position[0];
+		wind[1] = -100.0/ball.position[1];
+		wind[2] = -100.0/ball.position[2];
 		break;
 	}
 }
@@ -443,6 +512,11 @@ void KeyboardUp(unsigned char key, int x, int y)
 	case 'k':
 		wind[2] = 0.0;
 		break;
+	case 'o':
+		wind[0] = 0;
+		wind[1] = 0;
+		wind[2] = 0;
+		break;
 	}
 }
 
@@ -462,14 +536,27 @@ int main(int argc, char** argv)
 	glutTimerFunc(100, timer, 0);
 	glutMouseFunc(mouse);
 	glutKeyboardFunc(Keyboard);
+	glutSpecialFunc(VelocityControl);
 	glutKeyboardUpFunc(KeyboardUp);
 	glutMotionFunc(motion);
 	glutIdleFunc(idle);
 	glutReshapeFunc(reshapeFunc);
-
+	/*
+	printf("Enter the value of Euler time step : ");
+	scanf_s("%f", &h);
+	printf("Do you want gravity? (y/n) : ");
+	scanf_s(" %c", &Gravity);
+	printf("Initial Position? (d for default)");
+	scanf_s("%f %f %f", &ball.position[0], &ball.position[1], &ball.position[2]);
+	printf("Air resistance constant:");
+	scanf_s(" %f", &d);
+	printf("Friction constant :");
+	scanf_s(" %f", &mu);
+	system("CLC");
+	printf("------------------Controls---------------------");
+	printf("Press 'c' to accelerate towards the center");
+	*/
 	glutMainLoop();
-
-
 	
 	return 0;
 }
