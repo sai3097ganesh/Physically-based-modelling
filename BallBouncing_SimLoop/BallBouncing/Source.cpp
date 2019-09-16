@@ -463,16 +463,16 @@ void Keyboard(unsigned char key, int x, int y)
 		exit(0);
 		break;
 	case 'w':
-		wind[1] += 1.0;
+		wind[1] = 100.0;
 		break;
 	case 's':
-		wind[1] -= 1.0;
+		wind[1] = -100.0;
 		break;
 	case 'a':
-		wind[0] -= 1.0;
+		wind[0] = -100.0;
 		break;
 	case 'd': 
-		wind[0] += 1.0;
+		wind[0] = 100.0;
 	case 'i':
 		wind[2] -= 1.0;
 		break;
@@ -483,10 +483,11 @@ void Keyboard(unsigned char key, int x, int y)
 		ball.velocity[0] += -ball.position[0];
 		ball.velocity[1] += -ball.position[1];
 		ball.velocity[2] += -ball.position[2];
+		break;
 	case 'o':
-		wind[0] = -100.0/ball.position[0];
-		wind[1] = -100.0/ball.position[1];
-		wind[2] = -100.0/ball.position[2];
+		wind[0] = -ball.position[0];
+		wind[1] = -ball.position[1];
+		wind[2] = -ball.position[2];
 		break;
 	}
 }

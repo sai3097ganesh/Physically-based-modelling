@@ -12,9 +12,11 @@ c:\users\sai3097ganesh\documents\github\physically-based-modelling\ballbouncing_
 c:\users\sai3097ganesh\documents\github\physically-based-modelling\ballbouncing_simloop\ballbouncing\source.cpp(61): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
 c:\users\sai3097ganesh\documents\github\physically-based-modelling\ballbouncing_simloop\ballbouncing\source.cpp(62): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
 c:\users\sai3097ganesh\documents\github\physically-based-modelling\ballbouncing_simloop\ballbouncing\source.cpp(143): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\ballbouncing_simloop\ballbouncing\source.cpp(525): warning C4101: 'SubMenu4': unreferenced local variable
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\ballbouncing_simloop\ballbouncing\source.cpp(525): warning C4101: 'SubMenu1': unreferenced local variable
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\ballbouncing_simloop\ballbouncing\source.cpp(525): warning C4101: 'SubMenu3': unreferenced local variable
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\ballbouncing_simloop\ballbouncing\source.cpp(525): warning C4101: 'SubMenu2': unreferenced local variable
+c:\users\sai3097ganesh\documents\github\physically-based-modelling\ballbouncing_simloop\ballbouncing\source.cpp(526): warning C4101: 'SubMenu4': unreferenced local variable
+c:\users\sai3097ganesh\documents\github\physically-based-modelling\ballbouncing_simloop\ballbouncing\source.cpp(526): warning C4101: 'SubMenu1': unreferenced local variable
+c:\users\sai3097ganesh\documents\github\physically-based-modelling\ballbouncing_simloop\ballbouncing\source.cpp(526): warning C4101: 'SubMenu3': unreferenced local variable
+c:\users\sai3097ganesh\documents\github\physically-based-modelling\ballbouncing_simloop\ballbouncing\source.cpp(526): warning C4101: 'SubMenu2': unreferenced local variable
+  ball.cpp
+  Generating Code...
   BallBouncing.vcxproj -> C:\Users\sai3097ganesh\Documents\GitHub\Physically-based-modelling\BallBouncing_SimLoop\Debug\BallBouncing.exe
   BallBouncing.vcxproj -> C:\Users\sai3097ganesh\Documents\GitHub\Physically-based-modelling\BallBouncing_SimLoop\Debug\BallBouncing.pdb (Partial PDB)
