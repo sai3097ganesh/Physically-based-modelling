@@ -29,9 +29,8 @@ float spinup = 0.0;
 
 float timeSinceLast = 0;
 int frameTime = 0;
-static const int SFPS = 30;
 
-float h = 1.0/SFPS; // Step size 
+float h = 0.01; // Step size 
 float d = 0.5; //air resistance constant
 float wind[3] = { 0.0,0.0,0.0 };
 float mu = 0.1; //friction constant
@@ -214,7 +213,8 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, ball_diffuse);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ball_specular);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, ball_shininess);
-	glMaterialfv(GL_FRONT, GL_AMBIENT, smallr0b);
+	GLfloat ballColor[] = {0.5, 0.2, 0.2};
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ballColor);
 	glPushMatrix();
 	glTranslatef(ball.getPos()[0], ball.getPos()[1], ball.getPos()[2]);
 	glutSolidSphere(5, 10, 10);
@@ -248,10 +248,10 @@ void init(void)
 	gluLookAt(0, 225, 300, 0, 0, 0, 0, 1, 0);
 
 	// Set up lights
-	GLfloat light0color[] = { 1.0, 1.0, 1.0 };
-	GLfloat light0pos[] = { 0, 500, 300 };
-	GLfloat light1color[] = { 1.0, 1.0, 1.0 };
-	GLfloat light1pos[] = { 300, 300, 300 };
+	GLfloat light0color[] = { 0.5, 0.5, 0.5 };
+	GLfloat light0pos[] = { 500, 500, 300 };
+	GLfloat light1color[] = { 0.5, 0.5, 0.5 };
+	GLfloat light1pos[] = { 1000, 1000, 1000 };
 	glLightfv(GL_LIGHT0, GL_POSITION, light0pos);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light0color);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0color);
