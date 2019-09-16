@@ -7,11 +7,11 @@
 #include <cmath>
 #include <math.h>
 #include <algorithm>
-
+#include <vector>
 #include <Windows.h>
 Ball ball;
 
-//using namespace std;
+using namespace std;
 
 double ballx, bally, ballz;  //The position of the ball - you can set this in your code
 
@@ -46,7 +46,7 @@ void display(void)
 
 	GLfloat box_ambient[] = { 0.1, 0.1, 0.1 };
 	GLfloat smallr00[] = { 0.0, 0.0, 0.0 };
-	GLfloat small0g0[] = { 0.0, 0.1, 0.0 };
+	GLfloat small0g0[] = { 0.0, 0.075, 0.0 };
 	GLfloat small00b[] = { 0.0, 0.0, 0.1 };
 	GLfloat smallrg0[] = { 0.1, 0.1, 0.0 };
 	GLfloat smallr0b[] = { 0.1, 0.0, 0.1 };
@@ -541,6 +541,25 @@ void KeyboardUp(unsigned char key, int x, int y)
 	}
 }
 
+void GetInput()
+{
+	printf("Enter the value of Euler time step : ");
+	scanf_s("%f", &h);
+	printf("Do you want gravity? (y/n) : ");
+	scanf_s(" %c", &Gravity);
+	printf("Initial Position? (d for default) ");
+	scanf_s("%f %f %f", &ball.position[0], &ball.position[1], &ball.position[2]);
+	printf("Initial Velocity? (d for default) ");
+	scanf_s("%f %f %f", &ball.velocity[0], &ball.velocity[1], &ball.velocity[2]);
+	printf("Air resistance constant:");
+	scanf_s(" %f", &d);
+	printf("Friction constant :");
+	scanf_s(" %f", &mu);
+	system("CLS");
+	printf("------------------Controls---------------------\n");
+	printf("Press 'c' to accelerate towards the center\n");
+}
+
 int main(int argc, char** argv)
 {
 	GLint SubMenu1, SubMenu2, SubMenu3, SubMenu4;
@@ -562,21 +581,12 @@ int main(int argc, char** argv)
 	glutMotionFunc(motion);
 	glutIdleFunc(idle);
 	glutReshapeFunc(reshapeFunc);
-	/*
-	printf("Enter the value of Euler time step : ");
-	scanf_s("%f", &h);
-	printf("Do you want gravity? (y/n) : ");
-	scanf_s(" %c", &Gravity);
-	printf("Initial Position? (d for default)");
-	scanf_s("%f %f %f", &ball.position[0], &ball.position[1], &ball.position[2]);
-	printf("Air resistance constant:");
-	scanf_s(" %f", &d);
-	printf("Friction constant :");
-	scanf_s(" %f", &mu);
-	system("CLC");
-	printf("------------------Controls---------------------");
-	printf("Press 'c' to accelerate towards the center");
-	*/
+	//GetInput();
+
+	vector<int> v1 = {3,1,2};
+	vector<int> v2 = { 1,2,3 };
+	printf("%d");
+
 	glutMainLoop();
 	
 	return 0;
