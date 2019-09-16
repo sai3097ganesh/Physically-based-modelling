@@ -32,9 +32,9 @@ int frameTime = 0;
 static const int SFPS = 30;
 
 float h = 1.0/SFPS; // Step size 
-float d = 0.2; //air resistance constant
+float d = 0.5; //air resistance constant
 float wind[3] = { 0.0,0.0,0.0 };
-float mu = 10; //friction constant
+float mu = 0.1; //friction constant
 char Gravity;
 
 clock_t initialTime = clock(), finalTime;
@@ -92,6 +92,12 @@ void display(void)
 	//glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
 	//glColor4f(0.0, 0.0, 1.0, 1.0);
 
+	boxxl = -100.5;
+	boxxh = 100.5;
+	boxyl = -100.5;
+	boxyh = 100.5;
+	boxzl = -100.5;
+	boxzh = 100.5;
 	glBegin(GL_QUADS);
 	//back face
 	glMaterialfv(GL_FRONT, GL_AMBIENT, small0g0);
@@ -137,7 +143,14 @@ void display(void)
 
 	glEnd();
 	glDisable(GL_BLEND);
-	
+
+	boxxl = -100;
+	boxxh = 100;
+	boxyl = -100;
+	boxyh = 100;
+	boxzl = -100;
+	boxzh = 100;
+
 	glLineWidth(3.0);
 	glBegin(GL_LINE_STRIP);
 	GLfloat lineColor[3] = { 0.0,0.3,0.0 };
@@ -193,6 +206,8 @@ void display(void)
 	glVertex3f(boxxh, boxyh, boxzh);
 	glVertex3f(boxxh, boxyl, boxzh);
 	glEnd();
+
+
 
 	//draw the ball
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ball_ambient);
@@ -488,6 +503,11 @@ void Keyboard(unsigned char key, int x, int y)
 		wind[0] = -ball.position[0];
 		wind[1] = -ball.position[1];
 		wind[2] = -ball.position[2];
+		break;
+	case 32:
+		ball.velocity[0] = 0;
+		ball.velocity[1] = 0;
+		ball.velocity[2] = 0;
 		break;
 	}
 }
