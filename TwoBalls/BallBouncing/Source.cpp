@@ -13,7 +13,7 @@
 Ball ball_1;
 Ball ball_2;
 
-float radius_1 = 10;
+float radius_1 = 5;
 float radius_2 = 10;
 float normal[3];
 float VNorm[3];
