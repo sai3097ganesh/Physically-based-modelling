@@ -17,6 +17,7 @@ float radius_1 = 10;
 float radius_2 = 10;
 float normal[3];
 float VNorm[3];
+float Distance_btw_balls_old;
 using namespace std;
 
 double ballx, bally, ballz;  //The position of the ball - you can set this in your code
@@ -36,7 +37,7 @@ float spinup = 0.0;
 float timeSinceLast = 0;
 int frameTime = 0;
 
-float h = 0.01; // Step size 
+float h = 0.001; // Step size 
 float d = 0.5; //air resistance constant
 float wind[3] = { 0.0,0.0,0.0 };
 float mu = 0.1; //friction constant
@@ -312,8 +313,8 @@ void IntegrateNextStep()
 	//Checking whether the ball would collide in the next time step
 	while (timestepmain > 0) {
 
-		float Distance_btw_balls = sqrt(pow((ball_1.position[0] - ball_2.position[0]), 2.0) + pow((ball_1.position[1] - ball_2.position[1]), 2.0) + pow((ball_1.position[2] - ball_2.position[2]), 2.0));
-
+		float Distance_btw_balls = sqrt(pow((newPos[0] - newPos_2[0]), 2.0) + pow((newPos[1] - newPos_2[1]), 2.0) + pow((newPos[2] - newPos_2[2]), 2.0));
+		
 		if (newPos[0] > (boxxh - 10)) {
 			f = ((boxxh - 10) - ball_1.getPos()[0]) / (newPos[0] - ball_1.getPos()[0]);
 			ball_1.update(f*h, d, wind, Gravity);
@@ -488,25 +489,29 @@ void IntegrateNextStep()
 
 		else if(Distance_btw_balls<(radius_1+radius_2)){
 
-			printf("%f \n", Distance_btw_balls);
-			normal[0] = (ball_1.position[0] - ball_2.position[0]) / Distance_btw_balls;
-			normal[1] = (ball_1.position[1] - ball_2.position[1]) / Distance_btw_balls;
-			normal[2] = (ball_1.position[2] - ball_2.position[2]) / Distance_btw_balls;
+			
+			Distance_btw_balls_old = sqrt(pow((ball_1.position[0] - ball_2.position[0]), 2.0) + pow((ball_1.position[1] - ball_2.position[1]), 2.0) + pow((ball_1.position[2] - ball_2.position[2]), 2.0));
+			f = (Distance_btw_balls_old - (radius_1 + radius_2)) / (Distance_btw_balls_old-Distance_btw_balls);
+			normal[0] = (ball_1.position[0] - ball_2.position[0]) / Distance_btw_balls_old;
+			normal[1] = (ball_1.position[1] - ball_2.position[1]) / Distance_btw_balls_old;
+			normal[2] = (ball_1.position[2] - ball_2.position[2]) / Distance_btw_balls_old;
 
-			VNorm[0] = (ball_1.velocity[0] - ball_2.velocity[0])*normal[0];
-			VNorm[1] = (ball_1.velocity[1] - ball_2.velocity[1])*normal[1];
-			VNorm[2] = (ball_1.velocity[2] - ball_2.velocity[2])*normal[2];
+			VNorm[0] = (ball_1.velocity[0] - ball_2.velocity[0])*normal[0]*normal[0];
+			VNorm[1] = (ball_1.velocity[1] - ball_2.velocity[1])*normal[1]*normal[1];
+			VNorm[2] = (ball_1.velocity[2] - ball_2.velocity[2])*normal[2]*normal[2];
+			printf("%f \n", f);
 
-			ball_1.velocity[0] = ball_1.velocity[0] + VNorm[0];
-			ball_1.velocity[1] = ball_1.velocity[1] + VNorm[1];
-			ball_1.velocity[2] = ball_1.velocity[2] + VNorm[2];
+			ball_1.update(f*h, d, wind, Gravity);
+			ball_2.update(f*h, d, wind, Gravity);
 
-			ball_2.velocity[0] = ball_2.velocity[0] - VNorm[0];
-			ball_2.velocity[1] = ball_2.velocity[1] - VNorm[1];
-			ball_2.velocity[2] = ball_2.velocity[2] - VNorm[2];
+			ball_1.velocity[0] = ball_1.velocity[0] - VNorm[0];
+			ball_1.velocity[1] = ball_1.velocity[1] - VNorm[1];
+			ball_1.velocity[2] = ball_1.velocity[2] - VNorm[2];
 
-			ball_1.update(h, d, wind, Gravity);
-			ball_2.update(h, d, wind, Gravity);
+			ball_2.velocity[0] = ball_2.velocity[0] + VNorm[0];
+			ball_2.velocity[1] = ball_2.velocity[1] + VNorm[1];
+			ball_2.velocity[2] = ball_2.velocity[2] + VNorm[2];
+			
 			timestepmain = 0;
 		}
 		else //if not just update the state to the next time step
@@ -727,10 +732,6 @@ int main(int argc, char** argv)
 	glutIdleFunc(idle);
 	glutReshapeFunc(reshapeFunc);
 	//GetInput();
-
-	vector<int> v1 = {3,1,2};
-	vector<int> v2 = { 1,2,3 };
-	printf("%d");
 
 	glutMainLoop();
 	
