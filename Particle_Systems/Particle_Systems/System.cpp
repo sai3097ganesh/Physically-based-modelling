@@ -31,6 +31,7 @@ void System::TestDeactivate() {
 	for (int i = 0; i < n_particles; i++) {
 		if (particle[i].active == true) {
 			if (particle[i].lifespan < 1) {
+				printf("Ball deleted! \n");
 				particle[i].active = false;
 				inactive[inactivecount] = i;
 				inactivecount++;
@@ -62,7 +63,7 @@ void System::integrate(float h) {
 	//Checking whether the particle would collide in the next time step
 
 	for (int k = 0; k < n_particles; k++) {
-
+		if (particle[k].active == true) {
 		while (timestepmain[k] > 0) {
 
 			if (newPos[k][0] > (boxxh - 10)) {
@@ -164,7 +165,11 @@ void System::integrate(float h) {
 			}
 
 		}
+
+		particle[k].lifespan--;
+		}
 	}//End of for loop
+
 }
 System::~System()
 {

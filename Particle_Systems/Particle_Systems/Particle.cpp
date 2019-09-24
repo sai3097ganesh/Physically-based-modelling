@@ -31,9 +31,11 @@ void Particle::update(float h, float d, float * wind, char G) {
 }
 void Particle::init()
 {
-	srand(time(NULL));
+	lifespan = 500;
 	position[0] = 0; position[1] = 0; position[2] = 0;
-	velocity[0] = (float)rand()/RAND_MAX; velocity[1] = (float)rand()/RAND_MAX; velocity[2] = (float)rand() / RAND_MAX;
+	velocity[0] = 100.0*((float)rand()/RAND_MAX-0.5);
+	velocity[1] = 100.0*((float)rand()/RAND_MAX-0.5);
+	velocity[2] = 100.0*((float)rand()/RAND_MAX-0.5);
 }
 Particle::~Particle()
 {

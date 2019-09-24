@@ -10,6 +10,8 @@
 #include <vector>
 #include <Windows.h>
 #include "System.h"
+#include<ctime>
+
 
 System ball_system;
 
@@ -33,7 +35,7 @@ float spinup = 0.0;
 float timeSinceLast = 0;
 int frameTime = 0;
 
-float h = 0.001; // Step size 
+float h = 0.01; // Step size 
 
 char Gravity;
 float timeTaken;
@@ -308,6 +310,8 @@ void idle(void)
 
 
 	for (float t = 0; t < 1.0 / FPS; t += h) {
+		ball_system.GenerateParticles();
+		ball_system.TestDeactivate();
 		ball_system.integrate(h);
 	}
 
@@ -358,6 +362,8 @@ void motion(int x, int y)
 
 int main(int argc, char** argv)
 {
+	srand(time(NULL));
+
 	GLint SubMenu1, SubMenu2, SubMenu3, SubMenu4;
 
 	glutInit(&argc, argv);

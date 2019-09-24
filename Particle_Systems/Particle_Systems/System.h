@@ -3,7 +3,8 @@
 #include <math.h>
 #include <Windows.h>
 #include <cmath>
-
+#include <iostream>
+#include <time.h>
 class System
 {
 public:
@@ -11,7 +12,7 @@ public:
 	Particle *particle;
 	int inactivecount = n_particles;
 	int inactive[n_particles];
-	int n_generate = 100;
+	int n_generate = 1;
 	float newPos[n_particles][3];
 	float timestepmain[n_particles], f;
 	float d = 0.5; //air resistance constant
@@ -24,7 +25,6 @@ public:
 	float boxzl = -100;
 	float boxzh = 100;
 	char Gravity = 'y';
-
 
 	System();
 	void clear();
