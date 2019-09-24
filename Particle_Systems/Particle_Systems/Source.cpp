@@ -353,131 +353,8 @@ void motion(int x, int y)
 	xchange = x - lastx;
 	ychange = y - lasty;
 }
-void VelocityControl(int key, int x, int y)
-{
-	switch (key)
-	{
-	case GLUT_KEY_DOWN:
-		ball[0].velocity[1] -= 100;
-		break;
-	case GLUT_KEY_UP:
-		ball[0].velocity[1] += 100;
-		break;
-	case GLUT_KEY_LEFT:
-		ball[0].velocity[0] -= 100;
-		break;
-	case GLUT_KEY_RIGHT:
-		ball[0].velocity[0] += 100;
-		break;
-	case GLUT_KEY_PAGE_UP:
-		ball[0].velocity[2] += 100;
-		break;
-	case GLUT_KEY_PAGE_DOWN:
-		ball[0].velocity[2] -= 100;
-		break;
-	}
-}
-void Keyboard(unsigned char key, int x, int y)
-{
-	switch (key)
-	{
-	case 27:             // ESCAPE key
-		exit(0);
-		break;
-	case 'w':
-		wind[1] = 100.0;
-		break;
-	case 's':
-		wind[1] = -100.0;
-		break;
-	case 'a':
-		wind[0] = -100.0;
-		break;
-	case 'd':
-		wind[0] = 100.0;
-	case 'i':
-		wind[2] -= 1.0;
-		break;
-	case 'k':
-		wind[2] += 1.0;
-		break;
-	case 'c':
-		ball[0].velocity[0] += -ball[0].position[0];
-		ball[0].velocity[1] += -ball[0].position[1];
-		ball[0].velocity[2] += -ball[0].position[2];
-		break;
-	case 'o':
-		wind[0] = -ball[0].position[0];
-		wind[1] = -ball[0].position[1];
-		wind[2] = -ball[0].position[2];
-		break;
-	case 32:
-		ball[0].velocity[0] = 0;
-		ball[0].velocity[1] = 0;
-		ball[0].velocity[2] = 0;
-		break;
-	case 'g':
-		ball[1].velocity[1] -= 100;
-		break;
-	case 't':
-		ball[1].velocity[1] += 100;
-		break;
-	case 'f':
-		ball[1].velocity[0] -= 100;
-		break;
-	case 'h':
-		ball[1].velocity[0] += 100;
-		break;
-	}
-}
 
-void KeyboardUp(unsigned char key, int x, int y)
-{
-	switch (key)
-	{
-	case 'w':
-		wind[1] = 0.0;
-		break;
-	case 's':
-		wind[1] = 0.0;
-		break;
-	case 'a':
-		wind[0] = 0.0;
-		break;
-	case 'd':
-		wind[0] = 0.0;
-	case 'i':
-		wind[2] = 0.0;
-		break;
-	case 'k':
-		wind[2] = 0.0;
-		break;
-	case 'o':
-		wind[0] = 0;
-		wind[1] = 0;
-		wind[2] = 0;
-		break;
-	}
-}
 
-void GetInput()
-{
-	printf("Enter the value of Euler time step : ");
-	scanf_s("%f", &h);
-	printf("Do you want gravity? (y/n) : ");
-	scanf_s(" %c", &Gravity);
-	printf("Initial Position? (d for default) ");
-	scanf_s("%f %f %f", &ball[0].position[0], &ball[0].position[1], &ball[0].position[2]);
-	printf("Initial Velocity? (d for default) ");
-	scanf_s("%f %f %f", &ball[0].velocity[0], &ball[0].velocity[1], &ball[0].velocity[2]);
-	printf("Air resistance constant:");
-	scanf_s(" %f", &d);
-	printf("Friction constant :");
-	scanf_s(" %f", &mu);
-	system("CLS");
-	printf("------------------Controls---------------------\n");
-	printf("Press 'c' to accelerate towards the center\n");
-}
 
 int main(int argc, char** argv)
 {
@@ -494,13 +371,9 @@ int main(int argc, char** argv)
 	glutDisplayFunc(display);
 	glutTimerFunc(100, timer, 0);
 	glutMouseFunc(mouse);
-	glutKeyboardFunc(Keyboard);
-	glutSpecialFunc(VelocityControl);
-	glutKeyboardUpFunc(KeyboardUp);
 	glutMotionFunc(motion);
 	glutIdleFunc(idle);
 	glutReshapeFunc(reshapeFunc);
-	//GetInput();
 
 	glutMainLoop();
 

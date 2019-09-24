@@ -1,9 +1,6 @@
 #include "System.h"
 
 
-
-
-
 System::System()
 {
 	particle = new Particle[n_particles];
@@ -63,8 +60,6 @@ void System::integrate(float h) {
 
 	float tangent_vector;
 	//Checking whether the particle would collide in the next time step
-
-
 
 	for (int k = 0; k < n_particles; k++) {
 

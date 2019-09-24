@@ -1,25 +1,2 @@
-﻿  Source.cpp
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(54): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(56): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(57): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(58): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(59): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(60): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(61): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(63): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(64): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(66): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(67): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(68): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(162): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(224): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(699): warning C4473: 'scanf_s' : not enough arguments passed for format string
-  c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(699): note: placeholders and their parameters expect 2 variadic arguments, but 1 were provided
-  c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(699): note: the missing variadic argument 2 is required by format string '%c'
-  c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(699): note: this argument is used as a buffer size
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(715): warning C4101: 'SubMenu4': unreferenced local variable
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(715): warning C4101: 'SubMenu1': unreferenced local variable
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(715): warning C4101: 'SubMenu3': unreferenced local variable
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\twoballs\ballbouncing\source.cpp(715): warning C4101: 'SubMenu2': unreferenced local variable
-  BallBouncing.vcxproj -> C:\Users\sai3097ganesh\Documents\GitHub\Physically-based-modelling\TwoBalls\Debug\BallBouncing.exe
-  BallBouncing.vcxproj -> C:\Users\sai3097ganesh\Documents\GitHub\Physically-based-modelling\TwoBalls\Debug\BallBouncing.pdb (Partial PDB)
+﻿  BallBouncing.vcxproj -> C:\Users\Sai Ganesh\Desktop\GitHub\Physically-based-modelling\01 TwoBalls\Debug\BallBouncing.exe
+  BallBouncing.vcxproj -> C:\Users\Sai Ganesh\Desktop\GitHub\Physically-based-modelling\01 TwoBalls\Debug\BallBouncing.pdb (Partial PDB)
