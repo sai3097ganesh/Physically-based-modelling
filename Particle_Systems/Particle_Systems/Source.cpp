@@ -3,24 +3,20 @@
 #include <glut.h>
 #include <stdio.h>
 #include <time.h>
-#include "ball.h"
+#include "Particle.h"
 #include <cmath>
 #include <math.h>
 #include <algorithm>
 #include <vector>
 #include <Windows.h>
 
-Ball ball_1;
-Ball ball_2;
+static const int NBALLS = 10000;
+Particle ball[NBALLS];
 
-float radius_1 = 10;
-float radius_2 = 10;
 float normal[3];
 float VNorm[3];
-float Distance_btw_balls_old;
+float Distance_btw_balls_old, Distance_btw_balls;
 using namespace std;
-
-double ballx, bally, ballz;  //The position of the ball - you can set this in your code
 
 double boxxl, boxxh, boxyl, boxyh, boxzl, boxzh;  // The low and high x, y, z values for the box sides
 
@@ -44,7 +40,8 @@ float mu = 0.1; //friction constant
 char Gravity;
 
 clock_t initialTime = clock(), finalTime;
-float timeTaken, timestepmain, f, newPos[3], newPos_2[3];
+float timeTaken, timestepmain[NBALLS], f;
+float newPos[NBALLS][3];
 static const int FPS = 30;
 const int tMAX = 10;
 
@@ -75,18 +72,6 @@ void display(void)
 	//rotate the view
 	glRotatef(spinup, 1.0, 0.0, 0.0);
 	glRotatef(spin, 0.0, 1.0, 0.0);
-
-	/*
-	8 vertices:
-	glVertex3f(boxxl, boxyl, boxzl);
-	glVertex3f(boxxh, boxyl, boxzl);
-	glVertex3f(boxxh, boxyh, boxzl);
-	glVertex3f(boxxl, boxyh, boxzl);
-	glVertex3f(boxxl, boxyl, boxzh);
-	glVertex3f(boxxh, boxyl, boxzh);
-	glVertex3f(boxxh, boxyh, boxzh);
-	glVertex3f(boxxl, boxyh, boxzh);
-	*/
 
 	//Draw the box
 	//set material parameters
@@ -147,6 +132,15 @@ void display(void)
 	glVertex3f(boxxl, boxyh, boxzh);
 	glVertex3f(boxxh, boxyh, boxzh);
 
+	//front face
+	glMaterialfv(GL_FRONT, GL_AMBIENT, smallr00);
+	glVertex3f(0, -50, -50);
+	glVertex3f(0, 50, -50);
+	glVertex3f(0, 50, 50);
+	glVertex3f(0, -50, 50);
+
+	
+
 	glEnd();
 	glDisable(GL_BLEND);
 
@@ -176,7 +170,7 @@ void display(void)
 	glVertex3f(boxxl, boxyh, boxzh);
 	glVertex3f(boxxl, boxyh, boxzh);
 	glEnd();
-	
+
 	glBegin(GL_LINE_STRIP);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
 	glVertex3f(boxxh, boxyl, boxzh);
@@ -213,7 +207,14 @@ void display(void)
 	glVertex3f(boxxh, boxyl, boxzh);
 	glEnd();
 
-
+	glBegin(GL_LINE_STRIP);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
+	glVertex3f(0, -50, -50);
+	glVertex3f(0, 50, -50);
+	glVertex3f(0, 50, 50);
+	glVertex3f(0, -50, 50);
+	glVertex3f(0, -50, -50);
+	glEnd();
 
 	//draw the ball
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ball_ambient);
@@ -221,18 +222,15 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ball_specular);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, ball_shininess);
 
-	GLfloat ballColor[] = {0.5, 0.2, 0.2};
+	GLfloat ballColor[] = { 0.5, 0.2, 0.2 };
 	glMaterialfv(GL_FRONT, GL_AMBIENT, ballColor);
 
-	glPushMatrix();
-	glTranslatef(ball_1.getPos()[0], ball_1.getPos()[1], ball_1.getPos()[2]);
-	glutSolidSphere(radius_1, 20, 20);
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslatef(ball_2.getPos()[0], ball_2.getPos()[1], ball_2.getPos()[2]);
-	glutSolidSphere(radius_2, 20, 20);
-	glPopMatrix();
+	for (int i = 0; i < NBALLS; i++) {
+		glPushMatrix();
+		glTranslatef(ball[i].getPos()[0], ball[i].getPos()[1], ball[i].getPos()[2]);
+		glutSolidSphere(ball[i].radius, 20, 20);
+		glPopMatrix();
+	}
 
 	glPopMatrix();
 	glutSwapBuffers();
@@ -283,7 +281,13 @@ void init(void)
 	boxzl = -100;
 	boxzh = 100;
 
-	ball_1.position[0] = 50.0;
+	//initialize position and velocity of N particles
+	for (int i = 0; i < NBALLS; i++) {
+		ball[i].position[0] = (i - 5)*15.0;
+		//ball[i].position[1] = (i - 5)*15.0;
+		ball[i].radius = 5;
+	}
+
 }
 
 void reshapeFunc(GLint newWidth, GLint newHeight)
@@ -298,230 +302,128 @@ void reshapeFunc(GLint newWidth, GLint newHeight)
 
 void IntegrateNextStep()
 {
-	timestepmain = h;
+
 
 	//Find what would be the new position
-	for (int i = 0; i < 3; i++) {
-		newPos[i] = ball_1.getPos()[i] + h*ball_1.velocity[i];
-	}
-
-	for (int i = 0; i < 3; i++) {
-		newPos_2[i] = ball_2.getPos()[i] + h*ball_2.velocity[i];
+	for (int j = 0; j < NBALLS; j++) {
+		for (int i = 0; i < 3; i++) {
+			newPos[j][i] = ball[j].getPos()[i] + h*ball[j].velocity[i];
+		}
+		timestepmain[j] = h;
 	}
 
 	float tangent_vector;
 	//Checking whether the ball would collide in the next time step
-	while (timestepmain > 0) {
 
-		float Distance_btw_balls = sqrt(pow((newPos[0] - newPos_2[0]), 2.0) + pow((newPos[1] - newPos_2[1]), 2.0) + pow((newPos[2] - newPos_2[2]), 2.0));
-		
-		if (newPos[0] > (boxxh - 10)) {
-			f = ((boxxh - 10) - ball_1.getPos()[0]) / (newPos[0] - ball_1.getPos()[0]);
-			ball_1.update(f*h, d, wind, Gravity);
-			for (int i = 0; i < 3; i++) {
-				newPos[i] = ball_1.getPos()[i];
-			}
-			ball_1.velocity[0] = -ball_1.velocity[0];
-			tangent_vector = sqrt((ball_1.velocity[1] * ball_1.velocity[1]) + (ball_1.velocity[2] * ball_1.velocity[2]));
-			if (tangent_vector != 0) {
-				ball_1.velocity[1] = ball_1.velocity[1] - min(mu*abs(ball_1.velocity[0]), tangent_vector)*ball_1.velocity[1] / tangent_vector;
-				ball_1.velocity[2] = ball_1.velocity[2] - min(mu*abs(ball_1.velocity[0]), tangent_vector)*ball_1.velocity[2] / tangent_vector;
-			}
-			timestepmain = (1 - f)*timestepmain;
-		}
-		else if (newPos[0] < (boxxl + 10)) {
-			f = ((boxxl + 10) - ball_1.getPos()[0]) / (newPos[0] - ball_1.getPos()[0]);
-			ball_1.update(f*h, d, wind, Gravity);
-			for (int i = 0; i < 3; i++) {
-				newPos[i] = ball_1.getPos()[i];
-			}
-			ball_1.velocity[0] = -ball_1.velocity[0];
-			tangent_vector = sqrt((ball_1.velocity[1] * ball_1.velocity[1]) + (ball_1.velocity[2] * ball_1.velocity[2]));
-			if (tangent_vector != 0) {
-				ball_1.velocity[1] = ball_1.velocity[1] - min(mu*abs(ball_1.velocity[0]), tangent_vector)*ball_1.velocity[1] / tangent_vector;
-				ball_1.velocity[2] = ball_1.velocity[2] - min(mu*abs(ball_1.velocity[0]), tangent_vector)*ball_1.velocity[2] / tangent_vector;
-			}
-			timestepmain = (1 - f)*timestepmain;
-		}
-		else if (newPos[1] > (boxyh - 10)) {
-			f = ((boxyh - 10) - ball_1.getPos()[1]) / (newPos[1] - ball_1.getPos()[1]);
-			ball_1.update(f*h, d, wind, Gravity);
-			for (int i = 0; i < 3; i++) {
-				newPos[i] = ball_1.getPos()[i];
-			}
-			ball_1.velocity[1] = -ball_1.velocity[1];
-			tangent_vector = sqrt((ball_1.velocity[0] * ball_1.velocity[0]) + (ball_1.velocity[2] * ball_1.velocity[2]));
-			if (tangent_vector != 0) {
-				ball_1.velocity[0] = ball_1.velocity[0] - min(mu*abs(ball_1.velocity[1]), tangent_vector)*ball_1.velocity[0] / tangent_vector;
-				ball_1.velocity[2] = ball_1.velocity[2] - min(mu*abs(ball_1.velocity[1]), tangent_vector)*ball_1.velocity[2] / tangent_vector;
-			}
-			timestepmain = (1 - f)*timestepmain;
-		}
-		else if (newPos[1] < (boxyl + 10)) {
-			f = ((boxyl + 10.1) - ball_1.getPos()[1]) / (newPos[1] - ball_1.getPos()[1]);
-			ball_1.update(f*h, d, wind, Gravity);
-			for (int i = 0; i < 3; i++) {
-				newPos[i] = ball_1.getPos()[i];
-			}
-			ball_1.velocity[1] = -ball_1.velocity[1];
-			tangent_vector = sqrt((ball_1.velocity[0] * ball_1.velocity[0]) + (ball_1.velocity[2] * ball_1.velocity[2]));
-			if (tangent_vector != 0) {
-				ball_1.velocity[0] = ball_1.velocity[0] - min(mu*abs(ball_1.velocity[1]), tangent_vector)*ball_1.velocity[0] / tangent_vector;
-				ball_1.velocity[2] = ball_1.velocity[2] - min(mu*abs(ball_1.velocity[1]), tangent_vector)*ball_1.velocity[2] / tangent_vector;
-			}
-			timestepmain = (1 - f)*timestepmain;
-		}
-		else if (newPos[2] > (boxzh - 10)) {
-			f = ((boxzh - 10) - ball_1.getPos()[2]) / (newPos[2] - ball_1.getPos()[2]);
-			ball_1.update(f*h, d, wind, Gravity);
-			for (int i = 0; i < 3; i++) {
-				newPos[i] = ball_1.getPos()[i];
-			}
-			ball_1.velocity[2] = -ball_1.velocity[2];
-			tangent_vector = sqrt((ball_1.velocity[0] * ball_1.velocity[0]) + (ball_1.velocity[1] * ball_1.velocity[1]));
-			if (tangent_vector != 0) {
-				ball_1.velocity[0] = ball_1.velocity[0] - min(mu*abs(ball_1.velocity[2]), tangent_vector)*ball_1.velocity[0] / tangent_vector;
-				ball_1.velocity[1] = ball_1.velocity[1] - min(mu*abs(ball_1.velocity[2]), tangent_vector)*ball_1.velocity[1] / tangent_vector;
-			}
-			timestepmain = (1 - f)*timestepmain;
-		}
-		else if (newPos[2] < (boxzl + 10)) {
-			f = ((boxzl + 10) - ball_1.getPos()[2]) / (newPos[2] - ball_1.getPos()[2]);
-			ball_1.update(f*h, d, wind, Gravity);
-			for (int i = 0; i < 3; i++) {
-				newPos[i] = ball_1.getPos()[i];
-			}
-			ball_1.velocity[2] = -ball_1.velocity[2];
-			tangent_vector = sqrt((ball_1.velocity[0] * ball_1.velocity[0]) + (ball_1.velocity[1] * ball_1.velocity[1]));
-			if (tangent_vector != 0) {
-				ball_1.velocity[0] = ball_1.velocity[0] - min(mu*abs(ball_1.velocity[2]), tangent_vector)*ball_1.velocity[0] / tangent_vector;
-				ball_1.velocity[1] = ball_1.velocity[1] - min(mu*abs(ball_1.velocity[2]), tangent_vector)*ball_1.velocity[1] / tangent_vector;
-			}
-			timestepmain = (1 - f)*timestepmain;
-		}
 
-		//For BALL 2
 
-		else if (newPos_2[0] > (boxxh - 10)) {
-			f = ((boxxh - 10) - ball_2.getPos()[0]) / (newPos_2[0] - ball_2.getPos()[0]);
-			ball_2.update(f*h, d, wind, Gravity);
-			for (int i = 0; i < 3; i++) {
-				newPos_2[i] = ball_2.getPos()[i];
-			}
-			ball_2.velocity[0] = -ball_2.velocity[0];
-			tangent_vector = sqrt((ball_2.velocity[1] * ball_2.velocity[1]) + (ball_2.velocity[2] * ball_2.velocity[2]));
-			if (tangent_vector != 0) {
-				ball_2.velocity[1] = ball_2.velocity[1] - min(mu*abs(ball_2.velocity[0]), tangent_vector)*ball_2.velocity[1] / tangent_vector;
-				ball_2.velocity[2] = ball_2.velocity[2] - min(mu*abs(ball_2.velocity[0]), tangent_vector)*ball_2.velocity[2] / tangent_vector;
-			}
-			timestepmain = (1 - f)*timestepmain;
-		}
-		else if (newPos_2[0] < (boxxl + 10)) {
-			f = ((boxxl + 10) - ball_2.getPos()[0]) / (newPos_2[0] - ball_2.getPos()[0]);
-			ball_2.update(f*h, d, wind, Gravity);
-			for (int i = 0; i < 3; i++) {
-				newPos_2[i] = ball_2.getPos()[i];
-			}
-			ball_2.velocity[0] = -ball_2.velocity[0];
-			tangent_vector = sqrt((ball_2.velocity[1] * ball_2.velocity[1]) + (ball_2.velocity[2] * ball_2.velocity[2]));
-			if (tangent_vector != 0) {
-				ball_2.velocity[1] = ball_2.velocity[1] - min(mu*abs(ball_2.velocity[0]), tangent_vector)*ball_2.velocity[1] / tangent_vector;
-				ball_2.velocity[2] = ball_2.velocity[2] - min(mu*abs(ball_2.velocity[0]), tangent_vector)*ball_2.velocity[2] / tangent_vector;
-			}
-			timestepmain = (1 - f)*timestepmain;
-		}
-		else if (newPos_2[1] > (boxyh - 10)) {
-			f = ((boxyh - 10) - ball_2.getPos()[1]) / (newPos_2[1] - ball_2.getPos()[1]);
-			ball_2.update(f*h, d, wind, Gravity);
-			for (int i = 0; i < 3; i++) {
-				newPos_2[i] = ball_2.getPos()[i];
-			}
-			ball_2.velocity[1] = -ball_2.velocity[1];
-			tangent_vector = sqrt((ball_2.velocity[0] * ball_2.velocity[0]) + (ball_2.velocity[2] * ball_2.velocity[2]));
-			if (tangent_vector != 0) {
-				ball_2.velocity[0] = ball_2.velocity[0] - min(mu*abs(ball_2.velocity[1]), tangent_vector)*ball_2.velocity[0] / tangent_vector;
-				ball_2.velocity[2] = ball_2.velocity[2] - min(mu*abs(ball_2.velocity[1]), tangent_vector)*ball_2.velocity[2] / tangent_vector;
-			}
-			timestepmain = (1 - f)*timestepmain;
-		}
-		else if (newPos_2[1] < (boxyl + 10)) {
-			f = ((boxyl + 10.1) - ball_2.getPos()[1]) / (newPos_2[1] - ball_2.getPos()[1]);
-			ball_2.update(f*h, d, wind, Gravity);
-			for (int i = 0; i < 3; i++) {
-				newPos_2[i] = ball_2.getPos()[i];
-			}
-			ball_2.velocity[1] = -ball_2.velocity[1];
-			tangent_vector = sqrt((ball_2.velocity[0] * ball_2.velocity[0]) + (ball_2.velocity[2] * ball_2.velocity[2]));
-			if (tangent_vector != 0) {
-				ball_2.velocity[0] = ball_2.velocity[0] - min(mu*abs(ball_2.velocity[1]), tangent_vector)*ball_2.velocity[0] / tangent_vector;
-				ball_2.velocity[2] = ball_2.velocity[2] - min(mu*abs(ball_2.velocity[1]), tangent_vector)*ball_2.velocity[2] / tangent_vector;
-			}
-			timestepmain = (1 - f)*timestepmain;
-		}
-		else if (newPos_2[2] > (boxzh - 10)) {
-			f = ((boxzh - 10) - ball_2.getPos()[2]) / (newPos_2[2] - ball_2.getPos()[2]);
-			ball_2.update(f*h, d, wind, Gravity);
-			for (int i = 0; i < 3; i++) {
-				newPos_2[i] = ball_2.getPos()[i];
-			}
-			ball_2.velocity[2] = -ball_2.velocity[2];
-			tangent_vector = sqrt((ball_2.velocity[0] * ball_2.velocity[0]) + (ball_2.velocity[1] * ball_2.velocity[1]));
-			if (tangent_vector != 0) {
-				ball_2.velocity[0] = ball_2.velocity[0] - min(mu*abs(ball_2.velocity[2]), tangent_vector)*ball_2.velocity[0] / tangent_vector;
-				ball_2.velocity[1] = ball_2.velocity[1] - min(mu*abs(ball_2.velocity[2]), tangent_vector)*ball_2.velocity[1] / tangent_vector;
-			}
-			timestepmain = (1 - f)*timestepmain;
-		}
-		else if (newPos_2[2] < (boxzl + 10)) {
-			f = ((boxzl + 10) - ball_2.getPos()[2]) / (newPos_2[2] - ball_2.getPos()[2]);
-			ball_2.update(f*h, d, wind, Gravity);
-			for (int i = 0; i < 3; i++) {
-				newPos_2[i] = ball_2.getPos()[i];
-			}
-			ball_2.velocity[2] = -ball_2.velocity[2];
-			tangent_vector = sqrt((ball_2.velocity[0] * ball_2.velocity[0]) + (ball_2.velocity[1] * ball_2.velocity[1]));
-			if (tangent_vector != 0) {
-				ball_2.velocity[0] = ball_2.velocity[0] - min(mu*abs(ball_2.velocity[2]), tangent_vector)*ball_2.velocity[0] / tangent_vector;
-				ball_2.velocity[1] = ball_2.velocity[1] - min(mu*abs(ball_2.velocity[2]), tangent_vector)*ball_2.velocity[1] / tangent_vector;
-			}
-			timestepmain = (1 - f)*timestepmain;
-		}
+	for (int k = 0; k < NBALLS; k++) {
 
-		else if(Distance_btw_balls<(radius_1+radius_2)){
+		while (timestepmain[k] > 0) {
 
-			
-			Distance_btw_balls_old = sqrt(pow((ball_1.position[0] - ball_2.position[0]), 2.0) + pow((ball_1.position[1] - ball_2.position[1]), 2.0) + pow((ball_1.position[2] - ball_2.position[2]), 2.0));
-			f = (Distance_btw_balls_old - (radius_1 + radius_2)) / (Distance_btw_balls_old-Distance_btw_balls);
-			normal[0] = (ball_1.position[0] - ball_2.position[0]) / Distance_btw_balls_old;
-			normal[1] = (ball_1.position[1] - ball_2.position[1]) / Distance_btw_balls_old;
-			normal[2] = (ball_1.position[2] - ball_2.position[2]) / Distance_btw_balls_old;
+			if (newPos[k][0] > (boxxh - 10)) {
 
-			VNorm[0] = (ball_1.velocity[0] - ball_2.velocity[0])*normal[0]*normal[0];
-			VNorm[1] = (ball_1.velocity[1] - ball_2.velocity[1])*normal[1]*normal[1];
-			VNorm[2] = (ball_1.velocity[2] - ball_2.velocity[2])*normal[2]*normal[2];
-			printf("%f \n", f);
+				f = ((boxxh - 10) - ball[k].getPos()[0]) / (newPos[k][0] - ball[k].getPos()[0]);
+				ball[k].update(f*h, d, wind, Gravity);
+				for (int i = 0; i < 3; i++) {
+					newPos[k][i] = ball[k].getPos()[i];
+				}
+				ball[k].velocity[0] = -ball[k].velocity[0];
+				tangent_vector = sqrt((ball[k].velocity[1] * ball[k].velocity[1]) + (ball[k].velocity[2] * ball[k].velocity[2]));
+				if (tangent_vector != 0) {
+					ball[k].velocity[1] = ball[k].velocity[1] - min(mu*abs(ball[k].velocity[0]), tangent_vector)*ball[k].velocity[1] / tangent_vector;
+					ball[k].velocity[2] = ball[k].velocity[2] - min(mu*abs(ball[k].velocity[0]), tangent_vector)*ball[k].velocity[2] / tangent_vector;
+				}
+				timestepmain[k] = (1 - f)*timestepmain[k];
+			}
+			else if (newPos[k][0] < (boxxl + 10)) {
 
-			ball_1.update(f*h, d, wind, Gravity);
-			ball_2.update(f*h, d, wind, Gravity);
+				f = ((boxxl + 10) - ball[k].getPos()[0]) / (newPos[k][0] - ball[k].getPos()[0]);
+				ball[k].update(f*h, d, wind, Gravity);
+				for (int i = 0; i < 3; i++) {
+					newPos[k][i] = ball[k].getPos()[i];
+				}
+				ball[k].velocity[0] = -ball[k].velocity[0];
+				tangent_vector = sqrt((ball[k].velocity[1] * ball[k].velocity[1]) + (ball[k].velocity[2] * ball[k].velocity[2]));
+				if (tangent_vector != 0) {
+					ball[k].velocity[1] = ball[k].velocity[1] - min(mu*abs(ball[k].velocity[0]), tangent_vector)*ball[k].velocity[1] / tangent_vector;
+					ball[k].velocity[2] = ball[k].velocity[2] - min(mu*abs(ball[k].velocity[0]), tangent_vector)*ball[k].velocity[2] / tangent_vector;
+				}
+				timestepmain[k] = (1 - f)*timestepmain[k];
+				printf("%f ", timestepmain[1]);
+			}
+			else if (newPos[k][1] > (boxyh - 10)) {
 
-			ball_1.velocity[0] = ball_1.velocity[0] - VNorm[0];
-			ball_1.velocity[1] = ball_1.velocity[1] - VNorm[1];
-			ball_1.velocity[2] = ball_1.velocity[2] - VNorm[2];
+				f = ((boxyh - 10) - ball[k].getPos()[1]) / (newPos[k][1] - ball[k].getPos()[1]);
+				ball[k].update(f*h, d, wind, Gravity);
+				for (int i = 0; i < 3; i++) {
+					newPos[k][i] = ball[k].getPos()[i];
+				}
+				ball[k].velocity[1] = -ball[k].velocity[1];
+				tangent_vector = sqrt((ball[k].velocity[0] * ball[k].velocity[0]) + (ball[k].velocity[2] * ball[k].velocity[2]));
+				if (tangent_vector != 0) {
+					ball[k].velocity[0] = ball[k].velocity[0] - min(mu*abs(ball[k].velocity[1]), tangent_vector)*ball[k].velocity[0] / tangent_vector;
+					ball[k].velocity[2] = ball[k].velocity[2] - min(mu*abs(ball[k].velocity[1]), tangent_vector)*ball[k].velocity[2] / tangent_vector;
+				}
+				timestepmain[k] = (1 - f)*timestepmain[k];
+				printf("%f ", timestepmain[1]);
+			}
+			else if (newPos[k][1] < (boxyl + 10)) {
+				f = ((boxyl + 10) - ball[k].getPos()[1]) / (newPos[k][1] - ball[k].getPos()[1]);
+				ball[k].update(f*h, d, wind, Gravity);
+				for (int i = 0; i < 3; i++) {
+					newPos[k][i] = ball[k].getPos()[i];
+				}
+				ball[k].velocity[1] = -ball[k].velocity[1];
+				tangent_vector = sqrt((ball[k].velocity[0] * ball[k].velocity[0]) + (ball[k].velocity[2] * ball[k].velocity[2]));
+				if (tangent_vector != 0) {
+					ball[k].velocity[0] = ball[k].velocity[0] - min(mu*abs(ball[k].velocity[1]), tangent_vector)*ball[k].velocity[0] / tangent_vector;
+					ball[k].velocity[2] = ball[k].velocity[2] - min(mu*abs(ball[k].velocity[1]), tangent_vector)*ball[k].velocity[2] / tangent_vector;
+				}
+				timestepmain[k] = (1 - f)*timestepmain[k];
+				printf("%f ", timestepmain[1]);
+			}
+			else if (newPos[k][2] > (boxzh - 10)) {
+				f = ((boxzh - 10) - ball[k].getPos()[2]) / (newPos[k][2] - ball[k].getPos()[2]);
+				ball[k].update(f*h, d, wind, Gravity);
+				for (int i = 0; i < 3; i++) {
+					newPos[k][i] = ball[k].getPos()[i];
+				}
+				ball[k].velocity[2] = -ball[k].velocity[2];
+				tangent_vector = sqrt((ball[k].velocity[0] * ball[k].velocity[0]) + (ball[k].velocity[1] * ball[k].velocity[1]));
+				if (tangent_vector != 0) {
+					ball[k].velocity[0] = ball[k].velocity[0] - min(mu*abs(ball[k].velocity[2]), tangent_vector)*ball[k].velocity[0] / tangent_vector;
+					ball[k].velocity[1] = ball[k].velocity[1] - min(mu*abs(ball[k].velocity[2]), tangent_vector)*ball[k].velocity[1] / tangent_vector;
+				}
+				timestepmain[k] = (1 - f)*timestepmain[k];
+				printf("%f ", timestepmain[1]);
+			}
+			else if (newPos[k][2] < (boxzl + 10)) {
+				f = ((boxzl + 10) - ball[k].getPos()[2]) / (newPos[k][2] - ball[k].getPos()[2]);
+				ball[k].update(f*h, d, wind, Gravity);
+				for (int i = 0; i < 3; i++) {
+					newPos[k][i] = ball[k].getPos()[i];
+				}
+				ball[k].velocity[2] = -ball[k].velocity[2];
+				tangent_vector = sqrt((ball[k].velocity[0] * ball[k].velocity[0]) + (ball[k].velocity[1] * ball[k].velocity[1]));
+				if (tangent_vector != 0) {
+					ball[k].velocity[0] = ball[k].velocity[0] - min(mu*abs(ball[k].velocity[2]), tangent_vector)*ball[k].velocity[0] / tangent_vector;
+					ball[k].velocity[1] = ball[k].velocity[1] - min(mu*abs(ball[k].velocity[2]), tangent_vector)*ball[k].velocity[1] / tangent_vector;
+				}
+				timestepmain[k] = (1 - f)*timestepmain[k];
 
-			ball_2.velocity[0] = ball_2.velocity[0] + VNorm[0];
-			ball_2.velocity[1] = ball_2.velocity[1] + VNorm[1];
-			ball_2.velocity[2] = ball_2.velocity[2] + VNorm[2];
-			
-			timestepmain = 0;
+			}
+
+			if (timestepmain[k] != 0) //if not just update the state to the next time step
+			{
+
+				ball[k].update(timestepmain[k], d, wind, Gravity);
+
+				timestepmain[k] = 0;
+			}
+
 		}
-		else //if not just update the state to the next time step
-		{
-			ball_1.update(timestepmain, d, wind, Gravity);
-			ball_2.update(timestepmain, d, wind, Gravity);
-			timestepmain = 0;
-		}
-		
-	}//End of while loop
+	}//End of for loop
 
 }
 
@@ -538,10 +440,10 @@ void idle(void)
 	}
 
 
-	for (float t = 0; t < 1.0/FPS; t += h) {
+	for (float t = 0; t < 1.0 / FPS; t += h) {
 		IntegrateNextStep();
 	}
-	
+
 	finalTime = clock();
 	timeTaken = (float)((finalTime - initialTime)) / CLOCKS_PER_SEC;
 	initialTime = finalTime;
@@ -589,22 +491,22 @@ void VelocityControl(int key, int x, int y)
 	switch (key)
 	{
 	case GLUT_KEY_DOWN:
-		ball_1.velocity[1] -= 100;
+		ball[0].velocity[1] -= 100;
 		break;
 	case GLUT_KEY_UP:
-		ball_1.velocity[1] += 100;
+		ball[0].velocity[1] += 100;
 		break;
 	case GLUT_KEY_LEFT:
-		ball_1.velocity[0] -= 100;
+		ball[0].velocity[0] -= 100;
 		break;
 	case GLUT_KEY_RIGHT:
-		ball_1.velocity[0] += 100;
+		ball[0].velocity[0] += 100;
 		break;
 	case GLUT_KEY_PAGE_UP:
-		ball_1.velocity[2] += 100;
+		ball[0].velocity[2] += 100;
 		break;
 	case GLUT_KEY_PAGE_DOWN:
-		ball_1.velocity[2] -= 100;
+		ball[0].velocity[2] -= 100;
 		break;
 	}
 }
@@ -624,7 +526,7 @@ void Keyboard(unsigned char key, int x, int y)
 	case 'a':
 		wind[0] = -100.0;
 		break;
-	case 'd': 
+	case 'd':
 		wind[0] = 100.0;
 	case 'i':
 		wind[2] -= 1.0;
@@ -633,31 +535,31 @@ void Keyboard(unsigned char key, int x, int y)
 		wind[2] += 1.0;
 		break;
 	case 'c':
-		ball_1.velocity[0] += -ball_1.position[0];
-		ball_1.velocity[1] += -ball_1.position[1];
-		ball_1.velocity[2] += -ball_1.position[2];
+		ball[0].velocity[0] += -ball[0].position[0];
+		ball[0].velocity[1] += -ball[0].position[1];
+		ball[0].velocity[2] += -ball[0].position[2];
 		break;
 	case 'o':
-		wind[0] = -ball_1.position[0];
-		wind[1] = -ball_1.position[1];
-		wind[2] = -ball_1.position[2];
+		wind[0] = -ball[0].position[0];
+		wind[1] = -ball[0].position[1];
+		wind[2] = -ball[0].position[2];
 		break;
 	case 32:
-		ball_1.velocity[0] = 0;
-		ball_1.velocity[1] = 0;
-		ball_1.velocity[2] = 0;
+		ball[0].velocity[0] = 0;
+		ball[0].velocity[1] = 0;
+		ball[0].velocity[2] = 0;
 		break;
 	case 'g':
-		ball_2.velocity[1] -= 100;
+		ball[1].velocity[1] -= 100;
 		break;
 	case 't':
-		ball_2.velocity[1] += 100;
+		ball[1].velocity[1] += 100;
 		break;
 	case 'f':
-		ball_2.velocity[0] -= 100;
+		ball[1].velocity[0] -= 100;
 		break;
 	case 'h':
-		ball_2.velocity[0] += 100;
+		ball[1].velocity[0] += 100;
 		break;
 	}
 }
@@ -698,9 +600,9 @@ void GetInput()
 	printf("Do you want gravity? (y/n) : ");
 	scanf_s(" %c", &Gravity);
 	printf("Initial Position? (d for default) ");
-	scanf_s("%f %f %f", &ball_1.position[0], &ball_1.position[1], &ball_1.position[2]);
+	scanf_s("%f %f %f", &ball[0].position[0], &ball[0].position[1], &ball[0].position[2]);
 	printf("Initial Velocity? (d for default) ");
-	scanf_s("%f %f %f", &ball_1.velocity[0], &ball_1.velocity[1], &ball_1.velocity[2]);
+	scanf_s("%f %f %f", &ball[0].velocity[0], &ball[0].velocity[1], &ball[0].velocity[2]);
 	printf("Air resistance constant:");
 	scanf_s(" %f", &d);
 	printf("Friction constant :");
@@ -734,6 +636,6 @@ int main(int argc, char** argv)
 	//GetInput();
 
 	glutMainLoop();
-	
+
 	return 0;
 }
