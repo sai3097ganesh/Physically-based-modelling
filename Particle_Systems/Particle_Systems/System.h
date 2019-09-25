@@ -27,6 +27,7 @@ public:
 	float boxzl = -100;
 	float boxzh = 100;
 	char Gravity = 'y';
+	float distance_from_center;
 	Point origin, newpos[10000];
 
 	System();

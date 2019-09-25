@@ -38,9 +38,14 @@ void System::TestDeactivate() {
 	}
 }
 void System::ComputeAcc() {
+
 	for (int i = 0; i < n_particles; i++) {
 		if (particle[i].active == true) {
-
+			distance_from_center = sqrt((particle[i].position[0]-50.0)* (particle[i].position[0]-50.0)+ particle[i].position[1] * particle[i].position[1]+ particle[i].position[2] * particle[i].position[2]);
+			particle[i].acceleration[0] = -100000.0*(particle[i].position[0]-50.0) / pow(distance_from_center, 3);
+			particle[i].acceleration[1] = -100000.0*particle[i].position[1] / pow(distance_from_center, 3);
+			particle[i].acceleration[2] = -100000.0*particle[i].position[2] / pow(distance_from_center, 3);
+			//printf("%f \n", particle[i].acceleration[0]);
 		}
 	}
 }

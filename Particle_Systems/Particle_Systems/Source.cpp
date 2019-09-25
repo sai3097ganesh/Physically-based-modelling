@@ -283,7 +283,8 @@ void init(void)
 	boxzl = -100;
 	boxzh = 100;
 
-	Point p1(0, 50.0, -50.0), p2(-50.0, -50.0, -50.0), p3(50.0, -50.0, -50.0);
+	//Point p1(0, 30.0, 0.0), p2(-30.0, -30.0, -30.0), p3(30.0, -30.0, -30.0);
+	Point p1(0, 100.0, 100.0), p2(-100.0, -100.0, 100.0), p3(100.0, 0.0, 100.0);
 	wall[0] = p1; wall[1] = p2; wall[2] = p3;
 	P = Plane(p1, p2, p3);
 }
@@ -315,6 +316,7 @@ void idle(void)
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 		ball_system.GenerateParticles();
 		ball_system.TestDeactivate();
+		ball_system.ComputeAcc();
 		ball_system.integrate(h, wall, &P);
 	}
 
