@@ -5,6 +5,8 @@
 #include <cmath>
 #include <iostream>
 #include <time.h>
+#include "geometry.h"
+
 class System
 {
 public:
@@ -25,13 +27,14 @@ public:
 	float boxzl = -100;
 	float boxzh = 100;
 	char Gravity = 'y';
+	Point origin, newpos[10000];
 
 	System();
 	void clear();
 	void GenerateParticles();
 	void TestDeactivate();
 	void ComputeAcc();
-	void integrate(float h);
+	void integrate(float h, Point *wall, Plane * const P);
 	~System();
 };
 

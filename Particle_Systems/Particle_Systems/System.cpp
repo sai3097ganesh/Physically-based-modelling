@@ -1,6 +1,7 @@
 #include "System.h"
 
 
+
 System::System()
 {
 	particle = new Particle[n_particles];
@@ -31,7 +32,6 @@ void System::TestDeactivate() {
 	for (int i = 0; i < n_particles; i++) {
 		if (particle[i].active == true) {
 			if (particle[i].lifespan < 1) {
-				printf("Ball deleted! \n");
 				particle[i].active = false;
 				inactive[inactivecount] = i;
 				inactivecount++;
@@ -47,7 +47,7 @@ void System::ComputeAcc() {
 	}
 }
 
-void System::integrate(float h) {
+void System::integrate(float h, Point *wall, Plane * const P) {
 
 	//Find what would be the new position
 	for (int j = 0; j < n_particles; j++) {
@@ -57,8 +57,13 @@ void System::integrate(float h) {
 			}
 			timestepmain[j] = h;
 		}
-	}
 
+		newpos[j].x = newPos[j][0];
+		newpos[j].y = newPos[j][1];
+		newpos[j].z = newPos[j][2];
+	}
+	//printf("%d",P->getSign(origin, newpos[0]));
+	//printf("%d", newPos[0][0]);
 	float tangent_vector;
 	//Checking whether the particle would collide in the next time step
 
@@ -66,6 +71,13 @@ void System::integrate(float h) {
 		if (particle[k].active == true) {
 		while (timestepmain[k] > 0) {
 
+			if (!(P->getSign(origin, newpos[k]))) {
+				if (isInside(wall, 3, newpos[k])) {
+					printf("Crossed!");
+					particle[k].velocity[1] = -particle[k].velocity[1];
+				}
+			}
+			
 			if (newPos[k][0] > (boxxh - 10)) {
 
 				f = ((boxxh - 10) - particle[k].getPos()[0]) / (newPos[k][0] - particle[k].getPos()[0]);

@@ -1,6 +1,4 @@
-﻿  Particle.cpp
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\particle_systems\particle_systems\particle.cpp(36): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\particle_systems\particle_systems\particle.cpp(37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\sai3097ganesh\documents\github\physically-based-modelling\particle_systems\particle_systems\particle.cpp(38): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-  Particle_Systems.vcxproj -> C:\Users\sai3097ganesh\Documents\GitHub\Physically-based-modelling\Particle_Systems\Debug\Particle_Systems.exe
-  Particle_Systems.vcxproj -> C:\Users\sai3097ganesh\Documents\GitHub\Physically-based-modelling\Particle_Systems\Debug\Particle_Systems.pdb (Partial PDB)
+﻿  System.cpp
+c:\users\sai ganesh\desktop\github\physically-based-modelling\particle_systems\particle_systems\system.h(22): warning C4305: 'initializing': truncation from 'double' to 'float'
+  Particle_Systems.vcxproj -> C:\Users\Sai Ganesh\Desktop\GitHub\Physically-based-modelling\Particle_Systems\Debug\Particle_Systems.exe
+  Particle_Systems.vcxproj -> C:\Users\Sai Ganesh\Desktop\GitHub\Physically-based-modelling\Particle_Systems\Debug\Particle_Systems.pdb (Partial PDB)

@@ -1,17 +1,13 @@
 #include <stdlib.h>
-
 #include <glut.h>
 #include <stdio.h>
 #include <time.h>
-#include "Particle.h"
-#include <cmath>
-#include <math.h>
 #include <algorithm>
 #include <vector>
-#include <Windows.h>
-#include "System.h"
 #include<ctime>
-
+#include "Particle.h"
+#include "System.h"
+#include "geometry.h"
 
 System ball_system;
 
@@ -44,6 +40,10 @@ clock_t initialTime = clock(), finalTime;
 
 static const int FPS = 30;
 const int tMAX = 10;
+
+Point wall[3]; 
+Plane P;
+
 
 void display(void)
 {
@@ -132,17 +132,17 @@ void display(void)
 	glVertex3f(boxxl, boxyh, boxzh);
 	glVertex3f(boxxh, boxyh, boxzh);
 
-	//front face
-	glMaterialfv(GL_FRONT, GL_AMBIENT, smallr00);
-	glVertex3f(0, -50, -50);
-	glVertex3f(0, 50, -50);
-	glVertex3f(0, 50, 50);
-	glVertex3f(0, -50, 50);
-
-	
-
 	glEnd();
 	glDisable(GL_BLEND);
+
+	//wall
+	glBegin(GL_POLYGON);
+	glColor3f(0.0,0.0,0.5);
+	glVertex3f(wall[0].x, wall[0].y, wall[0].z);
+	glVertex3f(wall[1].x, wall[1].y, wall[1].z);
+	glVertex3f(wall[2].x, wall[2].y, wall[2].z);
+	glVertex3f(wall[2].x, wall[2].y, wall[2].z);
+	glEnd();
 
 	boxxl = -100;
 	boxxh = 100;
@@ -209,11 +209,10 @@ void display(void)
 
 	glBegin(GL_LINE_STRIP);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
-	glVertex3f(0, -50, -50);
-	glVertex3f(0, 50, -50);
-	glVertex3f(0, 50, 50);
-	glVertex3f(0, -50, 50);
-	glVertex3f(0, -50, -50);
+	glVertex3f(wall[0].x, wall[0].y, wall[0].z);
+	glVertex3f(wall[1].x, wall[1].y, wall[1].z);
+	glVertex3f(wall[2].x, wall[2].y, wall[2].z);
+	glVertex3f(wall[0].x, wall[0].y, wall[0].z);
 	glEnd();
 
 	//draw the ball
@@ -283,6 +282,9 @@ void init(void)
 	boxzl = -100;
 	boxzh = 100;
 
+	Point p1(0, 50.0, -50.0), p2(-50.0, -50.0, -50.0), p3(50.0, -50.0, -50.0);
+	wall[0] = p1; wall[1] = p2; wall[2] = p3;
+	P = Plane(p1, p2, p3);
 }
 
 void reshapeFunc(GLint newWidth, GLint newHeight)
@@ -312,7 +314,7 @@ void idle(void)
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 		ball_system.GenerateParticles();
 		ball_system.TestDeactivate();
-		ball_system.integrate(h);
+		ball_system.integrate(h, wall, &P);
 	}
 
 	finalTime = clock();
