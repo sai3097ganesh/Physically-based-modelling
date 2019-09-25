@@ -1,7 +1,5 @@
 #include "System.h"
 
-
-
 System::System()
 {
 	particle = new Particle[n_particles];
@@ -74,7 +72,9 @@ void System::integrate(float h, Point *wall, Plane * const P) {
 			if (!(P->getSign(origin, newpos[k]))) {
 				if (isInside(wall, 3, newpos[k])) {
 					printf("Crossed!");
-					particle[k].velocity[1] = -particle[k].velocity[1];
+					particle[k].update(h, d, wind, Gravity);
+					particle[k].velocity[2] = -particle[k].velocity[2];
+					timestepmain[k] = 0;
 				}
 			}
 			

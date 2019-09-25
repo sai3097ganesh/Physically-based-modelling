@@ -136,14 +136,14 @@ void display(void)
 	glDisable(GL_BLEND);
 
 	//wall
-	glBegin(GL_POLYGON);
+	/*glBegin(GL_POLYGON);
 	glColor3f(0.0,0.0,0.5);
 	glVertex3f(wall[0].x, wall[0].y, wall[0].z);
 	glVertex3f(wall[1].x, wall[1].y, wall[1].z);
 	glVertex3f(wall[2].x, wall[2].y, wall[2].z);
 	glVertex3f(wall[2].x, wall[2].y, wall[2].z);
 	glEnd();
-
+	*/
 	boxxl = -100;
 	boxxh = 100;
 	boxyl = -100;
@@ -225,8 +225,9 @@ void display(void)
 	glMaterialfv(GL_FRONT, GL_AMBIENT, ballColor);
 
 	for (int i = 0; i < ball_system.n_particles; i++) {
-		glPushMatrix();
+
 		if (ball_system.particle[i].active == true) {
+			glPushMatrix();
 			glTranslatef(ball_system.particle[i].position[0], ball_system.particle[i].position[1], ball_system.particle[i].position[2]);
 			glutSolidSphere(ball_system.particle[i].radius, 20, 20);
 			glPopMatrix();
