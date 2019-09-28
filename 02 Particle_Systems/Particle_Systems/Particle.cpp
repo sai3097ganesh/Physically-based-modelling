@@ -34,8 +34,8 @@ void Particle::init()
 {
 	lifespan = 1000;
 	position[0] = 0; position[1] = 0; position[2] = 0;
-	velocity[0] = 50.0*((float)rand()/RAND_MAX-0.5);
-	velocity[1] = 50.0*((float)rand()/RAND_MAX-0.5);
+	velocity[0] = 0.0*((float)rand()/RAND_MAX-0.5);
+	velocity[1] = 0.0*((float)rand()/RAND_MAX-0.5);
 	velocity[2] = 50.0*((float)rand()/RAND_MAX-0.5);
 }
 Particle::~Particle()

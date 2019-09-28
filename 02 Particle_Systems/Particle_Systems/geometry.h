@@ -1,5 +1,6 @@
 #pragma once
-
+#include <math.h>
+#include <cmath>
 struct Point {
 	float x;
 	float y;
@@ -38,6 +39,9 @@ struct Plane{
 		float x = a*p1.x + b*p1.y + c*p1.z + d;
 		float y = a*p2.x + b*p2.y + c*p2.z + d;
 		return ((x < 0) == (y < 0));
+	}
+	float getDistance(Point p) {
+		return abs(a*p.x + b*p.y + c*p.z + d)/sqrt(a*a+b*b+c*c);
 	}
 };
 

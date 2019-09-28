@@ -48,6 +48,7 @@ void System::ComputeAcc() {
 			particle[i].acceleration[2] = -100000.0*particle[i].position[2] / pow(distance_from_center, 3);
 			*/
 			//printf("%f \n", particle[i].acceleration[0]);
+
 			distance_from_center = sqrt((particle[i].position[0]-50)* (particle[i].position[0]-50) + particle[i].position[1] * particle[i].position[1]);
 			particle[i].acceleration[0] = -10000.0*(particle[i].position[0]-50) / pow(distance_from_center, 3);
 			particle[i].acceleration[1] = -10000.0*(particle[i].position[1]) / pow(distance_from_center, 3);
@@ -66,9 +67,9 @@ void System::integrate(float h, Point *wall, Plane * const P) {
 			timestepmain[j] = h;
 		}
 
-		newpos[j].x = newPos[j][0];
-		newpos[j].y = newPos[j][1];
-		newpos[j].z = newPos[j][2];
+		oldpos[j].x = particle[j].getPos()[0]; newpos[j].x = newPos[j][0];
+		oldpos[j].y = particle[j].getPos()[1]; newpos[j].y = newPos[j][1];
+		oldpos[j].z = particle[j].getPos()[2]; newpos[j].z = newPos[j][2];
 	}
 	//printf("%d",P->getSign(origin, newpos[0]));
 	//printf("%d", newPos[0][0]);
@@ -79,7 +80,7 @@ void System::integrate(float h, Point *wall, Plane * const P) {
 		if (particle[k].active == true) {
 		while (timestepmain[k] > 0) {
 
-			if (!(P->getSign(origin, newpos[k]))) {
+			if (!(P->getSign(origin, newpos[k])==P->getSign(origin,oldpos[k]))) {
 				if (isInside(wall, 3, newpos[k])) {
 					printf("Crossed!");
 					particle[k].update(h, d, wind, Gravity);
