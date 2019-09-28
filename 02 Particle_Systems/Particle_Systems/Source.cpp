@@ -5,15 +5,15 @@
 #include <algorithm>
 #include <vector>
 #include<ctime>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "objloader.hpp"
 #include "Particle.h"
 #include "System.h"
 #include "geometry.h"
 
 System ball_system;
 
-float normal[3];
-float VNorm[3];
-float Distance_btw_balls_old, Distance_btw_balls;
 using namespace std;
 
 double boxxl, boxxh, boxyl, boxyh, boxzl, boxzh;  // The low and high x, y, z values for the box sides
@@ -41,7 +41,8 @@ clock_t initialTime = clock(), finalTime;
 static const int FPS = 30;
 const int tMAX = 10;
 
-Point wall[3]; 
+static const int n_faces = 12;
+Point wall[n_faces*3], unit_normal[n_faces*3]; 
 Plane P;
 
 
@@ -207,14 +208,17 @@ void display(void)
 	glVertex3f(boxxh, boxyl, boxzh);
 	glEnd();
 
+
+	for (int i = 0; i < n_faces; i++) {
 	glBegin(GL_LINE_STRIP);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
-	glVertex3f(wall[0].x, wall[0].y, wall[0].z);
-	glVertex3f(wall[1].x, wall[1].y, wall[1].z);
-	glVertex3f(wall[2].x, wall[2].y, wall[2].z);
-	glVertex3f(wall[0].x, wall[0].y, wall[0].z);
+	glVertex3f(wall[3*i].x, wall[3*i].y, wall[3*i].z);
+	glVertex3f(wall[3*i + 1].x, wall[3*i + 1].y, wall[3*i+1].z);
+	glVertex3f(wall[3*i + 2].x, wall[3*i + 2].y, wall[3*i + 2].z);
+	glVertex3f(wall[3*i].x, wall[3*i].y, wall[3*i].z);
 	glEnd();
 
+	}
 	//draw the ball
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ball_ambient);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, ball_diffuse);
@@ -283,10 +287,25 @@ void init(void)
 	boxzl = -100;
 	boxzh = 100;
 
-	Point p1(0, 30.0, 0.0), p2(-30.0, -30.0, -30.0), p3(30.0, -30.0, -30.0);
-	//Point p1(0, 100.0, 100.0), p2(-100.0, -100.0, 100.0), p3(100.0, 0.0, 100.0);
-	wall[0] = p1; wall[1] = p2; wall[2] = p3;
-	P = Plane(p1, p2, p3);
+	std::vector< glm::vec3 > vertices;
+	std::vector< glm::vec3 > normals;
+	bool res = loadOBJ_modified("oct.obj", vertices, normals);
+	Point point;
+	for (int i = 0; i < vertices.size(); i++)
+	{	//printf("%f %f %f \n ", vertices[i].x, vertices[i].y, vertices[i].z);
+		//printf("%d  ", vertices.size());
+		point= Point (vertices[i].x * 50, vertices[i].y * 50, vertices[i].z * 50);
+		wall[i] = point;
+	}
+	for (int i = 0; i < normals.size(); i++) {
+		point = Point(normals[i].x, normals[i].y, normals[i].z);
+		unit_normal[i] = point;
+	}
+	
+		//Point p1(0, 30.0, 0.0), p2(-30.0, -30.0, -30.0), p3(30.0, -30.0, -30.0);
+		//Point p1(0, 100.0, 100.0), p2(-100.0, -100.0, 100.0), p3(100.0, 0.0, 100.0);
+		//wall[0] = p1; wall[1] = p2; wall[2] = p3;
+	//P = Plane(p1, p2, p3);
 }
 
 void reshapeFunc(GLint newWidth, GLint newHeight)
@@ -314,10 +333,10 @@ void idle(void)
 
 
 	for (float t = 0; t < 1.0 / FPS; t += h) {
-		ball_system.GenerateParticles();
+		ball_system.GenerateParticlesPoint();
 		ball_system.TestDeactivate();
 		//ball_system.ComputeAcc();
-		ball_system.integrate(h, wall, &P);
+		ball_system.integrate(h, wall, unit_normal, n_faces);
 	}
 
 	finalTime = clock();
@@ -364,11 +383,10 @@ void motion(int x, int y)
 }
 
 
-
 int main(int argc, char** argv)
 {
 	srand(time(NULL));
-
+	
 	GLint SubMenu1, SubMenu2, SubMenu3, SubMenu4;
 
 	glutInit(&argc, argv);

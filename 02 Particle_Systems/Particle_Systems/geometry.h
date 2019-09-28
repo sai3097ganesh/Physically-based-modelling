@@ -33,6 +33,8 @@ struct Plane{
 		b = a2 * c1 - a1 * c2;
 		c = a1 * b2 - b1 * a2;
 		d = (-a * p1.x - b * p1.y - c * p1.z);
+		float norm = sqrt(a*a + b*b + c*c);
+		a = a / norm; b = b / norm; c = c / norm; d = d / norm;
 	}
 	bool getSign(Point p1, Point p2) {
 		//printf("\n %f %f %f %f \n", p1.x, p2.x, p1.y, p2.y);

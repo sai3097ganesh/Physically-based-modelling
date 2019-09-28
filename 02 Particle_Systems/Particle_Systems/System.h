@@ -28,14 +28,16 @@ public:
 	float boxzh = 100;
 	char Gravity = 'y';
 	float distance_from_center;
-	Point origin, newpos[n_particles], oldpos[n_particles];
+	float vnorm[3];
+	Point origin, newpos[n_particles], oldpos[n_particles], face[3];;
 
 	System();
 	void clear();
-	void GenerateParticles();
+	void GenerateParticlesPoint();
+	void GenerateParticlesDisc();
 	void TestDeactivate();
 	void ComputeAcc();
-	void integrate(float h, Point *wall, Plane * const P);
+	void integrate(float h, Point *wall, Point * unit_normal, int n_faces);
 	~System();
 };
 

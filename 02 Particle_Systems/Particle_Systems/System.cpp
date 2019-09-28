@@ -14,18 +14,26 @@ void System::clear() {
 		inactive[i] = n_particles - 1 - i;
 	}
 }
-void System::GenerateParticles() {
+
+void System::GenerateParticlesPoint() {
 	for (int i = 0; i < n_generate; i++) {
 		//make the particle active 
 		particle[inactive[inactivecount - 1]].active = true;
 		//initialize the velocities of the particles
 		particle[inactive[inactivecount - 1]].init();
+		particle[inactive[inactivecount - 1]].position[0] = 0; particle[inactive[inactivecount - 1]].position[1] = 0; particle[inactive[inactivecount - 1]].position[2] = 0;
+		particle[inactive[inactivecount - 1]].velocity[0] = 50.0*((float)rand() / RAND_MAX - 0.5);
+		particle[inactive[inactivecount - 1]].velocity[1] = 50.0*((float)rand() / RAND_MAX - 0.5);
+		particle[inactive[inactivecount - 1]].velocity[2] = 50.0*((float)rand() / RAND_MAX - 0.5);
 		//popping the inactive array
 		inactive[inactivecount - 1] = inactive[inactivecount];
 		inactivecount--;
 	}
 }
 
+void System::GenerateParticlesDisc() {
+
+}
 void System::TestDeactivate() {
 	for (int i = 0; i < n_particles; i++) {
 		if (particle[i].active == true) {
@@ -56,7 +64,7 @@ void System::ComputeAcc() {
 	}
 }
 
-void System::integrate(float h, Point *wall, Plane * const P) {
+void System::integrate(float h, Point *wall, Point * unit_normal, int n_faces) {
 
 	//Find what would be the new position
 	for (int j = 0; j < n_particles; j++) {
@@ -80,12 +88,23 @@ void System::integrate(float h, Point *wall, Plane * const P) {
 		if (particle[k].active == true) {
 		while (timestepmain[k] > 0) {
 
-			if (!(P->getSign(origin, newpos[k])==P->getSign(origin,oldpos[k]))) {
-				if (isInside(wall, 3, newpos[k])) {
-					printf("Crossed!");
-					particle[k].update(h, d, wind, Gravity);
-					particle[k].velocity[2] = -particle[k].velocity[2];
-					timestepmain[k] = 0;
+			for (int m = 0; m < n_faces; m++) {
+
+				face[0] = wall[3 * m]; face[1] = wall[3 * m + 1];face[2]= wall[3 * m + 2];
+				Plane P(face[0],face[1],face[2]);
+				if (!(P.getSign(origin, newpos[k]) == P.getSign(origin, oldpos[k]))) {
+					if (isInside(face, 3, newpos[k])) {
+						printf("Crossed!");
+						particle[k].update(h, d, wind, Gravity);
+						//particle[k].velocity[2] = -particle[k].velocity[2];
+						vnorm[0] = particle[k].velocity[0] * unit_normal[m].x;
+						vnorm[1] = particle[k].velocity[1] * unit_normal[m].y;
+						vnorm[2] = particle[k].velocity[2] * unit_normal[m].z;
+						particle[k].velocity[0] = particle[k].velocity[0] + 2 * vnorm[0];
+						particle[k].velocity[1] = particle[k].velocity[1] + 2 * vnorm[1];
+						particle[k].velocity[2] = particle[k].velocity[2] + 2 * vnorm[2];
+						timestepmain[k] = 0;
+					}
 				}
 			}
 			
