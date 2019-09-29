@@ -22,7 +22,9 @@ void Particle::update(float h, float d, float * wind, char G) {
 		//}
 		for (int i = 0; i < 3; i++) {
 			position[i] += h*velocity[i];
+				
 		}
+	
 		for (int i = 0; i < 3; i++) {
 			velocity[i] += h*acceleration[i];
 			//printf("%f\n", acceleration[0]);

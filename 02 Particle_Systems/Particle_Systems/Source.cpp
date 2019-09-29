@@ -289,7 +289,7 @@ void init(void)
 
 	std::vector< glm::vec3 > vertices;
 	std::vector< glm::vec3 > normals;
-	bool res = loadOBJ_modified("oct.obj", vertices, normals);
+	bool res = loadOBJfacenormal("octahedron.obj", vertices, normals);
 	Point point;
 	for (int i = 0; i < vertices.size(); i++)
 	{	//printf("%f %f %f \n ", vertices[i].x, vertices[i].y, vertices[i].z);

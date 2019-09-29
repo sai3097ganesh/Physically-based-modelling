@@ -3,7 +3,11 @@ c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_system
 c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_systems\particle_systems\system.cpp(25): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_systems\particle_systems\system.cpp(26): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_systems\particle_systems\system.cpp(27): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_systems\particle_systems\system.cpp(61): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_systems\particle_systems\system.cpp(62): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_systems\particle_systems\system.cpp(64): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_systems\particle_systems\system.cpp(65): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_systems\particle_systems\system.cpp(109): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_systems\particle_systems\system.cpp(110): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_systems\particle_systems\system.cpp(111): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_systems\particle_systems\system.cpp(87): warning C4101: 'tangent_vector': unreferenced local variable
   Particle_Systems.vcxproj -> C:\Users\Sai Ganesh\Desktop\GitHub\Physically-based-modelling\02 Particle_Systems\Debug\Particle_Systems.exe
   Particle_Systems.vcxproj -> C:\Users\Sai Ganesh\Desktop\GitHub\Physically-based-modelling\02 Particle_Systems\Debug\Particle_Systems.pdb (Partial PDB)

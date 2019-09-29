@@ -25,6 +25,9 @@ void System::GenerateParticlesPoint() {
 		particle[inactive[inactivecount - 1]].velocity[0] = 50.0*((float)rand() / RAND_MAX - 0.5);
 		particle[inactive[inactivecount - 1]].velocity[1] = 50.0*((float)rand() / RAND_MAX - 0.5);
 		particle[inactive[inactivecount - 1]].velocity[2] = 50.0*((float)rand() / RAND_MAX - 0.5);
+		//particle[inactive[inactivecount - 1]].velocity[0] = 50.0;
+		//particle[inactive[inactivecount - 1]].velocity[1] = 50.0;
+		//particle[inactive[inactivecount - 1]].velocity[2] = 50.0;
 		//popping the inactive array
 		inactive[inactivecount - 1] = inactive[inactivecount];
 		inactivecount--;
@@ -94,20 +97,27 @@ void System::integrate(float h, Point *wall, Point * unit_normal, int n_faces) {
 				Plane P(face[0],face[1],face[2]);
 				if (!(P.getSign(origin, newpos[k]) == P.getSign(origin, oldpos[k]))) {
 					if (isInside(face, 3, newpos[k])) {
-						printf("Crossed!");
-						particle[k].update(h, d, wind, Gravity);
+						//printf("Crossed! \n");
+						
 						//particle[k].velocity[2] = -particle[k].velocity[2];
+
 						vnorm[0] = particle[k].velocity[0] * unit_normal[m].x;
 						vnorm[1] = particle[k].velocity[1] * unit_normal[m].y;
 						vnorm[2] = particle[k].velocity[2] * unit_normal[m].z;
-						particle[k].velocity[0] = particle[k].velocity[0] + 2 * vnorm[0];
-						particle[k].velocity[1] = particle[k].velocity[1] + 2 * vnorm[1];
-						particle[k].velocity[2] = particle[k].velocity[2] + 2 * vnorm[2];
+
+						//printf("%f %f %f \n", vnorm[0], particle[k].velocity[1], particle[k].velocity[2]);
+						particle[k].velocity[0] = particle[k].velocity[0] - 2.0 * vnorm[0] / unit_normal[m].x;
+						particle[k].velocity[1] = particle[k].velocity[1] - 2.0 * vnorm[1] / unit_normal[m].y;
+						particle[k].velocity[2] = particle[k].velocity[2] - 2.0 * vnorm[2] / unit_normal[m].z;
+						particle[k].update(h, d, wind, Gravity);
+						//if(k==1)
+						//printf("%f %f %f \n", particle[k].velocity[0], particle[k].velocity[1], particle[k].velocity[2]);
 						timestepmain[k] = 0;
 					}
 				}
 			}
 			
+			/*
 			if (newPos[k][0] > (boxxh - 10)) {
 
 				f = ((boxxh - 10) - particle[k].getPos()[0]) / (newPos[k][0] - particle[k].getPos()[0]);
@@ -197,12 +207,14 @@ void System::integrate(float h, Point *wall, Point * unit_normal, int n_faces) {
 				timestepmain[k] = (1 - f)*timestepmain[k];
 
 			}
+			*/
 
 			if (timestepmain[k] != 0) //if not just update the state to the next time step
 			{
 
 				particle[k].update(timestepmain[k], d, wind, Gravity);
-
+				//if(k==1)
+				//printf("%f %f %f\n",particle[k].velocity[0], particle[k].velocity[1], particle[k].velocity[2]);
 				timestepmain[k] = 0;
 			}
 
