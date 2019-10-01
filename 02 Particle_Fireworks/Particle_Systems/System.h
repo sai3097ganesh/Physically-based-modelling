@@ -5,7 +5,9 @@
 #include <cmath>
 #include <iostream>
 #include <time.h>
+#include <random>
 #include "geometry.h"
+
 #define PI 3.14159265
 
 class System
@@ -29,14 +31,20 @@ public:
 	float boxzh = 100;
 	char Gravity = 'y';
 	float distance_from_center;
-	Point origin, newpos[10000];
+	float vnorm[3];
+	Point origin, newpos[n_particles], oldpos[n_particles], face[3];
+	float P_velocity;
 
 	System();
 	void clear();
-	void GenerateParticles(int t);
+	void GenerateParticlesPoint();
+	void GenerateParticlesDisc(float x, float y, float z, float rad);
+	void GenerateParticlesRectangle();
 	void TestDeactivate();
 	void ComputeAcc();
-	void integrate(float h, Point *wall, Plane * const P);
+	void integrate(float h, Point *wall, Point * unit_normal, int n_faces);
+	void GenerateFireworks(int no_times);
+	void GenerateFireworksSecond(float * pos);
 	~System();
 };
 

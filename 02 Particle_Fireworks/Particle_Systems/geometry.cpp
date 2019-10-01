@@ -75,3 +75,39 @@ bool isInside(Point polygon[], int n, Point p)
 	return count & 1;  // Same as (count%2 == 1) 
 }
 
+bool isInside_yz(Point polygon[], int n, Point p)
+{
+	// There must be at least 3 vertices in polygon[] 
+	if (n < 3)  return false;
+
+	// Create a point for line segment from p to infinite 
+	Point extreme(INF, p.z), new_p,new_pn, point_new;
+
+	// Count intersections of the above line with sides of polygon 
+	int count = 0, i = 0;
+	do
+	{
+		int next = (i + 1) % n;
+		new_p.x = polygon[i].x; new_pn.x = polygon[next].x;
+		new_p.y = polygon[i].z; new_p.z = polygon[i].x;
+		new_pn.y = polygon[next].z; new_pn.z = polygon[next].x; 
+		point_new.x = p.x;
+		point_new.y = p.z;
+		point_new.z = p.x;
+		if (doIntersect(new_p, new_pn, point_new, extreme))
+		{
+			// If the point 'p' is colinear with line segment 'i-next', 
+			// then check if it lies on segment. If it lies, return true, 
+			// otherwise false 
+			if (orientation(new_p, p, new_pn) == 0)
+				return onSegment(new_p, p, new_pn);
+
+			count++;
+		}
+		i = next;
+	} while (i != 0);
+
+	// Return true if count is odd, false otherwise 
+	return count & 1;  // Same as (count%2 == 1) 
+}
+

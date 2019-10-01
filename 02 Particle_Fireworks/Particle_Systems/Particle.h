@@ -1,4 +1,6 @@
 #pragma once
+#include <stdlib.h>
+#include <glut.h>
 class Particle
 {
 
@@ -11,10 +13,13 @@ public:
 	float radius=1;
 	float mass = 10;
 	bool active;
+	int repeat;
+	GLfloat color[3];
 
 	Particle();
 	float * getPos();
 	void init();
+	void init_two();
 	void update(float h, float d, float * wind, char G);
 	~Particle();
 };

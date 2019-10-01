@@ -281,64 +281,65 @@ void display(void)
 
 	//DrawBoundingBox();
 	DrawBall();
-	//DrawOBJ();
+	DrawOBJ();
 	//DrawWall();
-
-	//wall
-
-	
-
 	
 	glPopMatrix();
 	glutSwapBuffers();
 }
 
-void init(void)
-{
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	// Enable Z-buffering, backface culling, and lighting
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glShadeModel(GL_SMOOTH);
-	glEnable(GL_LIGHTING);
-	//glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	//glEnable(GL_COLOR_MATERIAL);
-	//glEnable(GL_BLEND);
+void initializeWall() {
 
-	glEnable(GL_LIGHT0);
-	glEnable(GL_LIGHT1);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(60.0, 1.0, 1, 600);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	// Set eye point and lookat point
-	gluLookAt(0, 225, 300, 0, 0, 0, 0, 1, 0);
-
-	// Set up lights
-	GLfloat light0color[] = { 0.5, 0.5, 0.5 };
-	GLfloat light0pos[] = { 500, 500, 300 };
-	GLfloat light1color[] = { 0.5, 0.5, 0.5 };
-	GLfloat light1pos[] = { 1000, 1000, 1000 };
-	glLightfv(GL_LIGHT0, GL_POSITION, light0pos);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light0color);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0color);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light0color);
-	glLightfv(GL_LIGHT1, GL_POSITION, light1pos);
-	glLightfv(GL_LIGHT1, GL_AMBIENT, light1color);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, light1color);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, light1color);
-
-	//readOBJ();
-	
 	//Point p1(-100.0, -40.0, -50.0), p2(100.0, -40.0, -50.0), p3(0.0, -50.0, 5.0);
-	Point p1(100, -80.0, 3.0), p2(-100.0, -80.0, 3.0), p3(0.0, -40.0, -50.0);
+	Point p1(100, -80.0, -50.0), p3(-100.0, -80.0, -50.0), p2(0.0, -80.0, 60.0);
 	wall[0] = p1; wall[1] = p2; wall[2] = p3;
 	P = Plane(p1, p2, p3);
 	n_faces = 1;
 	Point normal(P.a, P.b, P.c);
 	unit_normal[0] = normal;
+}
+
+void init(void)
+{
+	{
+		glClearColor(0.0, 0.0, 0.0, 0.0);
+		// Enable Z-buffering, backface culling, and lighting
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glShadeModel(GL_SMOOTH);
+		glEnable(GL_LIGHTING);
+		//glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+		//glEnable(GL_COLOR_MATERIAL);
+		//glEnable(GL_BLEND);
+
+		glEnable(GL_LIGHT0);
+		glEnable(GL_LIGHT1);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(60.0, 1.0, 1, 600);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		// Set eye point and lookat point
+		gluLookAt(0, 225, 300, 0, 0, 0, 0, 1, 0);
+
+		// Set up lights
+		GLfloat light0color[] = { 0.5, 0.5, 0.5 };
+		GLfloat light0pos[] = { 500, 500, 300 };
+		GLfloat light1color[] = { 0.5, 0.5, 0.5 };
+		GLfloat light1pos[] = { 1000, 1000, 1000 };
+		glLightfv(GL_LIGHT0, GL_POSITION, light0pos);
+		glLightfv(GL_LIGHT0, GL_AMBIENT, light0color);
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, light0color);
+		glLightfv(GL_LIGHT0, GL_SPECULAR, light0color);
+		glLightfv(GL_LIGHT1, GL_POSITION, light1pos);
+		glLightfv(GL_LIGHT1, GL_AMBIENT, light1color);
+		glLightfv(GL_LIGHT1, GL_DIFFUSE, light1color);
+		glLightfv(GL_LIGHT1, GL_SPECULAR, light1color);
+	}
+
+	readOBJ();
+	initializeWall();
 	
 }
 
@@ -353,7 +354,6 @@ void reshapeFunc(GLint newWidth, GLint newHeight)
 	glutPostRedisplay();
 }
 
-
 void idle(void)
 {
 
@@ -366,10 +366,12 @@ void idle(void)
 		if (spinup < -89.0) spinup = -89.0;
 	}
 
-
 	for (float t = 0; t < 1.0 / FPS; t += h) {
-		ball_system.GenerateParticlesDisc(0, 0, 0, 50);
-		ball_system.GenerateParticlesDisc(30, -50, 0,25);
+
+		ball_system.GenerateParticlesDisc(0, 100, 0, 50);
+		ball_system.GenerateParticlesDisc(30, 50, 0,25);
+		ball_system.GenerateParticlesDisc(-30, 50, 0, 25);
+		
 		ball_system.TestDeactivate();
 		ball_system.ComputeAcc();
 		ball_system.integrate(h, wall, unit_normal, n_faces);
@@ -417,7 +419,6 @@ void motion(int x, int y)
 	xchange = x - lastx;
 	ychange = y - lasty;
 }
-
 
 int main(int argc, char** argv)
 {
