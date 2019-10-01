@@ -142,7 +142,6 @@ void System::ComputeAccLennard(float sigma) {
 
 void System::ComputeAccLine() {
 
-	float lennard;
 
 	for (int i = 0; i < n_particles; i++) {
 		if (particle[i].active == true) {
@@ -156,6 +155,44 @@ void System::ComputeAccLine() {
 	}
 }
 
+void System::SurfaceSampling(Point *wall, int n_faces) {
+	float a, b;
+
+	for (int m = 0; m < n_faces; m++) {
+
+		face[0] = wall[3 * m]; face[1] = wall[3 * m + 1]; face[2] = wall[3 * m + 2];
+		for (int i = 0; i < 1; i++) {
+
+			particle[inactive[inactivecount - 1]].radius = 3;
+			//make the particle active 
+			particle[inactive[inactivecount - 1]].active = true;
+
+			//initialize the velocities of the particles
+			particle[inactive[inactivecount - 1]].init();
+
+			particle[inactive[inactivecount - 1]].position[0] = (face[0].x+ face[1].x+ face[2].x)/3; particle[inactive[inactivecount - 1]].position[1] = (face[0].y + face[1].y + face[2].y) / 3; particle[inactive[inactivecount - 1]].position[2] = (face[0].z + face[1].z + face[2].z) / 3;
+			//particle[inactive[inactivecount - 1]].velocity[0] = 0.0*((float)rand() / RAND_MAX - 0.5);
+			//particle[inactive[inactivecount - 1]].velocity[1] = 0.0*((float)rand() / RAND_MAX);
+			//particle[inactive[inactivecount - 1]].velocity[2] = 0.0*((float)rand() / RAND_MAX - 0.5);
+			particle[inactive[inactivecount - 1]].acceleration[1] = -10.0;
+			//popping the inactive array
+			inactive[inactivecount - 1] = inactive[inactivecount];
+			inactivecount--;
+		}
+	}
+}
+void System::ComputeAccPlane() {
+	for (int i = 0; i < n_particles; i++) {
+
+		if (particle[i].active == true) {
+
+			//particle[i].acceleration[0] = (particle[i].position[0]+200);
+			particle[i].acceleration[1] = (particle[i].position[1] - 200);
+			//particle[i].acceleration[1] = (particle[i].position[1] + 50);
+
+		}
+	}
+}
 void System::integrate(float h, Point *wall, Point * unit_normal, int n_faces, float e) {
 
 	//Find what would be the new position
@@ -179,7 +216,7 @@ void System::integrate(float h, Point *wall, Point * unit_normal, int n_faces, f
 	for (int k = 0; k < n_particles; k++) {
 		if (particle[k].active == true) {
 		while (timestepmain[k] > 0) {
-
+			/*
 			for (int m = 0; m < n_faces; m++) {
 
 				face[0] = wall[3 * m]; face[1] = wall[3 * m + 1];face[2]= wall[3 * m + 2];
@@ -206,7 +243,7 @@ void System::integrate(float h, Point *wall, Point * unit_normal, int n_faces, f
 				}
 			}
 			
-			/*
+			
 			if (newPos[k][0] > (boxxh - 10)) {
 
 				f = ((boxxh - 10) - particle[k].getPos()[0]) / (newPos[k][0] - particle[k].getPos()[0]);

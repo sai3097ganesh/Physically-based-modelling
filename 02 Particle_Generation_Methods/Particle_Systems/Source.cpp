@@ -19,7 +19,7 @@ using namespace std;
 
 double boxxl, boxxh, boxyl, boxyh, boxzl, boxzh;  // The low and high x, y, z values for the box sides
 
-int rotateon;
+int rotateon,trigger =0;
 
 double xmin, xmax, ymin, ymax, zmin, zmax;
 double maxdiff;
@@ -48,6 +48,7 @@ Plane P;
 int n_faces;
 
 float e = 0; //Coefficient of restitution
+float gen_x = 0, gen_y = 0, gen_z = 0;
 
 GLfloat box_ambient[] = { 0.1, 0.1, 0.1 };
 GLfloat smallr00[] = { 0.0, 0.0, 0.0 };
@@ -284,7 +285,7 @@ void display(void)
 	//DrawBoundingBox();
 	DrawBall();
 	//DrawOBJ();
-	DrawWall();
+	//DrawWall();
 	
 	glPopMatrix();
 	glutSwapBuffers();
@@ -343,8 +344,8 @@ void init(void)
 		glLightfv(GL_LIGHT1, GL_SPECULAR, light1color);
 	}
 
-	//readOBJ();
-	initializeWall();
+	readOBJ();
+	//initializeWall();
 	
 }
 
@@ -373,8 +374,7 @@ void idle(void)
 
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 
-
-		ball_system.GenerateParticlesDirected(0, 0, 0, 0, 0, 0);
+		//ball_system.GenerateParticlesDirected(gen_x, gen_y, gen_z, 0, 0, 0);
 
 		/*
 		ball_system.GenerateParticlesDisc(0, 100, 0, 50);
@@ -405,6 +405,13 @@ void idle(void)
 
 		//Gourd
 		//ball_system.GenerateParticlesDirected(-10, 0, 0, 100, -50, 70);
+
+		if (trigger == 1)
+		{
+			ball_system.SurfaceSampling(wall, n_faces);
+			trigger = 0;
+		}
+		ball_system.ComputeAccPlane();
 
 		ball_system.TestDeactivate();
 
@@ -453,6 +460,33 @@ void motion(int x, int y)
 	xchange = x - lastx;
 	ychange = y - lasty;
 }
+void Keyboard(unsigned char key, int x, int y)
+{
+	switch (key)
+	{
+	case 'w':
+		gen_y++;
+		break;
+	case 's':
+		gen_y--;
+		break;
+	case 'a':
+		gen_x--;
+		break;
+	case 'd':
+		gen_x++;
+	case 'i':
+		gen_z++;
+		break;
+	case 'k':
+		gen_z--;
+		break;
+	case 32:
+		trigger = 1;
+		break;
+	}
+}
+
 
 int main(int argc, char** argv)
 {
@@ -469,8 +503,10 @@ int main(int argc, char** argv)
 	rotateon = 0;
 
 	glutDisplayFunc(display);
+	 
 	glutTimerFunc(100, timer, 0);
 	glutMouseFunc(mouse);
+	glutKeyboardFunc(Keyboard);
 	glutMotionFunc(motion);
 	glutIdleFunc(idle);
 	glutReshapeFunc(reshapeFunc);

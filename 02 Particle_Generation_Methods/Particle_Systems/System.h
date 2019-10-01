@@ -44,7 +44,9 @@ public:
 	void TestDeactivate();
 	void ComputeAccLennard(float sigma);
 	void ComputeAccLine();
+	void ComputeAccPlane();
 	void integrate(float h, Point *wall, Point * unit_normal, int n_faces, float e);
+	void SurfaceSampling(Point *wall, int n_faces);
 	~System();
 };
 
