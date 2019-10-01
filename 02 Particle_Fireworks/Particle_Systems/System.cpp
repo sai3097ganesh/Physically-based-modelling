@@ -198,6 +198,7 @@ void System::integrate(float h, Point *wall, Plane * const P) {
 	}//End of for loop
 
 }
+
 System::~System()
 {
 	delete[] particle;

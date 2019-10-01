@@ -1,6 +1,28 @@
-﻿  Particle.cpp
-c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\particle.cpp(37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\particle.cpp(38): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\particle.cpp(39): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+﻿  System.cpp
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\system.h(23): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\system.cpp(56): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\system.cpp(57): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  Generating Code...
+  Compiling...
+  Source.cpp
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(51): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(53): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(54): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(55): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(56): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(57): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(58): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(60): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(61): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(63): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(64): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(65): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(156): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(217): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(388): warning C4101: 'SubMenu4': unreferenced local variable
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(388): warning C4101: 'SubMenu1': unreferenced local variable
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(388): warning C4101: 'SubMenu3': unreferenced local variable
+c:\users\sai ganesh\desktop\github\physically-based-modelling\02 particle_fireworks\particle_systems\source.cpp(388): warning C4101: 'SubMenu2': unreferenced local variable
+  Generating Code...
   Particle_Systems.vcxproj -> C:\Users\Sai Ganesh\Desktop\GitHub\Physically-based-modelling\02 Particle_Fireworks\Debug\Particle_Systems.exe
   Particle_Systems.vcxproj -> C:\Users\Sai Ganesh\Desktop\GitHub\Physically-based-modelling\02 Particle_Fireworks\Debug\Particle_Systems.pdb (Partial PDB)

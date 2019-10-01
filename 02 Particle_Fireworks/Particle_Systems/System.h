@@ -6,6 +6,7 @@
 #include <iostream>
 #include <time.h>
 #include "geometry.h"
+#define PI 3.14159265
 
 class System
 {
