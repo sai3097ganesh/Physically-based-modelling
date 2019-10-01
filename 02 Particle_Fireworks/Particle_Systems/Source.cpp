@@ -369,11 +369,11 @@ void idle(void)
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 
 		if (trigger == true) {
-			ball_system.GenerateFireworks(1);
+			ball_system.GenerateFireworks(2);
 			trigger = false;
 		}
 		ball_system.TestDeactivate();
-		ball_system.ComputeAcc();
+		//ball_system.ComputeAcc();
 		ball_system.integrate(h, wall, unit_normal, n_faces);
 	}
 

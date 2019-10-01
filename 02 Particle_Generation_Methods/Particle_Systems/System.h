@@ -13,7 +13,7 @@
 class System
 {
 public:
-	static const int n_particles = 10000;
+	static const int n_particles = 15000;
 	Particle *particle;
 	int inactivecount = n_particles;
 	int inactive[n_particles];
@@ -37,12 +37,14 @@ public:
 
 	System();
 	void clear();
-	void GenerateParticlesPoint();
+	void GenerateParticlesPoint(float px, float py, float pz, float vx, float vy, float vz);
+	void GenerateParticlesDirected(float px, float py, float pz, float vx, float vy, float vz);
 	void GenerateParticlesDisc(float x, float y, float z, float rad);
 	void GenerateParticlesRectangle();
 	void TestDeactivate();
-	void ComputeAcc();
-	void integrate(float h, Point *wall, Point * unit_normal, int n_faces);
+	void ComputeAccLennard(float sigma);
+	void ComputeAccLine();
+	void integrate(float h, Point *wall, Point * unit_normal, int n_faces, float e);
 	~System();
 };
 

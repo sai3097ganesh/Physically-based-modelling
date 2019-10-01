@@ -42,10 +42,12 @@ clock_t initialTime = clock(), finalTime;
 static const int FPS = 30;
 const int tMAX = 10;
 
-static const int N_faces = 50;
+static const int N_faces = 5000;
 Point wall[N_faces*3], unit_normal[N_faces]; 
 Plane P;
 int n_faces;
+
+float e = 0; //Coefficient of restitution
 
 GLfloat box_ambient[] = { 0.1, 0.1, 0.1 };
 GLfloat smallr00[] = { 0.0, 0.0, 0.0 };
@@ -256,7 +258,7 @@ void DrawWall() {
 void readOBJ() {
 	std::vector< glm::vec3 > vertices;
 	std::vector< glm::vec3 > normals;
-	bool res = loadOBJfacenormal("dodecahedron.obj", vertices, normals);
+	bool res = loadOBJfacenormal("gourd.obj", vertices, normals);
 	Point point;
 	for (int i = 0; i < vertices.size(); i++)
 	{
@@ -281,8 +283,8 @@ void display(void)
 
 	//DrawBoundingBox();
 	DrawBall();
-	DrawOBJ();
-	//DrawWall();
+	//DrawOBJ();
+	DrawWall();
 	
 	glPopMatrix();
 	glutSwapBuffers();
@@ -290,8 +292,11 @@ void display(void)
 
 void initializeWall() {
 
-	//Point p1(-100.0, -40.0, -50.0), p2(100.0, -40.0, -50.0), p3(0.0, -50.0, 5.0);
-	Point p1(100, -80.0, -50.0), p3(-100.0, -80.0, -50.0), p2(0.0, -80.0, 60.0);
+	//for polygon collision
+	Point p1(-100.0, -40.0, -50.0), p2(100.0, -40.0, -50.0), p3(0.0, -50.0, 50.0);
+
+	//for Waterfall
+	//Point p1(100, -80.0, -50.0), p3(-100.0, -80.0, -50.0), p2(0.0, -80.0, 60.0);
 	wall[0] = p1; wall[1] = p2; wall[2] = p3;
 	P = Plane(p1, p2, p3);
 	n_faces = 1;
@@ -338,7 +343,7 @@ void init(void)
 		glLightfv(GL_LIGHT1, GL_SPECULAR, light1color);
 	}
 
-	readOBJ();
+	//readOBJ();
 	initializeWall();
 	
 }
@@ -368,13 +373,42 @@ void idle(void)
 
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 
+
+		ball_system.GenerateParticlesDirected(0, 0, 0, 0, 0, 0);
+
+		/*
 		ball_system.GenerateParticlesDisc(0, 100, 0, 50);
 		ball_system.GenerateParticlesDisc(30, 50, 0,25);
 		ball_system.GenerateParticlesDisc(-30, 50, 0, 25);
-		
+		*/
+
+		/*
+		ball_system.GenerateParticlesPoint(100,0,0);
+		ball_system.GenerateParticlesPoint(-100, 0, 0);
+		ball_system.GenerateParticlesPoint(0, 100, 0);
+		ball_system.GenerateParticlesPoint(0, -100, 0);
+		ball_system.GenerateParticlesPoint(0, 0, 100);
+		ball_system.GenerateParticlesPoint(0, 0, -100);
+		ball_system.ComputeAccLennard(50);
+		*/
+
+		/*
+		ball_system.GenerateParticlesPoint(50, 0, 50, 0, 20, 0);
+		ball_system.GenerateParticlesPoint(-50, 0, 50, 0, 20, 0);
+		ball_system.GenerateParticlesPoint(50, 0, -50, 0, 20, 0);
+		ball_system.GenerateParticlesPoint(-50, 0, -50, 0, 20, 0);
+		ball_system.ComputeAccLine();
+		*/
+
+		//Dodecahedron
+		//ball_system.GenerateParticlesPoint(0, 0, 0,100,100,100);
+
+		//Gourd
+		//ball_system.GenerateParticlesDirected(-10, 0, 0, 100, -50, 70);
+
 		ball_system.TestDeactivate();
-		ball_system.ComputeAcc();
-		ball_system.integrate(h, wall, unit_normal, n_faces);
+
+		ball_system.integrate(h, wall, unit_normal, n_faces, e);
 	}
 
 	finalTime = clock();

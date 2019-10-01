@@ -15,19 +15,38 @@ void System::clear() {
 	}
 }
 
-void System::GenerateParticlesPoint() {
+void System::GenerateParticlesPoint(float px, float py, float pz, float vx, float vy, float vz) {
 	for (int i = 0; i < n_generate; i++) {
 		//make the particle active 
 		particle[inactive[inactivecount - 1]].active = true;
 		//initialize the velocities of the particles
 		particle[inactive[inactivecount - 1]].init();
-		particle[inactive[inactivecount - 1]].position[0] = 0; particle[inactive[inactivecount - 1]].position[1] = 0; particle[inactive[inactivecount - 1]].position[2] = 0;
-		particle[inactive[inactivecount - 1]].velocity[0] = 100.0*((float)rand() / RAND_MAX - 0.5);
-		particle[inactive[inactivecount - 1]].velocity[1] = 100.0*((float)rand() / RAND_MAX - 0.5);
-		particle[inactive[inactivecount - 1]].velocity[2] = 100.0*((float)rand() / RAND_MAX - 0.5);
-		//particle[inactive[inactivecount - 1]].velocity[0] = 50.0;
-		//particle[inactive[inactivecount - 1]].velocity[1] = 50.0;
-		//particle[inactive[inactivecount - 1]].velocity[2] = 50.0;
+		particle[inactive[inactivecount - 1]].position[0] = px; particle[inactive[inactivecount - 1]].position[1] = py; particle[inactive[inactivecount - 1]].position[2] = pz;
+		particle[inactive[inactivecount - 1]].velocity[0] = vx*((float)rand() / RAND_MAX - 0.5);
+		particle[inactive[inactivecount - 1]].velocity[1] = vy*((float)rand() / RAND_MAX - 0.5);
+		particle[inactive[inactivecount - 1]].velocity[2] = vz*((float)rand() / RAND_MAX - 0.5);
+		//particle[inactive[inactivecount - 1]].velocity[0] = -50.0;
+		//particle[inactive[inactivecount - 1]].velocity[1] = 0.0;
+		//particle[inactive[inactivecount - 1]].velocity[2] = 0.0;
+		//popping the inactive array
+		inactive[inactivecount - 1] = inactive[inactivecount];
+		inactivecount--;
+	}
+}
+
+void System::GenerateParticlesDirected(float px, float py, float pz, float vx, float vy, float vz) {
+	for (int i = 0; i < n_generate; i++) {
+		//make the particle active 
+		particle[inactive[inactivecount - 1]].active = true;
+		//initialize the velocities of the particles
+		particle[inactive[inactivecount - 1]].init();
+		particle[inactive[inactivecount - 1]].position[0] = px; particle[inactive[inactivecount - 1]].position[1] = py; particle[inactive[inactivecount - 1]].position[2] = pz;
+		particle[inactive[inactivecount - 1]].velocity[0] = vx+ 10*((float)rand() / RAND_MAX - 0.5);
+		particle[inactive[inactivecount - 1]].velocity[1] = vy+ 10*((float)rand() / RAND_MAX - 0.5);
+		particle[inactive[inactivecount - 1]].velocity[2] = vz+ 10*((float)rand() / RAND_MAX - 0.5);
+
+		particle[inactive[inactivecount - 1]].color[0] = 0.8; particle[inactive[inactivecount - 1]].color[1] = 0.34; particle[inactive[inactivecount - 1]].color[2] = 0.18;
+
 		//popping the inactive array
 		inactive[inactivecount - 1] = inactive[inactivecount];
 		inactivecount--;
@@ -49,8 +68,6 @@ void System::GenerateParticlesRectangle() {
 		inactivecount--;
 	}
 }
-
-
 
 void System::GenerateParticlesDisc(float x, float y, float z, float rad) {
 
@@ -92,7 +109,9 @@ void System::TestDeactivate() {
 	}
 }
 
-void System::ComputeAcc() {
+void System::ComputeAccLennard(float sigma) {
+
+	float lennard;
 
 	for (int i = 0; i < n_particles; i++) {
 		if (particle[i].active == true) {
@@ -104,15 +123,40 @@ void System::ComputeAcc() {
 			*/
 			//printf("%f \n", particle[i].acceleration[0]);
 
-			//distance_from_center = sqrt((particle[i].position[0])* (particle[i].position[0]) + particle[i].position[1] * particle[i].position[1]);
-			//particle[i].acceleration[0] = -1000.0*(particle[i].position[0]) / pow(distance_from_center, 2);
-			//particle[i].acceleration[1] = -1000.0*(particle[i].position[1]) / pow(distance_from_center, 2);
-			particle[i].acceleration[1] = -10.0;
+			//about a line
+			distance_from_center = sqrt((particle[i].position[0])* (particle[i].position[0]) + particle[i].position[1] * particle[i].position[1]);
+			particle[i].acceleration[0] = -1000.0*(particle[i].position[0]) / pow(distance_from_center, 2);
+			particle[i].acceleration[1] = -1000.0*(particle[i].position[1]) / pow(distance_from_center, 2);
+
+			//Lennard-Jones
+			distance_from_center = sqrt((particle[i].position[0])* (particle[i].position[0]) + particle[i].position[1] * particle[i].position[1]+ (particle[i].position[2])* (particle[i].position[2]));
+			lennard = (pow((sigma / distance_from_center), 4) - pow((sigma / distance_from_center), 2));
+			particle[i].acceleration[0] = 400*lennard*(particle[i].position[0]) / distance_from_center;
+			particle[i].acceleration[1] = 400*lennard*(particle[i].position[1]) / distance_from_center;
+			particle[i].acceleration[2] = 400*lennard*(particle[i].position[2]) / distance_from_center;
+
+			//particle[i].acceleration[1] = -10.0;
 		}
 	}
 }
 
-void System::integrate(float h, Point *wall, Point * unit_normal, int n_faces) {
+void System::ComputeAccLine() {
+
+	float lennard;
+
+	for (int i = 0; i < n_particles; i++) {
+		if (particle[i].active == true) {
+
+
+			//about a line
+			distance_from_center = sqrt((particle[i].position[0])* (particle[i].position[0]) + particle[i].position[2] * particle[i].position[2]);
+			particle[i].acceleration[0] = -1000.0*(particle[i].position[0]) / pow(distance_from_center, 2);
+			particle[i].acceleration[2] = -1000.0*(particle[i].position[1]) / pow(distance_from_center, 2);
+		}
+	}
+}
+
+void System::integrate(float h, Point *wall, Point * unit_normal, int n_faces, float e) {
 
 	//Find what would be the new position
 	for (int j = 0; j < n_particles; j++) {
@@ -151,9 +195,9 @@ void System::integrate(float h, Point *wall, Point * unit_normal, int n_faces) {
 						vnorm[2] = P_velocity * unit_normal[m].z;
 
 						//printf("%f %f %f \n", unit_normal[m].x, particle[k].velocity[1], particle[k].velocity[2]);
-						particle[k].velocity[0] = particle[k].velocity[0] -  vnorm[0] ;
-						particle[k].velocity[1] = particle[k].velocity[1] - vnorm[1] ;
-						particle[k].velocity[2] = particle[k].velocity[2] -  vnorm[2] ;
+						particle[k].velocity[0] = particle[k].velocity[0] -  vnorm[0] - e*vnorm[0];
+						particle[k].velocity[1] = particle[k].velocity[1] - vnorm[1] - e*vnorm[1];
+						particle[k].velocity[2] = particle[k].velocity[2] -  vnorm[2] - e*vnorm[2];
 						particle[k].update(h, d, wind, Gravity);
 						//if(k==1)
 						//printf("%f %f %f \n", particle[k].velocity[0], particle[k].velocity[1], particle[k].velocity[2]);
