@@ -17,8 +17,10 @@ void System::clear() {
 
 void System::GenerateParticlesPoint(float px, float py, float pz, float vx, float vy, float vz) {
 	for (int i = 0; i < n_generate; i++) {
+
 		//make the particle active 
 		particle[inactive[inactivecount - 1]].active = true;
+
 		//initialize the velocities of the particles
 		particle[inactive[inactivecount - 1]].init();
 		particle[inactive[inactivecount - 1]].position[0] = px; particle[inactive[inactivecount - 1]].position[1] = py; particle[inactive[inactivecount - 1]].position[2] = pz;
@@ -29,6 +31,9 @@ void System::GenerateParticlesPoint(float px, float py, float pz, float vx, floa
 		//particle[inactive[inactivecount - 1]].velocity[1] = 0.0;
 		//particle[inactive[inactivecount - 1]].velocity[2] = 0.0;
 		//popping the inactive array
+
+		particle[inactive[inactivecount - 1]].acceleration[1] = -10.0;
+
 		inactive[inactivecount - 1] = inactive[inactivecount];
 		inactivecount--;
 	}
@@ -46,6 +51,7 @@ void System::GenerateParticlesDirected(float px, float py, float pz, float vx, f
 		particle[inactive[inactivecount - 1]].velocity[2] = vz+ 10*((float)rand() / RAND_MAX - 0.5);
 
 		particle[inactive[inactivecount - 1]].color[0] = 0.8; particle[inactive[inactivecount - 1]].color[1] = 0.34; particle[inactive[inactivecount - 1]].color[2] = 0.18;
+		particle[inactive[inactivecount - 1]].acceleration[1] = -10.0;
 
 		//popping the inactive array
 		inactive[inactivecount - 1] = inactive[inactivecount];
@@ -70,6 +76,10 @@ void System::GenerateParticlesRectangle() {
 }
 
 void System::GenerateParticlesDisc(float x, float y, float z, float rad) {
+	
+	std::random_device rd;
+	std::default_random_engine generator(rd());
+	std::normal_distribution<float> distribution(1, 0.1);
 
 	for (int i = 0; i < n_generate; i++) {
 
@@ -78,18 +88,16 @@ void System::GenerateParticlesDisc(float x, float y, float z, float rad) {
 
 		//initialize the velocities of the particles
 		particle[inactive[inactivecount - 1]].init();
-
-		std::default_random_engine generator;
-		std::normal_distribution<float> distribution(0.5, 0.25);
-
-		float radius = rad* (1 - pow(((float)rand() / RAND_MAX), 3));
-		//float radius = rad*distribution(generator);
+	
+		//float radius = rad* (1 - pow(((float)rand() / RAND_MAX), 3));
+		float radius = rad*distribution(generator);
 		float theta = 2.0*PI*((float)rand() / RAND_MAX);
-		//particle[inactive[inactivecount - 1]].position[0] = x + radius*cos(theta); particle[inactive[inactivecount - 1]].position[1] = y; particle[inactive[inactivecount - 1]].position[2] = z + radius*sin(theta);
-		particle[inactive[inactivecount - 1]].position[0] = x; particle[inactive[inactivecount - 1]].position[1] = y; particle[inactive[inactivecount - 1]].position[2] = z;
-		particle[inactive[inactivecount - 1]].velocity[0] = 10.0*((float)rand() / RAND_MAX - 0.5);
+
+		particle[inactive[inactivecount - 1]].position[0] = x + radius*cos(theta); particle[inactive[inactivecount - 1]].position[1] = y; particle[inactive[inactivecount - 1]].position[2] = z + radius*sin(theta);
+		//particle[inactive[inactivecount - 1]].position[0] = x; particle[inactive[inactivecount - 1]].position[1] = y; particle[inactive[inactivecount - 1]].position[2] = z;
+		particle[inactive[inactivecount - 1]].velocity[0] = 0.0*((float)rand() / RAND_MAX - 0.5);
 		particle[inactive[inactivecount - 1]].velocity[1] = -10.0*((float)rand() / RAND_MAX );
-		particle[inactive[inactivecount - 1]].velocity[2] = 5.0*((float)rand() / RAND_MAX - 0.5);
+		particle[inactive[inactivecount - 1]].velocity[2] = 0.0*((float)rand() / RAND_MAX - 0.5);
 
 		//popping the inactive array
 		inactive[inactivecount - 1] = inactive[inactivecount];
@@ -151,6 +159,7 @@ void System::ComputeAccLine() {
 			distance_from_center = sqrt((particle[i].position[0])* (particle[i].position[0]) + particle[i].position[2] * particle[i].position[2]);
 			particle[i].acceleration[0] = -1000.0*(particle[i].position[0]) / pow(distance_from_center, 2);
 			particle[i].acceleration[2] = -1000.0*(particle[i].position[1]) / pow(distance_from_center, 2);
+			particle[i].acceleration[1] = 0;
 		}
 	}
 }
@@ -181,6 +190,7 @@ void System::SurfaceSampling(Point *wall, int n_faces) {
 		}
 	}
 }
+
 void System::ComputeAccPlane() {
 	for (int i = 0; i < n_particles; i++) {
 
@@ -188,11 +198,12 @@ void System::ComputeAccPlane() {
 
 			//particle[i].acceleration[0] = (particle[i].position[0]+200);
 			particle[i].acceleration[1] = (particle[i].position[1] - 200);
-			//particle[i].acceleration[1] = (particle[i].position[1] + 50);
+			particle[i].acceleration[1] = (particle[i].position[1] + 50);
 
 		}
 	}
 }
+
 void System::integrate(float h, Point *wall, Point * unit_normal, int n_faces, float e) {
 
 	//Find what would be the new position
@@ -216,7 +227,7 @@ void System::integrate(float h, Point *wall, Point * unit_normal, int n_faces, f
 	for (int k = 0; k < n_particles; k++) {
 		if (particle[k].active == true) {
 		while (timestepmain[k] > 0) {
-			/*
+			
 			for (int m = 0; m < n_faces; m++) {
 
 				face[0] = wall[3 * m]; face[1] = wall[3 * m + 1];face[2]= wall[3 * m + 2];
@@ -243,7 +254,7 @@ void System::integrate(float h, Point *wall, Point * unit_normal, int n_faces, f
 				}
 			}
 			
-			
+			/*
 			if (newPos[k][0] > (boxxh - 10)) {
 
 				f = ((boxxh - 10) - particle[k].getPos()[0]) / (newPos[k][0] - particle[k].getPos()[0]);

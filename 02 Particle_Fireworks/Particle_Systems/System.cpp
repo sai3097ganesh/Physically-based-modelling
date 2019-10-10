@@ -51,13 +51,14 @@ void System::GenerateParticlesRectangle() {
 }
 
 void System::GenerateFireworks(int no_times) {
-	n_generate = 50;
+	n_generate = 10;
 	float px = 100.0* ((float)rand() / RAND_MAX - 0.5), py = 100.0* ((float)rand() / RAND_MAX - 0.5), pz = 100.0* ((float)rand() / RAND_MAX - 0.5);
 	
-	std::default_random_engine generator;
-	std::normal_distribution<float> distribution_r((float)rand() / RAND_MAX, 0.25);
-	std::normal_distribution<float> distribution_g((float)rand() / RAND_MAX, 0.25);
-	std::normal_distribution<float> distribution_b((float)rand() / RAND_MAX, 0.25);
+	std::random_device rd;
+	std::default_random_engine generator(rd());
+	std::normal_distribution<float> distribution_r((float)rand() / RAND_MAX, 0.05);
+	std::normal_distribution<float> distribution_g((float)rand() / RAND_MAX, 0.05);
+	std::normal_distribution<float> distribution_b((float)rand() / RAND_MAX, 0.05);
 	
 	for (int i = 0; i < n_generate; i++) {
 
@@ -79,11 +80,11 @@ void System::GenerateFireworks(int no_times) {
 		particle[inactive[inactivecount - 1]].position[1] = py; 
 		particle[inactive[inactivecount - 1]].position[2] = pz;
 
-		particle[inactive[inactivecount - 1]].velocity[0] = 0.0* ((float)rand() / RAND_MAX - 0.5);
-		particle[inactive[inactivecount - 1]].velocity[1] = 0.0* ((float)rand() / RAND_MAX - 0.5);
-		particle[inactive[inactivecount - 1]].velocity[2] = 0.0* ((float)rand() / RAND_MAX - 0.5);
+		particle[inactive[inactivecount - 1]].velocity[0] = 100.0* ((float)rand() / RAND_MAX - 0.5);
+		particle[inactive[inactivecount - 1]].velocity[1] = 100.0* ((float)rand() / RAND_MAX - 0.5);
+		particle[inactive[inactivecount - 1]].velocity[2] = 100.0* ((float)rand() / RAND_MAX - 0.5);
 
-		particle[inactive[inactivecount - 1]].acceleration[1] = 30.0;
+		//particle[inactive[inactivecount - 1]].acceleration[1] = 30.0;
 		particle[inactive[inactivecount - 1]].repeat--;
 		if(no_times==1)
 			particle[inactive[inactivecount - 1]].repeat--;
@@ -95,14 +96,15 @@ void System::GenerateFireworks(int no_times) {
 }
 
 void System::GenerateFireworksSecond(float * pos) {
-	n_generate = 10;
+	n_generate = 100;
 
 	float px = pos[0], py = pos[1], pz = pos[2];
 
-	std::default_random_engine generator;
-	std::normal_distribution<float> distribution_r((float)rand() / RAND_MAX, 0.1);
-	std::normal_distribution<float> distribution_g((float)rand() / RAND_MAX, 0.1);
-	std::normal_distribution<float> distribution_b((float)rand() / RAND_MAX, 0.1);
+	std::random_device rd;
+	std::default_random_engine generator(rd());
+	std::normal_distribution<float> distribution_r((float)rand() / RAND_MAX, 0.05);
+	std::normal_distribution<float> distribution_g((float)rand() / RAND_MAX, 0.05);
+	std::normal_distribution<float> distribution_b((float)rand() / RAND_MAX, 0.05);
 
 	for (int i = 0; i < n_generate; i++) {
 
@@ -112,13 +114,13 @@ void System::GenerateFireworksSecond(float * pos) {
 		//initialize the velocities of the particles
 		particle[inactive[inactivecount - 1]].init();
 
-		particle[inactive[inactivecount - 1]].color[0] = 0.85;
+		/*particle[inactive[inactivecount - 1]].color[0] = 0.85;
 		particle[inactive[inactivecount - 1]].color[1] = 0.34;
-		particle[inactive[inactivecount - 1]].color[2] = 0.13;
+		particle[inactive[inactivecount - 1]].color[2] = 0.13;*/
 
-		//particle[inactive[inactivecount - 1]].color[0] = distribution_r(generator);
-		//particle[inactive[inactivecount - 1]].color[1] = distribution_g(generator);
-		//particle[inactive[inactivecount - 1]].color[2] = distribution_b(generator);
+		particle[inactive[inactivecount - 1]].color[0] = distribution_r(generator);
+		particle[inactive[inactivecount - 1]].color[1] = distribution_g(generator);
+		particle[inactive[inactivecount - 1]].color[2] = distribution_b(generator);
 
 		particle[inactive[inactivecount - 1]].position[0] = px;
 		particle[inactive[inactivecount - 1]].position[1] = py;

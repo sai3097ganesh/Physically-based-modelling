@@ -47,7 +47,7 @@ Point wall[N_faces*3], unit_normal[N_faces];
 Plane P;
 int n_faces;
 
-float e = 0; //Coefficient of restitution
+float e = 0.5; //Coefficient of restitution
 float gen_x = 0, gen_y = 0, gen_z = 0;
 
 GLfloat box_ambient[] = { 0.1, 0.1, 0.1 };
@@ -294,10 +294,11 @@ void display(void)
 void initializeWall() {
 
 	//for polygon collision
-	Point p1(-100.0, -40.0, -50.0), p2(100.0, -40.0, -50.0), p3(0.0, -50.0, 50.0);
+	Point p1(-100.0, -40.0, -50.0), p2(100.0, -40.0, -50.0), p3(0.0, -80.0, 50.0);
 
 	//for Waterfall
 	//Point p1(100, -80.0, -50.0), p3(-100.0, -80.0, -50.0), p2(0.0, -80.0, 60.0);
+
 	wall[0] = p1; wall[1] = p2; wall[2] = p3;
 	P = Plane(p1, p2, p3);
 	n_faces = 1;
@@ -349,7 +350,6 @@ void init(void)
 	
 }
 
-
 void reshapeFunc(GLint newWidth, GLint newHeight)
 {
 	if (newWidth > newHeight) // Keep a square viewport
@@ -374,44 +374,51 @@ void idle(void)
 
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 
-		//ball_system.GenerateParticlesDirected(gen_x, gen_y, gen_z, 0, 0, 0);
+		//ball_system.GenerateParticlesPoint(0, 0, 0, 100, 100, 100);
+
+		//ball_system.GenerateParticlesDirected(gen_x, gen_y, gen_z, 0, -50, 0);
+
+		//ball_system.GenerateParticlesDisc(0, 100, 0, 100);
+
+		
+		/*ball_system.GenerateParticlesPoint(0, 100, 0, 10,10,10);
+		ball_system.GenerateParticlesPoint(30, 50, 0, 10, 10, 10);
+		ball_system.GenerateParticlesPoint(-30, 50, 0, 10, 10, 10);*/
+		
 
 		/*
-		ball_system.GenerateParticlesDisc(0, 100, 0, 50);
-		ball_system.GenerateParticlesDisc(30, 50, 0,25);
-		ball_system.GenerateParticlesDisc(-30, 50, 0, 25);
-		*/
-
-		/*
-		ball_system.GenerateParticlesPoint(100,0,0);
-		ball_system.GenerateParticlesPoint(-100, 0, 0);
-		ball_system.GenerateParticlesPoint(0, 100, 0);
-		ball_system.GenerateParticlesPoint(0, -100, 0);
-		ball_system.GenerateParticlesPoint(0, 0, 100);
-		ball_system.GenerateParticlesPoint(0, 0, -100);
+		ball_system.GenerateParticlesPoint(100,0,0,10,10,10);
+		ball_system.GenerateParticlesPoint(-100, 0, 0,10,10,10);
+		ball_system.GenerateParticlesPoint(0, 100, 0, 10, 10, 10);
+		ball_system.GenerateParticlesPoint(0, -100, 0, 10, 10, 10);
+		ball_system.GenerateParticlesPoint(0, 0, 100, 10, 10, 10);
+		ball_system.GenerateParticlesPoint(0, 0, -100, 10, 10, 10);
 		ball_system.ComputeAccLennard(50);
 		*/
 
-		/*
-		ball_system.GenerateParticlesPoint(50, 0, 50, 0, 20, 0);
-		ball_system.GenerateParticlesPoint(-50, 0, 50, 0, 20, 0);
-		ball_system.GenerateParticlesPoint(50, 0, -50, 0, 20, 0);
-		ball_system.GenerateParticlesPoint(-50, 0, -50, 0, 20, 0);
-		ball_system.ComputeAccLine();
-		*/
+		
+		//BALL_SYSTEM.GENERATEPARTICLESPOINT(50, 0, 50, 0, 20, 0);
+		//BALL_SYSTEM.GENERATEPARTICLESPOINT(-50, 0, 50, 0, 20, 0);
+		//BALL_SYSTEM.GENERATEPARTICLESPOINT(50, 0, -50, 0, 20, 0);
+		//BALL_SYSTEM.GENERATEPARTICLESPOINT(-50, 0, -50, 0, 20, 0);
+		//BALL_SYSTEM.COMPUTEACCLINE();
+		
 
 		//Dodecahedron
-		//ball_system.GenerateParticlesPoint(0, 0, 0,100,100,100);
+		//ball_system.GenerateParticlesPoint(0, 0, 0,50,50,50);
 
 		//Gourd
 		//ball_system.GenerateParticlesDirected(-10, 0, 0, 100, -50, 70);
 
+		//GourdDismantle
+		
 		if (trigger == 1)
 		{
 			ball_system.SurfaceSampling(wall, n_faces);
 			trigger = 0;
 		}
 		ball_system.ComputeAccPlane();
+		
 
 		ball_system.TestDeactivate();
 

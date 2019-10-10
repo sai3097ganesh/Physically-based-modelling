@@ -37,7 +37,7 @@ public:
 
 	System();
 	void clear();
-	void GenerateParticlesPoint(float px, float py, float pz, float vx, float vy, float vz);
+	void GenerateParticlesPoint(float px, float py, float pz, float vx=0, float vy=0, float vz=0);
 	void GenerateParticlesDirected(float px, float py, float pz, float vx, float vy, float vz);
 	void GenerateParticlesDisc(float x, float y, float z, float rad);
 	void GenerateParticlesRectangle();
