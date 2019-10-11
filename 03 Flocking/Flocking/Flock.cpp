@@ -50,8 +50,8 @@ void Flock::GenerateBoidsRectangle() {
 	}
 }
 
-void Flock::GenerateBoids(int no_times) {
-	n_generate = 100;
+void Flock::GenerateBoids() {
+	n_generate = 10;
 	//float px = 100.0* ((float)rand() / RAND_MAX - 0.5), py = 100.0* ((float)rand() / RAND_MAX - 0.5), pz = 100.0* ((float)rand() / RAND_MAX - 0.5);
 	
 	std::random_device rd;
@@ -76,11 +76,11 @@ void Flock::GenerateBoids(int no_times) {
 		boid[inactive[inactivecount - 1]].color[1] = distribution_g(generator);
 		boid[inactive[inactivecount - 1]].color[2] = distribution_b(generator);
 
-		boid[inactive[inactivecount - 1]].position.x = 200.0* ((float)rand() / RAND_MAX - 0.5);
-		boid[inactive[inactivecount - 1]].position.y = 200.0* ((float)rand() / RAND_MAX - 0.5);
+		boid[inactive[inactivecount - 1]].position.x = 30.0* ((float)rand() / RAND_MAX - 0.5)+30;
+		boid[inactive[inactivecount - 1]].position.y = 30.0* ((float)rand() / RAND_MAX - 0.5)+90;
 		boid[inactive[inactivecount - 1]].position.z = 0.0* ((float)rand() / RAND_MAX - 0.5);
 
-		boid[inactive[inactivecount - 1]].velocity[0] = 10.0* ((float)rand() / RAND_MAX - 0.5);
+		boid[inactive[inactivecount - 1]].velocity[0] = 0.0* ((float)rand() / RAND_MAX - 0.5);
 		boid[inactive[inactivecount - 1]].velocity[1] = 10.0* ((float)rand() / RAND_MAX - 0.5);
 		boid[inactive[inactivecount - 1]].velocity[2] = 0.0* ((float)rand() / RAND_MAX - 0.5);
 
@@ -137,7 +137,7 @@ void Flock::TestDeactivate() {
 }
 
 void Flock::ComputeAccAlign() {
-
+	
 	glm::vec3 steering = {0.0,0.0,0.0};
 	float count, visionRadius = 50;
 
@@ -152,22 +152,12 @@ void Flock::ComputeAccAlign() {
 				}
 			}
 
-			float maxvalue = 2;
+			float maxvalue = 5;
 
 			if (count > 0)
 			{
 				boid[i].acceleration += steering / glm::length(steering)*maxvalue;
-
-				/*
-				if (boid[i].acceleration.x > maxvalue)boid[i].acceleration.x = maxvalue;
-				else if(boid[i].acceleration.x < -maxvalue)boid[i].acceleration.x = -maxvalue;
-				if (boid[i].acceleration.y > maxvalue)boid[i].acceleration.y = maxvalue;
-				else if (boid[i].acceleration.y < -maxvalue)boid[i].acceleration.y = -maxvalue;
-				if (boid[i].acceleration.z > maxvalue)boid[i].acceleration.z = maxvalue;
-				else if (boid[i].acceleration.z < -maxvalue)boid[i].acceleration.z = -maxvalue;
-				*/
 			}
-
 			//printf("%f %f %f %f\n", boid[i].acceleration.x, boid[i].acceleration.y, boid[i].acceleration.z,count);
 		}
 	}
@@ -176,7 +166,7 @@ void Flock::ComputeAccAlign() {
 void Flock::ComputeAccCohesion() {
 
 	glm::vec3 steering = { 0.0,0.0,0.0 };
-	float count, visionRadius = 100;
+	float count, visionRadius = 50;
 
 	for (int i = 0; i < n_Boids; i++) {
 		if (boid[i].active == true) {
@@ -189,30 +179,50 @@ void Flock::ComputeAccCohesion() {
 				}
 			}
 
-			float maxvalue = 100;
+			float maxvalue = 50;
 
 			if (count > 0)
 			{
 				steering = steering/count - boid[i].position;
 				boid[i].acceleration += steering / glm::length(steering)*maxvalue;
-
-				/*
-				if (boid[i].acceleration.x > maxvalue)boid[i].acceleration.x = maxvalue;
-				else if(boid[i].acceleration.x < -maxvalue)boid[i].acceleration.x = -maxvalue;
-				if (boid[i].acceleration.y > maxvalue)boid[i].acceleration.y = maxvalue;
-				else if (boid[i].acceleration.y < -maxvalue)boid[i].acceleration.y = -maxvalue;
-				if (boid[i].acceleration.z > maxvalue)boid[i].acceleration.z = maxvalue;
-				else if (boid[i].acceleration.z < -maxvalue)boid[i].acceleration.z = -maxvalue;
-				*/
 			}
 
-			//printf("%f %f %f %f\n", boid[i].acceleration.x, boid[i].acceleration.y, boid[i].acceleration.z,count);
+		}
+	}
+}
+
+void Flock::ComputeAccSeparation() {
+
+	glm::vec3 steering = { 0.0,0.0,0.0 };
+	float count, visionRadius = 10;
+
+	for (int i = 0; i < n_Boids; i++) {
+		if (boid[i].active == true) {
+			count = 0;
+			for (int j = 0; j < n_Boids; j++) {
+				float d = glm::distance(boid[i].position, boid[j].position);
+				if ((i != j) && (boid[j].active == true) &&  d < visionRadius) {
+					steering += (boid[i].position-boid[j].position)/(d*d);
+					count += 1.0;
+				}
+			}
+
+			float maxvalue = 500;
+
+			if (count > 0)
+			{
+				steering = steering / count;
+				boid[i].acceleration += steering * maxvalue;
+			//	printf("%f %f %f %f %f\n", boid[i].acceleration.x, boid[i].acceleration.y, boid[i].acceleration.z, glm::length(steering),count);
+			}
+
 		}
 	}
 }
 
 void Flock::integrate(float h, Point *wall, Point * unit_normal, int n_faces) {
 
+	float boundary = 100;
 	//Find what would be the new position
 	for (int j = 0; j < n_Boids; j++) {
 		if (boid[j].active == true) {
@@ -235,7 +245,9 @@ void Flock::integrate(float h, Point *wall, Point * unit_normal, int n_faces) {
 		if (boid[k].active == true) {
 		while (timestepmain[k] > 0) {
 
-		
+			if(newPos[k][0]>boundary || newPos[k][0]<-boundary) boid[k].velocity.x = -boid[k].velocity.x;
+			if (newPos[k][1]>boundary || newPos[k][1]<-boundary) boid[k].velocity.y = -boid[k].velocity.y;
+
 			/*
 			for (int m = 0; m < n_faces; m++) {
 
@@ -372,6 +384,43 @@ void Flock::integrate(float h, Point *wall, Point * unit_normal, int n_faces) {
 
 }
 
+void Flock::SphericalObstacle(float radius, float safe_radius, float threashold_time, glm::vec3 center) {
+
+	float R = radius + safe_radius, s_close, Dc, d, vs, Dt, Vt, Tt;
+	glm::vec3 Xis, Xclose, vPerp, Xt;
+
+	for (int i = 0; i < n_Boids; i++) {
+		if (boid[i].active == true) {
+
+			Xis = center - boid[i].position;
+			s_close = glm::dot(Xis, boid[i].velocity / glm::length(boid[i].velocity));
+
+			//printf("%f \n", s_close);
+			if (s_close >= 0) {
+
+				Dc = threashold_time * glm::length(boid[i].velocity);
+
+				if (s_close <= Dc) {
+
+					Xclose = boid[i].position + s_close*boid[i].velocity / glm::length(boid[i].velocity);
+					d = glm::length(Xclose - center);
+
+					if (d <= R) {
+						//printf("%f \n", d);
+						vPerp = Xclose - center; vPerp = vPerp / glm::length(vPerp);
+						Xt = center + R*vPerp;
+						Dt = glm::length(Xt - boid[i].position);
+						Vt = glm::dot(boid[i].velocity, Xt - boid[i].position)/Dt;
+						Tt = Dt / Vt;
+						vs = glm::length(glm::cross((boid[i].velocity / glm::length(boid[i].velocity)), (Xt - boid[i].position))) / Tt;
+						//vs = glm::length(glm::cross((boid[i].velocity / glm::length(boid[i].velocity)), (Xt - boid[i].position)))*glm::dot(boid[i].velocity, Xt - boid[i].position)/pow(glm::length(Xt-boid[i].position),2);
+						boid[i].acceleration += 5 * vs / Tt * vPerp;
+					}
+				}
+			}
+		}
+	}
+}
 Flock::~Flock()
 {
 	delete[] boid;

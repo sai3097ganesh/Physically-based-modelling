@@ -23,7 +23,7 @@ void Boid::update(float h, float d, float * wind, char G) {
 
 
 void Boid::init() {
-	lifespan = 5000;
+	lifespan = 10000;
 }
 Boid::~Boid()
 {

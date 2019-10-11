@@ -48,6 +48,10 @@ Plane P;
 int n_faces;
 bool trigger = false;
 
+
+int obstacleRadius = 20;
+
+
 GLfloat box_ambient[] = { 0.1, 0.1, 0.1 };
 GLfloat smallr00[] = { 0.0, 0.0, 0.0 };
 GLfloat small0g0[] = { 0.0, 0.075, 0.0 };
@@ -254,6 +258,25 @@ void DrawWall() {
 	
 }
 
+void DrawCircle(float cx, float cy, float r, int num_segments)
+{
+	glLineWidth(3.0);
+	GLfloat lineColor[3] = { 0.0,0.3,0.0 };
+	glBegin(GL_LINE_LOOP);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
+	for (int ii = 0; ii < num_segments; ii++)
+	{
+		float theta = 2.0f * 3.1415926f * float(ii) / float(num_segments);//get the current angle
+
+		float x = r * cosf(theta);//calculate the x component
+		float y = r * sinf(theta);//calculate the y component
+
+		glVertex3f(x + cx, y + cy,0);//output vertex
+
+	}
+	glEnd();
+}
+
 void readOBJ() {
 	std::vector< glm::vec3 > vertices;
 	std::vector< glm::vec3 > normals;
@@ -285,7 +308,7 @@ void display(void)
 	DrawBall();
 	//DrawOBJ();
 	//DrawWall();
-	
+	DrawCircle(30, 0, obstacleRadius, 30);
 	glPopMatrix();
 	glutSwapBuffers();
 }
@@ -370,12 +393,16 @@ void idle(void)
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 
 		if (trigger == true) {
-			flock.GenerateBoids(2);
+			flock.GenerateBoids();
 			trigger = false;
 		}
+
 		flock.TestDeactivate();
-		flock.ComputeAccAlign();
+		flock.ComputeAccSeparation();
+		//flock.ComputeAccAlign();
 		flock.ComputeAccCohesion();
+		printf("% f\n",flock.boid[1].acceleration.x);
+		//flock.SphericalObstacle(obstacleRadius);
 		flock.integrate(h, wall, unit_normal, n_faces);
 	}
 
@@ -449,7 +476,6 @@ int main(int argc, char** argv)
 	glutCreateWindow("Flocking demo");
 	init();
 	rotateon = 0;
-
 	glutDisplayFunc(display);
 	glutTimerFunc(100, timer, 0);
 	glutMouseFunc(mouse);

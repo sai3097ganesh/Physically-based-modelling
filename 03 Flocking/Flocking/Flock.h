@@ -43,8 +43,11 @@ public:
 	void TestDeactivate();
 	void ComputeAccAlign();
 	void ComputeAccCohesion();
+	void ComputeAccSeparation();
 	void integrate(float h, Point *wall, Point * unit_normal, int n_faces);
-	void GenerateBoids(int no_times);
+	void GenerateBoids();
+	void SphericalObstacle(float radius = 50.0, float safe_radius = 5.0, float threashold_time = 10.0, glm::vec3 center = { 30.0,0.0,0.0 });
+	//void SphericalObstacle(float radius, float safe_radius, float threashold_time, glm::vec3 center);
 
 	~Flock();
 };
