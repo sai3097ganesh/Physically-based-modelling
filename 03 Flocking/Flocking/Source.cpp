@@ -221,19 +221,21 @@ void DrawBall() {
 		}
 	}
 
+	
 	//Display Lead
 	glMaterialfv(GL_FRONT, GL_AMBIENT, flock.leadBoid.color);
 	glPushMatrix();
 	glTranslatef(flock.leadBoid.position.x, flock.leadBoid.position.y, flock.leadBoid.position.z);
 	glutSolidSphere(flock.leadBoid.radius, 20, 20);
 	glPopMatrix();
-
+	
 	//Display Repel Boid
 	glMaterialfv(GL_FRONT, GL_AMBIENT, flock.leadBoid.color);
 	glPushMatrix();
 	glTranslatef(flock.repelBoid.position.x, flock.repelBoid.position.y, flock.repelBoid.position.z);
 	glutSolidSphere(flock.leadBoid.radius, 20, 20);
 	glPopMatrix();
+	
 }
 
 void DrawOBJ() {
@@ -380,7 +382,7 @@ void init(void)
 		glLoadIdentity();
 
 		// Set eye point and lookat point
-		gluLookAt(0, 225, 300, 0, 0, 0, 0, 1, 0);
+		gluLookAt(0, 0, 300, 0, 0, 0, 0, 1, 0);
 
 		// Set up lights
 		GLfloat light0color[] = { 0.5, 0.5, 0.5 };
@@ -427,7 +429,7 @@ void idle(void)
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 
 		if (trigger == true) {
-			flock.GenerateBoids(10);
+			flock.GenerateBoids(100);
 			trigger = false;
 		}
 
@@ -435,9 +437,9 @@ void idle(void)
 		//flock.ComputeAccSeparation();
 		//flock.ComputeAccAlign();
 		//flock.ComputeAccCohesion();
-		flock.FollowLeadParticle();
-		flock.FollowLeadParticleForcely();
-		flock.RepelBoid();
+		//flock.FollowLeadParticle();
+		//flock.FollowLeadParticleForcely();
+		//flock.RepelBoid();
 		//flock.SphericalObstacle(obstacleRadius);
 		flock.integrate(h, wall, unit_normal, n_faces);
 	}
@@ -502,7 +504,7 @@ void Keyboard(unsigned char key, int x, int y)
 		break;
 	case 'd':
 		flock.leadBoid.position.x+=2;
-
+		break;
 	case 'i':
 		flock.repelBoid.position.y += 2;
 		break;
@@ -514,6 +516,7 @@ void Keyboard(unsigned char key, int x, int y)
 		break;
 	case 'l':
 		flock.repelBoid.position.x += 2;
+		break;
 	}
 }
 

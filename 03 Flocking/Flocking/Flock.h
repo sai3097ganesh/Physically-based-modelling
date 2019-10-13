@@ -13,7 +13,7 @@
 class Flock
 {
 public:
-	static const int n_Boids = 200;
+	static const int n_Boids = 1000;
 	Boid *boid;
 	Boid leadBoid;
 	Boid repelBoid;
@@ -52,6 +52,7 @@ public:
 	void FollowLeadParticleForcely();
 	void RepelBoid();
 	void SphericalObstacle(float radius = 50.0, float safe_radius = 5.0, float threashold_time = 10.0, glm::vec3 center = { 30.0,0.0,0.0 });
+	void Obstacles();
 	//void SphericalObstacle(float radius, float safe_radius, float threashold_time, glm::vec3 center);
 
 	~Flock();

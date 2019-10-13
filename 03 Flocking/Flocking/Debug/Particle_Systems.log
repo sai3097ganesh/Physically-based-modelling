@@ -12,15 +12,15 @@ c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocki
 c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(68): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
 c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(69): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
 c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(147): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(247): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(263): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(275): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(296): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(317): warning C4018: '<': signed/unsigned mismatch
-c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(322): warning C4018: '<': signed/unsigned mismatch
-c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(530): warning C4101: 'SubMenu4': unreferenced local variable
-c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(530): warning C4101: 'SubMenu1': unreferenced local variable
-c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(530): warning C4101: 'SubMenu3': unreferenced local variable
-c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(530): warning C4101: 'SubMenu2': unreferenced local variable
+c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(249): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(265): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(277): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(298): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
+c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(319): warning C4018: '<': signed/unsigned mismatch
+c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(324): warning C4018: '<': signed/unsigned mismatch
+c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(533): warning C4101: 'SubMenu4': unreferenced local variable
+c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(533): warning C4101: 'SubMenu1': unreferenced local variable
+c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(533): warning C4101: 'SubMenu3': unreferenced local variable
+c:\users\sai ganesh\desktop\github\physically-based-modelling\03 flocking\flocking\source.cpp(533): warning C4101: 'SubMenu2': unreferenced local variable
   Particle_Systems.vcxproj -> C:\Users\Sai Ganesh\Desktop\GitHub\Physically-based-modelling\03 Flocking\Debug\Flocking.exe
   Particle_Systems.vcxproj -> C:\Users\Sai Ganesh\Desktop\GitHub\Physically-based-modelling\03 Flocking\Debug\Flocking.pdb (Partial PDB)
