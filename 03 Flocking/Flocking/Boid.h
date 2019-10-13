@@ -13,10 +13,10 @@ public:
 
 	int lifespan;
 	float gravity[3] = { 0.0, 0.0, 0.0 };
-	float radius=2;
+	float radius=5;
 	float mass = 10;
 	bool active;
-	GLfloat color[3];
+	GLfloat color[3] = { 0.7f,0.4f,0.3f };
 
 	Boid();
 	void init();

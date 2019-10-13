@@ -50,7 +50,7 @@ bool trigger = false;
 
 
 int obstacleRadius = 20;
-
+glm::vec3 unit_velocity;
 
 GLfloat box_ambient[] = { 0.1, 0.1, 0.1 };
 GLfloat smallr00[] = { 0.0, 0.0, 0.0 };
@@ -221,6 +221,19 @@ void DrawBall() {
 		}
 	}
 
+	//Display Lead
+	glMaterialfv(GL_FRONT, GL_AMBIENT, flock.leadBoid.color);
+	glPushMatrix();
+	glTranslatef(flock.leadBoid.position.x, flock.leadBoid.position.y, flock.leadBoid.position.z);
+	glutSolidSphere(flock.leadBoid.radius, 20, 20);
+	glPopMatrix();
+
+	//Display Repel Boid
+	glMaterialfv(GL_FRONT, GL_AMBIENT, flock.leadBoid.color);
+	glPushMatrix();
+	glTranslatef(flock.repelBoid.position.x, flock.repelBoid.position.y, flock.repelBoid.position.z);
+	glutSolidSphere(flock.leadBoid.radius, 20, 20);
+	glPopMatrix();
 }
 
 void DrawOBJ() {
@@ -256,6 +269,25 @@ void DrawWall() {
 	glVertex3f(wall[0].x, wall[0].y, wall[0].z);
 	glEnd();
 	
+}
+
+void DrawVelocity(float arrow_size) {
+	GLfloat lineColor[3] = { 0.0,0.8,0.0 };
+	
+	for (int i = 0; i < flock.n_Boids; i++) {
+
+		if (flock.boid[i].active == true) {
+			glBegin(GL_LINE_STRIP);
+			glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
+			unit_velocity = flock.boid[i].velocity / glm::length(flock.boid[i].velocity);
+			glVertex3f(flock.boid[i].position.x, flock.boid[i].position.y, flock.boid[i].position.z);
+			glVertex3f(flock.boid[i].position.x + unit_velocity.x*arrow_size, flock.boid[i].position.y + unit_velocity.y*arrow_size, flock.boid[i].position.z + unit_velocity.z*arrow_size);
+			//glVertex3f(flock.boid[i].position.x, flock.boid[i].position.y, flock.boid[i].position.z);
+			//glVertex3f(flock.boid[i].position.x, flock.boid[i].position.y, flock.boid[i].position.z);
+			glEnd();
+
+		}
+	}
 }
 
 void DrawCircle(float cx, float cy, float r, int num_segments)
@@ -306,9 +338,11 @@ void display(void)
 	//DrawBoundingBox();
 
 	DrawBall();
+	DrawVelocity(10);
+
 	//DrawOBJ();
 	//DrawWall();
-	DrawCircle(30, 0, obstacleRadius, 30);
+	//DrawCircle(30, 0, obstacleRadius, 30);
 	glPopMatrix();
 	glutSwapBuffers();
 }
@@ -393,15 +427,17 @@ void idle(void)
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 
 		if (trigger == true) {
-			flock.GenerateBoids();
+			flock.GenerateBoids(10);
 			trigger = false;
 		}
 
 		flock.TestDeactivate();
-		flock.ComputeAccSeparation();
+		//flock.ComputeAccSeparation();
 		//flock.ComputeAccAlign();
-		flock.ComputeAccCohesion();
-		printf("% f\n",flock.boid[1].acceleration.x);
+		//flock.ComputeAccCohesion();
+		flock.FollowLeadParticle();
+		flock.FollowLeadParticleForcely();
+		flock.RepelBoid();
 		//flock.SphericalObstacle(obstacleRadius);
 		flock.integrate(h, wall, unit_normal, n_faces);
 	}
@@ -454,6 +490,30 @@ void Keyboard(unsigned char key, int x, int y)
 	case 32:
 		trigger = true;
 		break;
+
+	case 'w':
+		flock.leadBoid.position.y+=2;
+		break;
+	case 's':
+		flock.leadBoid.position.y-=2;
+		break;
+	case 'a':
+		flock.leadBoid.position.x-=2;
+		break;
+	case 'd':
+		flock.leadBoid.position.x+=2;
+
+	case 'i':
+		flock.repelBoid.position.y += 2;
+		break;
+	case 'k':
+		flock.repelBoid.position.y -= 2;
+		break;
+	case 'j':
+		flock.repelBoid.position.x -= 2;
+		break;
+	case 'l':
+		flock.repelBoid.position.x += 2;
 	}
 }
 

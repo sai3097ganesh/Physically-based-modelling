@@ -50,8 +50,8 @@ void Flock::GenerateBoidsRectangle() {
 	}
 }
 
-void Flock::GenerateBoids() {
-	n_generate = 10;
+void Flock::GenerateBoids(int nos) {
+	n_generate = nos;
 	//float px = 100.0* ((float)rand() / RAND_MAX - 0.5), py = 100.0* ((float)rand() / RAND_MAX - 0.5), pz = 100.0* ((float)rand() / RAND_MAX - 0.5);
 	
 	std::random_device rd;
@@ -194,7 +194,7 @@ void Flock::ComputeAccCohesion() {
 void Flock::ComputeAccSeparation() {
 
 	glm::vec3 steering = { 0.0,0.0,0.0 };
-	float count, visionRadius = 10;
+	float count, visionRadius = 50;
 
 	for (int i = 0; i < n_Boids; i++) {
 		if (boid[i].active == true) {
@@ -216,6 +216,33 @@ void Flock::ComputeAccSeparation() {
 			//	printf("%f %f %f %f %f\n", boid[i].acceleration.x, boid[i].acceleration.y, boid[i].acceleration.z, glm::length(steering),count);
 			}
 
+		}
+	}
+}
+
+void Flock::FollowLeadParticle() {
+	float magnitude = 10;
+	for (int i = 0; i < n_Boids; i++) {
+		if (boid[i].active == true) {
+			boid[i].acceleration += magnitude * (leadBoid.position - boid[i].position) / glm::length(leadBoid.position - boid[i].position);
+		}
+	}
+}
+
+void Flock::FollowLeadParticleForcely() {
+	float magnitude = 3;
+	for (int i = 0; i < n_Boids; i++) {
+		if (boid[i].active == true) {
+			boid[i].velocity += magnitude * (leadBoid.position - boid[i].position) / glm::length(leadBoid.position - boid[i].position);
+		}
+	}
+}
+
+void Flock::RepelBoid() {
+	float magnitude = 3;
+	for (int i = 0; i < n_Boids; i++) {
+		if (boid[i].active == true) {
+			boid[i].velocity -= magnitude * (leadBoid.position - boid[i].position) / glm::length(leadBoid.position - boid[i].position);
 		}
 	}
 }
@@ -245,8 +272,8 @@ void Flock::integrate(float h, Point *wall, Point * unit_normal, int n_faces) {
 		if (boid[k].active == true) {
 		while (timestepmain[k] > 0) {
 
-			if(newPos[k][0]>boundary || newPos[k][0]<-boundary) boid[k].velocity.x = -boid[k].velocity.x;
-			if (newPos[k][1]>boundary || newPos[k][1]<-boundary) boid[k].velocity.y = -boid[k].velocity.y;
+			//if(newPos[k][0]>boundary || newPos[k][0]<-boundary) boid[k].velocity.x = -boid[k].velocity.x;
+			//if (newPos[k][1]>boundary || newPos[k][1]<-boundary) boid[k].velocity.y = -boid[k].velocity.y;
 
 			/*
 			for (int m = 0; m < n_faces; m++) {
@@ -421,6 +448,7 @@ void Flock::SphericalObstacle(float radius, float safe_radius, float threashold_
 		}
 	}
 }
+
 Flock::~Flock()
 {
 	delete[] boid;
