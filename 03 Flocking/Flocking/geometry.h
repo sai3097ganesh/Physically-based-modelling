@@ -1,6 +1,8 @@
 #pragma once
 #include <math.h>
 #include <cmath>
+#include <glm\glm.hpp>
+
 struct Point {
 	float x;
 	float y;
@@ -49,3 +51,5 @@ struct Plane{
 
 bool isInside(Point polygon[], int n, Point p);
 bool isInside_yz(Point polygon[], int n, Point p);
+bool doIntersect_glm(glm::vec3 P1, glm::vec3 Q1, glm::vec3 P2, glm::vec3 Q2);
+bool onSegment_glm(glm::vec3 p, glm::vec3 q, glm::vec3 r);

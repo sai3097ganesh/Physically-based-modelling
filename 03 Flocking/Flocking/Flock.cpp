@@ -1,4 +1,5 @@
 #include "Flock.h"
+#define INF 100000.0
 
 Flock::Flock()
 {
@@ -78,12 +79,12 @@ void Flock::GenerateBoids(int nos) {
 		boid[inactive[inactivecount - 1]].color[1] = distribution_g(generator);
 		boid[inactive[inactivecount - 1]].color[2] = distribution_b(generator);
 
-		boid[inactive[inactivecount - 1]].position.x = 200.0* ((float)rand() / RAND_MAX - 0.5);
-		boid[inactive[inactivecount - 1]].position.y = 200.0* ((float)rand() / RAND_MAX - 0.5);
+		boid[inactive[inactivecount - 1]].position.x = 0.0* ((float)rand() / RAND_MAX - 0.5)+50;
+		boid[inactive[inactivecount - 1]].position.y = 0.0* ((float)rand() / RAND_MAX - 0.5)+20;
 		boid[inactive[inactivecount - 1]].position.z = 0.0* ((float)rand() / RAND_MAX - 0.5);
 
-		boid[inactive[inactivecount - 1]].velocity[0] = 10.0* ((float)rand() / RAND_MAX - 0.5);
-		boid[inactive[inactivecount - 1]].velocity[1] = 10.0* ((float)rand() / RAND_MAX - 0.5);
+		boid[inactive[inactivecount - 1]].velocity[0] = 100.0* ((float)rand() / RAND_MAX - 0.5);
+		boid[inactive[inactivecount - 1]].velocity[1] = 100.0* ((float)rand() / RAND_MAX - 0.5);
 		boid[inactive[inactivecount - 1]].velocity[2] = 0.0* ((float)rand() / RAND_MAX - 0.5);
 
 		//popping the inactive array
@@ -92,7 +93,6 @@ void Flock::GenerateBoids(int nos) {
 		
 	}
 }
-
 
 void Flock::GenerateBoidsDisc(float x, float y, float z, float rad) {
 
@@ -123,17 +123,18 @@ void Flock::GenerateBoidsDisc(float x, float y, float z, float rad) {
 }
 
 void Flock::TestDeactivate() {
+
 	for (int i = 0; i < n_Boids; i++) {
 		if (boid[i].active == true) {
 			boid[i].acceleration = { 0.0,0.0,0.0 };
+			float vel = 50;
+			if (glm::length(boid[i].velocity) > vel) boid[i].velocity = boid[i].velocity / glm::length(boid[i].velocity)*vel;
 			if (boid[i].lifespan < 1) {
 				boid[i].active = false;
 				inactive[inactivecount] = i;
 				inactivecount++;
 
-			}
-			
-				
+			}	
 		}
 	}
 }
@@ -154,7 +155,7 @@ void Flock::ComputeAccAlign() {
 				}
 			}
 
-			float maxvalue = 2;
+			float maxvalue = 10;
 
 			if (count > 0)
 			{
@@ -168,7 +169,7 @@ void Flock::ComputeAccAlign() {
 void Flock::ComputeAccCohesion() {
 
 	glm::vec3 steering = { 0.0,0.0,0.0 };
-	float count, visionRadius = 100;
+	float count, visionRadius = 80;
 
 	for (int i = 0; i < n_Boids; i++) {
 		if (boid[i].active == true) {
@@ -181,7 +182,7 @@ void Flock::ComputeAccCohesion() {
 				}
 			}
 
-			float maxvalue = 100;
+			float maxvalue = 200;
 
 			if (count > 0)
 			{
@@ -196,7 +197,7 @@ void Flock::ComputeAccCohesion() {
 void Flock::ComputeAccSeparation() {
 
 	glm::vec3 steering = { 0.0,0.0,0.0 };
-	float count, visionRadius = 50;
+	float count, visionRadius = 20;
 
 	for (int i = 0; i < n_Boids; i++) {
 		if (boid[i].active == true) {
@@ -209,7 +210,7 @@ void Flock::ComputeAccSeparation() {
 				}
 			}
 
-			float maxvalue = 500;
+			float maxvalue = 250*50;
 
 			if (count > 0)
 			{
@@ -274,10 +275,10 @@ void Flock::integrate(float h, Point *wall, Point * unit_normal, int n_faces) {
 		if (boid[k].active == true) {
 		while (timestepmain[k] > 0) {
 
-			//if(newPos[k][0]>boundary || newPos[k][0]<-boundary) boid[k].velocity.x = -boid[k].velocity.x;
-			//if (newPos[k][1]>boundary || newPos[k][1]<-boundary) boid[k].velocity.y = -boid[k].velocity.y;
+			if(newPos[k][0]>boundary || newPos[k][0]<-boundary) boid[k].velocity.x = -boid[k].velocity.x;
+			if (newPos[k][1]>boundary || newPos[k][1]<-boundary) boid[k].velocity.y = -boid[k].velocity.y;
 
-			/*
+			
 			for (int m = 0; m < n_faces; m++) {
 
 				face[0] = wall[3 * m]; face[1] = wall[3 * m + 1];face[2]= wall[3 * m + 2];
@@ -303,7 +304,7 @@ void Flock::integrate(float h, Point *wall, Point * unit_normal, int n_faces) {
 					}
 				}
 			}
-			
+			/*
 			
 			if (newPos[k][0] > (boxxh - 10)) {
 
@@ -451,8 +452,37 @@ void Flock::SphericalObstacle(float radius, float safe_radius, float threashold_
 	}
 }
 
-void Flock::Obstacles() {
+void Flock::LineStop(glm::vec3 p1, glm::vec3 p2) {
+	
+	Point P1 = { p1.x,p1.y,p1.z }, P2 = { p1.x,p1.y,p1.z };
+	float d, magnitude = 10000;
+	glm::vec3 normal, b;
 
+	for (int i = 0; i < n_Boids; i++) {
+		if (boid[i].active == true) {
+
+			b = glm::dot((p2 - p1), boid[i].position - p1)*(p2 - p1) / pow(glm::length(p2 - p1), 2);
+			d = glm::length( boid[i].position - p1 - b);
+			normal = (boid[i].position - p1 - b) ;
+			
+			
+			//if ((glm::length(b)<glm::length(p1-p2))&&(d<10)) {
+			if (onSegment_glm(p1,boid[i].position-normal,p2) && (d<10)) {
+				boid[i].acceleration = normal / (d*d*d*d / magnitude);
+
+				//boid[i].acceleration /= glm::length(boid[i].acceleration) * 10;
+				//printf("%f \n", glm::length(glm::cross((boid[i].position - p1), (p1 - p2))) / glm::length(p1 - p2));
+
+				
+			}
+		}
+	}
+}
+
+void Flock::Obstacles(std::vector<glm::vec3> vertices, int noVertices) {
+	for (int i = 0; i < noVertices-1; i++) {
+		LineStop(vertices[i], vertices[i + 1]);
+	}
 }
 
 Flock::~Flock()

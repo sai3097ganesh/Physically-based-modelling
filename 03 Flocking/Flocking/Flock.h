@@ -52,7 +52,8 @@ public:
 	void FollowLeadParticleForcely();
 	void RepelBoid();
 	void SphericalObstacle(float radius = 50.0, float safe_radius = 5.0, float threashold_time = 10.0, glm::vec3 center = { 30.0,0.0,0.0 });
-	void Obstacles();
+	void LineStop(glm::vec3 p1,glm::vec3 p2);
+	void Obstacles(std::vector<glm::vec3> vertices, int noVertices);
 	//void SphericalObstacle(float radius, float safe_radius, float threashold_time, glm::vec3 center);
 
 	~Flock();

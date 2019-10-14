@@ -12,7 +12,6 @@
 #include "Flock.h"
 #include "geometry.h"
 
-
 Flock flock;
 
 using namespace std;
@@ -49,8 +48,27 @@ int n_faces;
 bool trigger = false;
 
 
-int obstacleRadius = 20;
+int obstacleRadius = 20, noVertices = 10;
 glm::vec3 unit_velocity;
+std::vector<glm::vec3> obstacleVertices;
+
+void SpiralObstacle() {
+	
+	glm::vec3 newVertex = {0,0,0}, addV;
+	float length = 20;
+	for (int i = 0; i < noVertices; i++) {
+		obstacleVertices.push_back(newVertex);
+		if (i % 4 == 0)
+			addV = { length,0,0 };
+		else if ((i+1)%4 ==0)
+			addV = { 0,length,0 };
+		else if ((i + 2) % 4 == 0)
+			addV = { -length,0,0 };
+		else if ((i + 3) % 4 == 0)
+			addV = { 0,-length,0 };
+		newVertex += (float)(i+1)*addV;
+	}
+}
 
 GLfloat box_ambient[] = { 0.1, 0.1, 0.1 };
 GLfloat smallr00[] = { 0.0, 0.0, 0.0 };
@@ -69,6 +87,17 @@ GLfloat ball_diffuse[] = { 0.1, 0.05, 0.0 };
 GLfloat ball_specular[] = { 0.3, 0.3, 0.3 };
 GLfloat ball_shininess[] = { 10.0 };
 
+void DrawStripObstacle() {
+	glLineWidth(3.0);
+	GLfloat lineColor[3] = { 0.0,0.3,0.0 };
+	for (int i = 0; i < noVertices-1; i++) {
+		glBegin(GL_LINE_STRIP);
+		glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
+		glVertex3f(obstacleVertices[i].x, obstacleVertices[i].y, obstacleVertices[i].z);
+		glVertex3f(obstacleVertices[i+1].x, obstacleVertices[i+1].y, obstacleVertices[i+1].z);
+		glEnd();
+	}
+}
 void DrawBoundingBox() {
 
 	//Draw the box
@@ -228,14 +257,14 @@ void DrawBall() {
 	glTranslatef(flock.leadBoid.position.x, flock.leadBoid.position.y, flock.leadBoid.position.z);
 	glutSolidSphere(flock.leadBoid.radius, 20, 20);
 	glPopMatrix();
-	
+	/*
 	//Display Repel Boid
 	glMaterialfv(GL_FRONT, GL_AMBIENT, flock.leadBoid.color);
 	glPushMatrix();
 	glTranslatef(flock.repelBoid.position.x, flock.repelBoid.position.y, flock.repelBoid.position.z);
 	glutSolidSphere(flock.leadBoid.radius, 20, 20);
 	glPopMatrix();
-	
+	*/
 }
 
 void DrawOBJ() {
@@ -274,7 +303,8 @@ void DrawWall() {
 }
 
 void DrawVelocity(float arrow_size) {
-	GLfloat lineColor[3] = { 0.0,0.8,0.0 };
+
+	GLfloat lineColor[3] = { 0.8,0.8,0.8 };
 	
 	for (int i = 0; i < flock.n_Boids; i++) {
 
@@ -340,8 +370,8 @@ void display(void)
 	//DrawBoundingBox();
 
 	DrawBall();
-	DrawVelocity(10);
-
+	DrawVelocity(flock.leadBoid.radius*2);
+	DrawStripObstacle();
 	//DrawOBJ();
 	//DrawWall();
 	//DrawCircle(30, 0, obstacleRadius, 30);
@@ -399,6 +429,7 @@ void init(void)
 		glLightfv(GL_LIGHT1, GL_SPECULAR, light1color);
 	}
 
+	SpiralObstacle();
 	//readOBJ();
 	//initializeWall();
 	
@@ -413,6 +444,8 @@ void reshapeFunc(GLint newWidth, GLint newHeight)
 	init();
 	glutPostRedisplay();
 }
+
+glm::vec3 p1 = { -100,0,0 }, p2 = { 0,0,0 };
 
 void idle(void)
 {
@@ -434,6 +467,8 @@ void idle(void)
 		}
 
 		flock.TestDeactivate();
+		//flock.LineStop(p1,p2);
+		flock.Obstacles(obstacleVertices, noVertices);
 		//flock.ComputeAccSeparation();
 		//flock.ComputeAccAlign();
 		//flock.ComputeAccCohesion();
