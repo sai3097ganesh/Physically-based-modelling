@@ -16,6 +16,7 @@ public:
 	static const int n_Boids = 10000;
 	Boid *boid;
 	Boid leadBoid[2];
+	int no_leads = 1;
 	Boid repelBoid;
 	int inactivecount = n_Boids;
 	int inactive[n_Boids];

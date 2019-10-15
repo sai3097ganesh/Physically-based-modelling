@@ -9,8 +9,8 @@ Flock::Flock()
 	}
 
 	repelBoid.position = { 150,150,0 };
-	leadBoid[0].position = { 100,100,0 };
-	leadBoid[1].position = { 100,-100,0 };
+	leadBoid[0].position = { 100,20,0 };
+	leadBoid[1].position = { 100,-20,0 };
 }
 
 void Flock::clear() {
@@ -81,11 +81,11 @@ void Flock::GenerateBoids(int nos) {
 		boid[inactive[inactivecount - 1]].color[1] = distribution_g(generator);
 		boid[inactive[inactivecount - 1]].color[2] = distribution_b(generator);
 
-		boid[inactive[inactivecount - 1]].position.x = 50.0* ((float)rand() / RAND_MAX - 0.5)-50;
-		boid[inactive[inactivecount - 1]].position.y = 50.0* ((float)rand() / RAND_MAX - 0.5);
+		boid[inactive[inactivecount - 1]].position.x = 50.0* ((float)rand() / RAND_MAX - 0.5)-100;
+		boid[inactive[inactivecount - 1]].position.y = 150.0* ((float)rand() / RAND_MAX - 0.5);
 		boid[inactive[inactivecount - 1]].position.z = 0.0* ((float)rand() / RAND_MAX - 0.5);
 
-		boid[inactive[inactivecount - 1]].velocity[0] = 100.0* ((float)rand() / RAND_MAX - 1.5);
+		boid[inactive[inactivecount - 1]].velocity[0] = 50.0* ((float)rand() / RAND_MAX - 0.5);
 		boid[inactive[inactivecount - 1]].velocity[1] = 100.0* ((float)rand() / RAND_MAX - 0.5);
 		boid[inactive[inactivecount - 1]].velocity[2] = 0.0* ((float)rand() / RAND_MAX - 0.5);
 
@@ -199,26 +199,23 @@ void Flock::ComputeAccCohesion() {
 void Flock::ComputeAccSeparation() {
 
 	glm::vec3 steering = { 0.0,0.0,0.0 };
-	float count, visionRadius = 50;
+	float count, visionRadius = 5;
+	float maxvalue = 250,d;
 
 	for (int i = 0; i < n_Boids; i++) {
 		if (boid[i].active == true) {
 			count = 0;
 			for (int j = 0; j < n_Boids; j++) {
-				float d = glm::distance(boid[i].position, boid[j].position);
+				d = glm::distance(boid[i].position, boid[j].position);
 				if ((i != j) && (boid[j].active == true) &&  d < visionRadius) {
 					steering += (boid[i].position-boid[j].position)/(d*d);
 					count += 1.0;
 				}
 			}
-
-			float maxvalue = 250*50;
-
 			if (count > 0)
 			{
 				steering = steering / count;
 				boid[i].acceleration += steering * maxvalue;
-			//	printf("%f %f %f %f %f\n", boid[i].acceleration.x, boid[i].acceleration.y, boid[i].acceleration.z, glm::length(steering),count);
 			}
 
 		}
@@ -227,17 +224,19 @@ void Flock::ComputeAccSeparation() {
 
 void Flock::FollowLeadParticle() {
 	float magnitude = 100;
-	for (int k=0;k<2;k++)
-	for (int i = 0; i < n_Boids; i++) {
-		if (boid[i].active == true) {
-			boid[i].acceleration += magnitude * (leadBoid[k].position - boid[i].position) / glm::length(leadBoid[k].position - boid[i].position);
+	for (int k = 0; k < no_leads; k++) {
+		for (int i = 0; i < n_Boids; i++) {
+			if (boid[i].active == true) {
+				boid[i].acceleration += magnitude * (leadBoid[k].position - boid[i].position) / glm::length(leadBoid[k].position - boid[i].position);
+			}
 		}
 	}
+	printf("%f ", leadBoid[0].position.x);
 }
 
 void Flock::FollowLeadParticleForcely() {
 	float magnitude = 3;
-	for (int k=0;k<2;k++)
+	for (int k=0;k<no_leads;k++)
 	for (int i = 0; i < n_Boids; i++) {
 		if (boid[i].active == true) {
 			boid[i].velocity += magnitude * (leadBoid[k].position - boid[i].position) / glm::length(leadBoid[k].position - boid[i].position);

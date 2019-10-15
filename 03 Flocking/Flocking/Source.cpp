@@ -54,17 +54,17 @@ std::vector<glm::vec3> obstacleVertices;
 
 void SpiralObstacle() {
 	
-	glm::vec3 newVertex = {0,50,0}, addV;
+	glm::vec3 newVertex = {0,5,0}, addV;
 	obstacleVertices.push_back(newVertex);
-	newVertex = { 0,120,0 };
+	newVertex = { 0,150,0 };
 	obstacleVertices.push_back(newVertex);
-	newVertex = { -150,120,0 };
+	newVertex = { -150,150,0 };
 	obstacleVertices.push_back(newVertex);
-	newVertex = { -150,-120,0 };
+	newVertex = { -150,-150,0 };
 	obstacleVertices.push_back(newVertex);
-	newVertex = { 0,-120,0 };
+	newVertex = { 0,-150,0 };
 	obstacleVertices.push_back(newVertex);
-	newVertex = { 0,-50,0 };
+	newVertex = { 0,-5,0 };
 	obstacleVertices.push_back(newVertex);
 	/*
 	float length = 20;
@@ -265,7 +265,7 @@ void DrawBall() {
 
 	
 	//Display Lead
-	for (int k = 0; k < 2; k++) {
+	for (int k = 0; k < flock.no_leads; k++) {
 		glMaterialfv(GL_FRONT, GL_AMBIENT, flock.leadBoid[0].color);
 		glPushMatrix();
 		glTranslatef(flock.leadBoid[k].position.x, flock.leadBoid[k].position.y, flock.leadBoid[k].position.z);
@@ -340,7 +340,7 @@ void DrawVelocity(float arrow_size) {
 void DrawCircle(float cx, float cy, float r, int num_segments)
 {
 	glLineWidth(3.0);
-	GLfloat lineColor[3] = { 0.3,0.3,0.0 };
+	GLfloat lineColor[3] = { 0.4,0.3,0.4 };
 	glBegin(GL_LINE_LOOP);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
 	for (int ii = 0; ii < num_segments; ii++)
@@ -384,12 +384,18 @@ void display(void)
 
 	//DrawBoundingBox();
 
-	//DrawBall();
+	DrawBall();
 	DrawVelocity(flock.leadBoid[0].radius*2);
 	DrawStripObstacle();
 	//DrawOBJ();
 	//DrawWall();
-	DrawCircle(30, 0, obstacleRadius, 30);
+	/*
+	for (int i = 0; i<3; i++)
+		for (int j = 0; j < 3; j++)
+		{
+			DrawCircle(-50 + i * 50, -50 + j * 50, obstacleRadius, 30);
+		}
+		*/
 	glPopMatrix();
 	glutSwapBuffers();
 }
@@ -461,7 +467,7 @@ void reshapeFunc(GLint newWidth, GLint newHeight)
 }
 
 glm::vec3 p1 = { -100,0,0 }, p2 = { 0,0,0 };
-
+int count1 = 0;
 void idle(void)
 {
 
@@ -476,21 +482,31 @@ void idle(void)
 
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 
-		if (trigger == true) {
-			flock.GenerateBoids(1000);
-			trigger = false;
-		}
+		if(count1==0)
+			flock.GenerateBoids(10);
+		count1=1;
 
 		flock.TestDeactivate();
 		//flock.LineStop(p1,p2);
 		flock.Obstacles(obstacleVertices, noVertices);
-		//flock.ComputeAccSeparation();
-		//flock.ComputeAccAlign();
-		//flock.ComputeAccCohesion();
-		flock.FollowLeadParticle();
-		//flock.FollowLeadParticleForcely();
+		flock.ComputeAccSeparation();
+		flock.ComputeAccAlign();
+		flock.ComputeAccCohesion();
+
+		if (trigger == true) {
+			//flock.FollowLeadParticle();
+			//trigger = false;
+		}
+
+
+		flock.FollowLeadParticleForcely();
 		//flock.RepelBoid();
-		flock.SphericalObstacle(obstacleRadius);
+		//for(int i=0;i<3;i++)
+			//for (int j = 0; j < 3; j++)
+			//{
+				//glm::vec3 center = {-50+i*50,-50+j*50,0};
+				//flock.SphericalObstacle(obstacleRadius, 5 , 10 , center);
+			//}
 		flock.integrate(h, wall, unit_normal, n_faces);
 	}
 
