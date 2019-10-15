@@ -13,9 +13,9 @@
 class Flock
 {
 public:
-	static const int n_Boids = 1000;
+	static const int n_Boids = 10000;
 	Boid *boid;
-	Boid leadBoid;
+	Boid leadBoid[2];
 	Boid repelBoid;
 	int inactivecount = n_Boids;
 	int inactive[n_Boids];

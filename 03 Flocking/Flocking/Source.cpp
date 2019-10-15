@@ -48,13 +48,25 @@ int n_faces;
 bool trigger = false;
 
 
-int obstacleRadius = 20, noVertices = 10;
+int obstacleRadius = 20, noVertices = 6;
 glm::vec3 unit_velocity;
 std::vector<glm::vec3> obstacleVertices;
 
 void SpiralObstacle() {
 	
-	glm::vec3 newVertex = {0,0,0}, addV;
+	glm::vec3 newVertex = {0,50,0}, addV;
+	obstacleVertices.push_back(newVertex);
+	newVertex = { 0,120,0 };
+	obstacleVertices.push_back(newVertex);
+	newVertex = { -150,120,0 };
+	obstacleVertices.push_back(newVertex);
+	newVertex = { -150,-120,0 };
+	obstacleVertices.push_back(newVertex);
+	newVertex = { 0,-120,0 };
+	obstacleVertices.push_back(newVertex);
+	newVertex = { 0,-50,0 };
+	obstacleVertices.push_back(newVertex);
+	/*
 	float length = 20;
 	for (int i = 0; i < noVertices; i++) {
 		obstacleVertices.push_back(newVertex);
@@ -68,6 +80,7 @@ void SpiralObstacle() {
 			addV = { 0,-length,0 };
 		newVertex += (float)(i+1)*addV;
 	}
+	*/
 }
 
 GLfloat box_ambient[] = { 0.1, 0.1, 0.1 };
@@ -89,7 +102,7 @@ GLfloat ball_shininess[] = { 10.0 };
 
 void DrawStripObstacle() {
 	glLineWidth(3.0);
-	GLfloat lineColor[3] = { 0.0,0.3,0.0 };
+	GLfloat lineColor[3] = { 0.0,0.5,0.0 };
 	for (int i = 0; i < noVertices-1; i++) {
 		glBegin(GL_LINE_STRIP);
 		glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
@@ -252,11 +265,13 @@ void DrawBall() {
 
 	
 	//Display Lead
-	glMaterialfv(GL_FRONT, GL_AMBIENT, flock.leadBoid.color);
-	glPushMatrix();
-	glTranslatef(flock.leadBoid.position.x, flock.leadBoid.position.y, flock.leadBoid.position.z);
-	glutSolidSphere(flock.leadBoid.radius, 20, 20);
-	glPopMatrix();
+	for (int k = 0; k < 2; k++) {
+		glMaterialfv(GL_FRONT, GL_AMBIENT, flock.leadBoid[0].color);
+		glPushMatrix();
+		glTranslatef(flock.leadBoid[k].position.x, flock.leadBoid[k].position.y, flock.leadBoid[k].position.z);
+		glutSolidSphere(flock.leadBoid[0].radius, 20, 20);
+		glPopMatrix();
+	}
 	/*
 	//Display Repel Boid
 	glMaterialfv(GL_FRONT, GL_AMBIENT, flock.leadBoid.color);
@@ -304,8 +319,8 @@ void DrawWall() {
 
 void DrawVelocity(float arrow_size) {
 
-	GLfloat lineColor[3] = { 0.8,0.8,0.8 };
-	
+	GLfloat lineColor[3] = { 0.5,0.2,0.2 };
+	float width = 2;
 	for (int i = 0; i < flock.n_Boids; i++) {
 
 		if (flock.boid[i].active == true) {
@@ -314,7 +329,7 @@ void DrawVelocity(float arrow_size) {
 			unit_velocity = flock.boid[i].velocity / glm::length(flock.boid[i].velocity);
 			glVertex3f(flock.boid[i].position.x, flock.boid[i].position.y, flock.boid[i].position.z);
 			glVertex3f(flock.boid[i].position.x + unit_velocity.x*arrow_size, flock.boid[i].position.y + unit_velocity.y*arrow_size, flock.boid[i].position.z + unit_velocity.z*arrow_size);
-			//glVertex3f(flock.boid[i].position.x, flock.boid[i].position.y, flock.boid[i].position.z);
+			//glVertex3f(flock.boid[i].position.x + width, flock.boid[i].position.y-unit_velocity.y/unit_velocity.x*width, flock.boid[i].position.z);
 			//glVertex3f(flock.boid[i].position.x, flock.boid[i].position.y, flock.boid[i].position.z);
 			glEnd();
 
@@ -325,7 +340,7 @@ void DrawVelocity(float arrow_size) {
 void DrawCircle(float cx, float cy, float r, int num_segments)
 {
 	glLineWidth(3.0);
-	GLfloat lineColor[3] = { 0.0,0.3,0.0 };
+	GLfloat lineColor[3] = { 0.3,0.3,0.0 };
 	glBegin(GL_LINE_LOOP);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
 	for (int ii = 0; ii < num_segments; ii++)
@@ -369,12 +384,12 @@ void display(void)
 
 	//DrawBoundingBox();
 
-	DrawBall();
-	DrawVelocity(flock.leadBoid.radius*2);
+	//DrawBall();
+	DrawVelocity(flock.leadBoid[0].radius*2);
 	DrawStripObstacle();
 	//DrawOBJ();
 	//DrawWall();
-	//DrawCircle(30, 0, obstacleRadius, 30);
+	DrawCircle(30, 0, obstacleRadius, 30);
 	glPopMatrix();
 	glutSwapBuffers();
 }
@@ -462,7 +477,7 @@ void idle(void)
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 
 		if (trigger == true) {
-			flock.GenerateBoids(100);
+			flock.GenerateBoids(1000);
 			trigger = false;
 		}
 
@@ -472,10 +487,10 @@ void idle(void)
 		//flock.ComputeAccSeparation();
 		//flock.ComputeAccAlign();
 		//flock.ComputeAccCohesion();
-		//flock.FollowLeadParticle();
+		flock.FollowLeadParticle();
 		//flock.FollowLeadParticleForcely();
 		//flock.RepelBoid();
-		//flock.SphericalObstacle(obstacleRadius);
+		flock.SphericalObstacle(obstacleRadius);
 		flock.integrate(h, wall, unit_normal, n_faces);
 	}
 
@@ -529,16 +544,16 @@ void Keyboard(unsigned char key, int x, int y)
 		break;
 
 	case 'w':
-		flock.leadBoid.position.y+=2;
+		flock.leadBoid[0].position.y+=2;
 		break;
 	case 's':
-		flock.leadBoid.position.y-=2;
+		flock.leadBoid[0].position.y-=2;
 		break;
 	case 'a':
-		flock.leadBoid.position.x-=2;
+		flock.leadBoid[0].position.x-=2;
 		break;
 	case 'd':
-		flock.leadBoid.position.x+=2;
+		flock.leadBoid[0].position.x+=2;
 		break;
 	case 'i':
 		flock.repelBoid.position.y += 2;

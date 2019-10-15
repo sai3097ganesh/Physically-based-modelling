@@ -9,6 +9,8 @@ Flock::Flock()
 	}
 
 	repelBoid.position = { 150,150,0 };
+	leadBoid[0].position = { 100,100,0 };
+	leadBoid[1].position = { 100,-100,0 };
 }
 
 void Flock::clear() {
@@ -71,19 +73,19 @@ void Flock::GenerateBoids(int nos) {
 		//initialize the lifespan
 		boid[inactive[inactivecount - 1]].init();
 
-		boid[inactive[inactivecount - 1]].color[0] = (float)rand() / RAND_MAX; 
-		boid[inactive[inactivecount - 1]].color[1] = (float)rand() / RAND_MAX; 
-		boid[inactive[inactivecount - 1]].color[2] = (float)rand() / RAND_MAX;
+		boid[inactive[inactivecount - 1]].color[0] = 0.1+(float)rand() / RAND_MAX/3; 
+		boid[inactive[inactivecount - 1]].color[1] = 0.1+(float)rand() / RAND_MAX/3; 
+		boid[inactive[inactivecount - 1]].color[2] = 0.1+(float)rand() / RAND_MAX/3;
 
 		boid[inactive[inactivecount - 1]].color[0] = distribution_r(generator);
 		boid[inactive[inactivecount - 1]].color[1] = distribution_g(generator);
 		boid[inactive[inactivecount - 1]].color[2] = distribution_b(generator);
 
-		boid[inactive[inactivecount - 1]].position.x = 0.0* ((float)rand() / RAND_MAX - 0.5)+50;
-		boid[inactive[inactivecount - 1]].position.y = 0.0* ((float)rand() / RAND_MAX - 0.5)+20;
+		boid[inactive[inactivecount - 1]].position.x = 50.0* ((float)rand() / RAND_MAX - 0.5)-50;
+		boid[inactive[inactivecount - 1]].position.y = 50.0* ((float)rand() / RAND_MAX - 0.5);
 		boid[inactive[inactivecount - 1]].position.z = 0.0* ((float)rand() / RAND_MAX - 0.5);
 
-		boid[inactive[inactivecount - 1]].velocity[0] = 100.0* ((float)rand() / RAND_MAX - 0.5);
+		boid[inactive[inactivecount - 1]].velocity[0] = 100.0* ((float)rand() / RAND_MAX - 1.5);
 		boid[inactive[inactivecount - 1]].velocity[1] = 100.0* ((float)rand() / RAND_MAX - 0.5);
 		boid[inactive[inactivecount - 1]].velocity[2] = 0.0* ((float)rand() / RAND_MAX - 0.5);
 
@@ -197,7 +199,7 @@ void Flock::ComputeAccCohesion() {
 void Flock::ComputeAccSeparation() {
 
 	glm::vec3 steering = { 0.0,0.0,0.0 };
-	float count, visionRadius = 20;
+	float count, visionRadius = 50;
 
 	for (int i = 0; i < n_Boids; i++) {
 		if (boid[i].active == true) {
@@ -224,28 +226,30 @@ void Flock::ComputeAccSeparation() {
 }
 
 void Flock::FollowLeadParticle() {
-	float magnitude = 10;
+	float magnitude = 100;
+	for (int k=0;k<2;k++)
 	for (int i = 0; i < n_Boids; i++) {
 		if (boid[i].active == true) {
-			boid[i].acceleration += magnitude * (leadBoid.position - boid[i].position) / glm::length(leadBoid.position - boid[i].position);
+			boid[i].acceleration += magnitude * (leadBoid[k].position - boid[i].position) / glm::length(leadBoid[k].position - boid[i].position);
 		}
 	}
 }
 
 void Flock::FollowLeadParticleForcely() {
 	float magnitude = 3;
+	for (int k=0;k<2;k++)
 	for (int i = 0; i < n_Boids; i++) {
 		if (boid[i].active == true) {
-			boid[i].velocity += magnitude * (leadBoid.position - boid[i].position) / glm::length(leadBoid.position - boid[i].position);
+			boid[i].velocity += magnitude * (leadBoid[k].position - boid[i].position) / glm::length(leadBoid[k].position - boid[i].position);
 		}
 	}
 }
 
 void Flock::RepelBoid() {
-	float magnitude = 3;
+	float magnitude = 100;
 	for (int i = 0; i < n_Boids; i++) {
 		if (boid[i].active == true) {
-			boid[i].velocity -= magnitude * (repelBoid.position - boid[i].position) / glm::length(repelBoid.position - boid[i].position);
+			boid[i].acceleration -= magnitude * (repelBoid.position - boid[i].position) / glm::length(repelBoid.position - boid[i].position);
 		}
 	}
 }
