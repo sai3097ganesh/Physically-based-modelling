@@ -8,8 +8,21 @@ float h = 0.01; //step size
 static const int FPS = 30;
 
 glm::vec3 center_ball = { 50,50,-55 };
+glm::vec3 e1 = { -50,50,-10 }, e2{ -40,40,10 };
 float ball_radius = 50;
 
+void drawEdge() {
+	glLineWidth(3.0);
+	GLfloat lineColor[3] = { 1.0,1.0,1.0 };
+	glBegin(GL_LINES);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
+
+	glVertex3f(e1[0], e1[1], e1[2]);
+	glVertex3f(e2[0], e2[1], e2[2]);
+		
+	
+	glEnd();
+}
 void init(void)
 {
 		glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -62,7 +75,7 @@ void display() {
 	glRotatef(20,0,20,0);
 
 	//drawBall();
-
+	drawEdge();
 	mesh.drawEdges();
 	mesh.drawParticles();
 	
@@ -76,7 +89,8 @@ void idle(void)
 {
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 		//mesh.collisionResponseBall(center_ball,ball_radius);
-		mesh.FaceCollision();
+		//mesh.FaceCollision();
+		mesh.edgeCollision(e1,e2);
 		mesh.nextTimeStep(h);
 		center_ball[2] += 0.1;
 	}
@@ -123,10 +137,10 @@ void Keyboard(unsigned char key, int x, int y)
 
 int main(int argc, char** argv) {
 	
-	mesh.makeRectanglulargrid(200,200,50,50);
-	glm::vec3 wind = { 0,-1000,0 };
-	glm::vec3 wind1 = { 0,1,0 };
-	mesh.WindForce(wind);
+	mesh.MakeMesh();
+	//glm::vec3 wind = { 0,-1000,0 };
+	//glm::vec3 wind1 = { 0,1,0 };
+	//mesh.WindForce(wind);
 	
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
