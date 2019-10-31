@@ -79,7 +79,9 @@ void reshapeFunc(GLint newWidth, GLint newHeight)
 
 int main(int argc, char** argv) {
 	
-	mesh.MakeMesh();
+	mesh.makeRectanglulargrid(100,100,3,3);
+	glm::vec3 wind = { 100,0,0 };
+	//mesh.WindForce(wind);
 	std::cout<<mesh.edges.size();
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);

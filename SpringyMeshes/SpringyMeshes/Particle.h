@@ -9,7 +9,10 @@ public:
 	glm::vec3 V;
 	glm::vec3 f;
 	float mass=1;
-	Particle() {};
+	Particle() {
+		V = { 0,0,0 };
+		f = { 0,0,0 };
+	};
 	Particle(glm::vec3 X) : X(X) {
 		V = { 0,0,0 };
 		f = { 0,0,0 };
