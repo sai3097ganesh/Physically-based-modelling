@@ -3,6 +3,8 @@
 #include "Edge.h"
 #include <vector>
 #include <glut.h>
+#include <omp.h>
+#include "geometry.h"
 
 class Mesh
 {
@@ -31,7 +33,7 @@ public:
 		{
 			for (int y = 0; y<no_height; y++)
 			{
-				glm::vec3 pos = { width * (x / (float)no_width),-height * (y / (float)no_height),	0 };
+				glm::vec3 pos = { width * (x / (float)no_width)-100,10,-height * (y / (float)no_height)+100 };
 				particles[y*no_width + x] = Particle(pos);
 			}
 		}
@@ -56,7 +58,7 @@ public:
 				}
 			}
 		}
-		particles[1].V = { 0,0,0.5 };
+		//particles[1].V = { 0,0,10 };
 	}
 
 	void WindForce(glm::vec3 wind) {
@@ -66,12 +68,19 @@ public:
 	}
 
 	void nextTimeStep(float h) {
+
 		for (int i = 0; i < edges.size(); i++) {
-			 edges[i].applyConstraintForce();
+			if (i != 4)  edges[i].applyConstraintForce();
+		// if (i == 2) printf("%f %f %f %f  %f \n", edges[i].p1->X[0], edges[i].p1->X[1], edges[i].p2->X[0], edges[i].p2->X[1], (edges[i].p2->X - edges[i].p1->X).length());
 		}
+
+		#pragma omp parallel for
 		for (int i = 0; i < particles.size(); i++) {
-		particles[i].RK4step(h);
+			particles[i].RK4step(h);
 		}
+
+		//particles[0].X = { -100,100,0 };
+		//particles[49].X = { 100,100,0 };
 	}
 
 	void drawEdges() {
@@ -95,6 +104,24 @@ public:
 			glTranslatef(particles[i].X[0], particles[i].X[1], particles[i].X[2]);
 			glutSolidSphere(2, 20, 20);
 			glPopMatrix();
+		}
+	}
+
+	void collisionResponseBall(glm::vec3 center,float radius) {
+		for (int i = 0; i < particles.size(); i++) {
+			glm::vec3 pos = particles[i].X - center;
+			float length = glm::length(pos);
+			if (length < radius) {
+				particles[i].X += pos/length*(radius-length);
+			}
+		}
+	}
+
+	void FaceCollision() {
+		for (int i = 0; i < particles.size(); i++) {
+			if(particles[i].X[0]<50 && particles[i].X[2]<50)
+			if (particles[i].X[1] < 0)
+				particles[i].X[1] = 0;
 		}
 	}
 

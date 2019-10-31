@@ -2,11 +2,13 @@
 #include "Mesh.h"
 #include <stdlib.h>
 
-
 Mesh mesh;
 
 float h = 0.01; //step size
 static const int FPS = 30;
+
+glm::vec3 center_ball = { 50,50,-55 };
+float ball_radius = 50;
 
 void init(void)
 {
@@ -43,13 +45,29 @@ void init(void)
 		glLightfv(GL_LIGHT1, GL_SPECULAR, light1color);
 }
 
+void drawBall() {
+	glPushMatrix();
+	GLfloat ballColor[3] = { 0.5,0.5,0.0 };
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ballColor);
+	glTranslatef(center_ball[0], center_ball[1], center_ball[2]);
+	glutSolidSphere(ball_radius - 0.1, 40, 40);
+	glPopMatrix();
+}
+
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glPushMatrix();
 
+	glTranslatef(-6.5, 9, -9.0);
+	glRotatef(20,0,20,0);
+
+	//drawBall();
+
 	mesh.drawEdges();
 	mesh.drawParticles();
+	
 
+	
 	glPopMatrix();
 	glutSwapBuffers();
 }
@@ -57,7 +75,10 @@ void display() {
 void idle(void)
 {
 	for (float t = 0; t < 1.0 / FPS; t += h) {
+		//mesh.collisionResponseBall(center_ball,ball_radius);
+		mesh.FaceCollision();
 		mesh.nextTimeStep(h);
+		center_ball[2] += 0.1;
 	}
 	glutPostRedisplay();
 }
@@ -76,13 +97,37 @@ void reshapeFunc(GLint newWidth, GLint newHeight)
 	glutPostRedisplay();
 }
 
+void Keyboard(unsigned char key, int x, int y)
+{
+	switch (key)
+	{
+	case 27:             // ESCAPE key
+		exit(0);
+		break;
+
+	case 'w':
+		mesh.particles[4].X[1] += 1.0;
+		break;
+	case 's':
+		mesh.particles[4].X[1] -= 1.0;
+		break;
+	case 'a':
+		mesh.particles[4].X[0] -= 1.0;
+		break;
+	case 'd':
+		mesh.particles[4].X[0] += 1.0;
+		break;
+
+	}
+}
 
 int main(int argc, char** argv) {
 	
-	mesh.makeRectanglulargrid(100,100,3,3);
-	glm::vec3 wind = { 100,0,0 };
-	//mesh.WindForce(wind);
-	std::cout<<mesh.edges.size();
+	mesh.makeRectanglulargrid(200,200,50,50);
+	glm::vec3 wind = { 0,-1000,0 };
+	glm::vec3 wind1 = { 0,1,0 };
+	mesh.WindForce(wind);
+	
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(500, 500);
@@ -91,6 +136,7 @@ int main(int argc, char** argv) {
 	init();
 	glutDisplayFunc(display);
 	glutTimerFunc(100, timer, 0);
+	glutKeyboardFunc(Keyboard);
 	glutIdleFunc(idle);
 	glutReshapeFunc(reshapeFunc);
 

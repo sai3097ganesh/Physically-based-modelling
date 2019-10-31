@@ -83,6 +83,7 @@ public:
 		*this = add(this, &multiply(&K2, h / 3));
 		*this = add(this, &multiply(&K3, h / 3));
 		*this = add(this, &multiply(&K4, h / 6));
+		f = { 0,0,0 };
 	}
 	~Particle();
 	

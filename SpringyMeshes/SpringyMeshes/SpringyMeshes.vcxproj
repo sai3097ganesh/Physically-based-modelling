@@ -122,12 +122,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Edge.cpp" />
+    <ClCompile Include="geometry.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Particle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Edge.h" />
+    <ClInclude Include="geometry.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Particle.h" />
   </ItemGroup>
