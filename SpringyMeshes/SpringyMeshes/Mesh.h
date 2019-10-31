@@ -33,7 +33,7 @@ public:
 		{
 			for (int y = 0; y<no_height; y++)
 			{
-				glm::vec3 pos = { width * (x / (float)no_width)-100,10,-height * (y / (float)no_height)+100 };
+				glm::vec3 pos = { width * (x / (float)no_width)-100,-20,-height * (y / (float)no_height)+100 };
 				particles[y*no_width + x] = Particle(pos);
 			}
 		}
@@ -119,9 +119,15 @@ public:
 
 	void FaceCollision() {
 		for (int i = 0; i < particles.size(); i++) {
-			if(particles[i].X[0]<50 && particles[i].X[2]<50)
-			if (particles[i].X[1] < 0)
-				particles[i].X[1] = 0;
+
+			Point p1, p[3];
+			p[0].x = 0; p[0].y = 0; p[0].z = -50;
+			p[1].x = 0; p[1].y = 0; p[1].z = 50;
+			p[2].x = 50; p[2].y = 0; p[2].z = 0;
+			p1.x = particles[i].X[0]; p1.y = particles[i].X[1]; p1.z = particles[i].X[2];
+			if(isInside_yz(p,3,p1))
+			if (particles[i].X[1] < -25)
+				particles[i].X[1] = -25;
 		}
 	}
 
