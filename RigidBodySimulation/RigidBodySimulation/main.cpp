@@ -6,6 +6,12 @@ using namespace std;
 
 float h = 0.01; //step size
 static const int FPS = 30;
+int rotateon;
+int lastx, lasty;
+int xchange, ychange;
+float spin = 0.0;
+float spinup = 0.0;
+
 Body body("cuboid");
 
 void init(void)
@@ -29,6 +35,7 @@ void init(void)
 	gluLookAt(0, 0, 300, 0, 0, 0, 0, 1, 0);
 
 	// Set up lights
+	
 	GLfloat light0color[] = { 0.5, 0.5, 0.5 };
 	GLfloat light0pos[] = { 500, 500, 300 };
 	GLfloat light1color[] = { 0.5, 0.5, 0.5 };
@@ -47,20 +54,36 @@ void drawBody() {
 	glPushMatrix();
 
 	for (int i = 0; i < body.faces.size();i++) {
+		
 		glBegin(GL_POLYGON);
 		glColor3f(0.0, 0.0, 0.5);
-		glVertex3f(body.vertices[body.faces[i][0]][0], body.vertices[body.faces[i][0]][1], body.vertices[body.faces[i][0]][2]);
-		glVertex3f(body.vertices[body.faces[i][1]][0], body.vertices[body.faces[i][1]][1], body.vertices[body.faces[i][1]][2]);
-		glVertex3f(body.vertices[body.faces[i][3]][0], body.vertices[body.faces[i][3]][1], body.vertices[body.faces[i][3]][2]);
-		glVertex3f(body.vertices[body.faces[i][2]][0], body.vertices[body.faces[i][2]][1], body.vertices[body.faces[i][2]][2]);
+		glVertex3f(body.X[0] + body.vertices[body.faces[i][0]][0], body.X[1] + body.vertices[body.faces[i][0]][1], body.X[2] + body.vertices[body.faces[i][0]][2]);
+		glVertex3f(body.X[0] + body.vertices[body.faces[i][1]][0], body.X[1] + body.vertices[body.faces[i][1]][1], body.X[2] + body.vertices[body.faces[i][1]][2]);
+		glVertex3f(body.X[0] + body.vertices[body.faces[i][3]][0], body.X[1] + body.vertices[body.faces[i][3]][1], body.X[2] + body.vertices[body.faces[i][3]][2]);
+		glVertex3f(body.X[0] + body.vertices[body.faces[i][2]][0], body.X[1] + body.vertices[body.faces[i][2]][1], body.X[2] + body.vertices[body.faces[i][2]][2]);
+		glEnd();
+		
+		glLineWidth(3.0);
+		GLfloat lineColor[3] = { 0.0,0.3,0.0 };
+		glBegin(GL_LINE_STRIP);
+		glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
+		glVertex3f(body.X[0] + body.vertices[body.faces[i][0]][0], body.X[1] + body.vertices[body.faces[i][0]][1], body.X[2] + body.vertices[body.faces[i][0]][2]);
+		glVertex3f(body.X[0] + body.vertices[body.faces[i][1]][0], body.X[1] + body.vertices[body.faces[i][1]][1], body.X[2] + body.vertices[body.faces[i][1]][2]);
+		glVertex3f(body.X[0] + body.vertices[body.faces[i][3]][0], body.X[1] + body.vertices[body.faces[i][3]][1], body.X[2] + body.vertices[body.faces[i][3]][2]);
+		glVertex3f(body.X[0] + body.vertices[body.faces[i][2]][0], body.X[1] + body.vertices[body.faces[i][2]][1], body.X[2] + body.vertices[body.faces[i][2]][2]);
+		glVertex3f(body.X[0] + body.vertices[body.faces[i][0]][0], body.X[1] + body.vertices[body.faces[i][0]][1], body.X[2] + body.vertices[body.faces[i][0]][2]);
 		glEnd();
 	}
 	glPopMatrix();
 }
 
 void display() {
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glPushMatrix();
+
+	glRotatef(spinup, 1.0, 0.0, 0.0);
+	glRotatef(spin, 0.0, 1.0, 0.0);
 
 	drawBody();
 
@@ -84,27 +107,63 @@ void reshapeFunc(GLint newWidth, GLint newHeight)
 
 void idle(void)
 {
+	if (rotateon) {
+		spin += xchange / 250.0;
+		if (spin >= 360.0) spin -= 360.0;
+		if (spin < 0.0) spin += 360.0;
+		spinup -= ychange / 250.0;
+		if (spinup > 89.0) spinup = 89.0;
+		if (spinup < -89.0) spinup = -89.0;
+	}
+
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 
 	}
 	glutPostRedisplay();
 }
 
+void motion(int x, int y)
+{
+	xchange = x - lastx;
+	ychange = y - lasty;
+}
 
+void mouse(int button, int state, int x, int y)
+{
+	switch (button) {
+	case GLUT_LEFT_BUTTON:
+		if (state == GLUT_DOWN) {
+			lastx = x;
+			lasty = y;
+			xchange = 0;
+			ychange = 0;
+			rotateon = 1;
+		}
+		else if (state == GLUT_UP) {
+			xchange = 0;
+			ychange = 0;
+			rotateon = 0;
+		}
+		break;
+
+	default:
+		break;
+	}
+}
 
 int main(int argc, char** argv) {
-	
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(500, 500);
 	glutInitWindowPosition(100, 100);
-	glutCreateWindow("Spring mesh demo");
+	glutCreateWindow("Rigid Body demo");
 
 	init();
 	glutDisplayFunc(display);
 	glutTimerFunc(100, timer, 0);
-
+	glutMouseFunc(mouse);
+	glutMotionFunc(motion);
 	glutIdleFunc(idle);
 	glutReshapeFunc(reshapeFunc);
 
