@@ -1,6 +1,7 @@
 #include "Body.h"
 #include <stdio.h>
 #include <glut.h>
+#include <glm/gtx/string_cast.hpp>
 
 using namespace std;
 
@@ -13,6 +14,7 @@ float spin = 0.0;
 float spinup = 0.0;
 
 Body body("cuboid");
+std::vector<glm::vec3> orientedVertices;
 
 void init(void)
 {
@@ -52,26 +54,26 @@ void init(void)
 
 void drawBody() {
 	glPushMatrix();
-
+	orientedVertices = body.getOrientatedVertices();
 	for (int i = 0; i < body.faces.size();i++) {
 		
 		glBegin(GL_POLYGON);
 		glColor3f(0.0, 0.0, 0.5);
-		glVertex3f(body.X[0] + body.vertices[body.faces[i][0]][0], body.X[1] + body.vertices[body.faces[i][0]][1], body.X[2] + body.vertices[body.faces[i][0]][2]);
-		glVertex3f(body.X[0] + body.vertices[body.faces[i][1]][0], body.X[1] + body.vertices[body.faces[i][1]][1], body.X[2] + body.vertices[body.faces[i][1]][2]);
-		glVertex3f(body.X[0] + body.vertices[body.faces[i][3]][0], body.X[1] + body.vertices[body.faces[i][3]][1], body.X[2] + body.vertices[body.faces[i][3]][2]);
-		glVertex3f(body.X[0] + body.vertices[body.faces[i][2]][0], body.X[1] + body.vertices[body.faces[i][2]][1], body.X[2] + body.vertices[body.faces[i][2]][2]);
+		glVertex3f(body.X[0] + orientedVertices[body.faces[i][0]][0], body.X[1] + orientedVertices[body.faces[i][0]][1], body.X[2] + orientedVertices[body.faces[i][0]][2]);
+		glVertex3f(body.X[0] + orientedVertices[body.faces[i][1]][0], body.X[1] + orientedVertices[body.faces[i][1]][1], body.X[2] + orientedVertices[body.faces[i][1]][2]);
+		glVertex3f(body.X[0] + orientedVertices[body.faces[i][3]][0], body.X[1] + orientedVertices[body.faces[i][3]][1], body.X[2] + orientedVertices[body.faces[i][3]][2]);
+		glVertex3f(body.X[0] + orientedVertices[body.faces[i][2]][0], body.X[1] + orientedVertices[body.faces[i][2]][1], body.X[2] + orientedVertices[body.faces[i][2]][2]);
 		glEnd();
 		
 		glLineWidth(3.0);
 		GLfloat lineColor[3] = { 0.0,0.3,0.0 };
 		glBegin(GL_LINE_STRIP);
 		glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
-		glVertex3f(body.X[0] + body.vertices[body.faces[i][0]][0], body.X[1] + body.vertices[body.faces[i][0]][1], body.X[2] + body.vertices[body.faces[i][0]][2]);
-		glVertex3f(body.X[0] + body.vertices[body.faces[i][1]][0], body.X[1] + body.vertices[body.faces[i][1]][1], body.X[2] + body.vertices[body.faces[i][1]][2]);
-		glVertex3f(body.X[0] + body.vertices[body.faces[i][3]][0], body.X[1] + body.vertices[body.faces[i][3]][1], body.X[2] + body.vertices[body.faces[i][3]][2]);
-		glVertex3f(body.X[0] + body.vertices[body.faces[i][2]][0], body.X[1] + body.vertices[body.faces[i][2]][1], body.X[2] + body.vertices[body.faces[i][2]][2]);
-		glVertex3f(body.X[0] + body.vertices[body.faces[i][0]][0], body.X[1] + body.vertices[body.faces[i][0]][1], body.X[2] + body.vertices[body.faces[i][0]][2]);
+		glVertex3f(body.X[0] + orientedVertices[body.faces[i][0]][0], body.X[1] + orientedVertices[body.faces[i][0]][1], body.X[2] + orientedVertices[body.faces[i][0]][2]);
+		glVertex3f(body.X[0] + orientedVertices[body.faces[i][1]][0], body.X[1] + orientedVertices[body.faces[i][1]][1], body.X[2] + orientedVertices[body.faces[i][1]][2]);
+		glVertex3f(body.X[0] + orientedVertices[body.faces[i][3]][0], body.X[1] + orientedVertices[body.faces[i][3]][1], body.X[2] + orientedVertices[body.faces[i][3]][2]);
+		glVertex3f(body.X[0] + orientedVertices[body.faces[i][2]][0], body.X[1] + orientedVertices[body.faces[i][2]][1], body.X[2] + orientedVertices[body.faces[i][2]][2]);
+		glVertex3f(body.X[0] + orientedVertices[body.faces[i][0]][0], body.X[1] + orientedVertices[body.faces[i][0]][1], body.X[2] + orientedVertices[body.faces[i][0]][2]);
 		glEnd();
 	}
 	glPopMatrix();
@@ -117,7 +119,7 @@ void idle(void)
 	}
 
 	for (float t = 0; t < 1.0 / FPS; t += h) {
-
+		body.RK4step(h);
 	}
 	glutPostRedisplay();
 }

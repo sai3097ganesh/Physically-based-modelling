@@ -2,11 +2,6 @@
 
 
 
-Body::Body()
-{
-}
-
-
 Body::~Body()
 {
 }
