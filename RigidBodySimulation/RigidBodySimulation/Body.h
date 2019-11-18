@@ -3,16 +3,25 @@
 #include <glm\glm.hpp>
 #include <glm\gtc\type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <tuple>
 #include <vector>
 
 class Body
 {
+
 public:
+
 	float m;
 	glm::vec3 X, V, w, L, p;
-	glm::mat3 I, R;
+	glm::mat3 I0, I0_inv, R, I;
+	glm::quat q;
+
 	std::vector <glm::vec3> vertices;
 	std::vector<std::vector<int>> faces;
+	float Cr = 1;
 
 	Body() {
 		V = { 0,0,0 };
@@ -24,16 +33,20 @@ public:
 
 			float l = 100, b = 100, h = 100;
 
-			X = { 0,0,0 }; m = 1; V = { 2 ,0, 0 };
-
+			X = { 0,0,0 }; m = 1; p = { -10.0f ,0.0, 0.0 }; L = { 5000.0,0,0.0 };
+			
 			float I_arr[9] = { m / 12 * (b*b + h*h), 0, 0,
 				0, m / 12 * (l*l + h*h), 0,
 				0, 0, m / 12 * (l*l + b*b) };
 
-			I = glm::make_mat3(I_arr);
-			R = glm::mat3(glm::rotate(glm::mat4(1.0f), (float)3.14/3, glm::vec3(1.0)));
-			w = { 0.1,0.08,0.2 };
+			I0 = glm::make_mat3(I_arr);
+			I0_inv = glm::inverse(I0);
 
+			q = glm::angleAxis((float)3.14/3, glm::vec3(1));
+
+			//R = glm::toMat3(q);
+			//w = R*I0_inv* glm::transpose(R)*L;
+			
 			vertices.push_back({ 0.0,0.0,0.0 });
 			vertices.push_back({ l,0,0 });
 			vertices.push_back({ 0,b,0 });
@@ -61,17 +74,26 @@ public:
 	};
 
 	 Body derivative(Body body) {
+
 		Body deriv;
-		deriv.X = body.V;
-		deriv.R = body.w_star() * R;
+
+		deriv.X = body.p/body.m;
+
+		glm::quat w_q = glm::quat(0.0f, body.w);
+		deriv.q = 0.5f * w_q *  body.q;
+
+		deriv.p = { 0,0,0 };
+		deriv.L = { 0,0,0 };
+
 		return deriv;
 	}
 
 	 Body add(Body *p1, Body *p2) {
 		 Body ans("cuboid");
 		 ans.X = p1->X + p2->X;
-		 ans.V = p1->V + p2->V;
-		 ans.R = p1->R + p2->R;
+		 ans.p = p1->p + p2->p;
+		 ans.q = p1->q + p2->q;
+		 ans.L = p1->L + p2->L;
 		 ans.vertices = p1->vertices;
 		 ans.faces = p1->faces;
 		 return ans;
@@ -80,8 +102,9 @@ public:
 	 Body multiply(Body *p1, float h) {
 		 Body ans("cuboid");
 		 ans.X = p1->X * h;
-		 ans.V = p1->V * h;
-		 ans.R = p1->R * h;
+		 ans.p = p1->p * h;
+		 ans.q = p1->q * h;
+		 ans.L = p1->L * h;
 		 ans.vertices = p1->vertices;
 		 ans.faces = p1->faces;
 		 return ans;
@@ -90,7 +113,7 @@ public:
 	 std::vector<glm::vec3> getOrientatedVertices() {
 		 std::vector<glm::vec3> orientedVertices;
 		 for (int i = 0; i < vertices.size(); i++) {
-			 orientedVertices.push_back(X + R * vertices[i]);
+			 orientedVertices.push_back(X + glm::toMat3(q) * vertices[i]);
 		 }
 		 return orientedVertices;
 	 }
@@ -100,10 +123,17 @@ public:
 		 return(glm::make_mat3(w_arr));
 	 }
 
+	 void update() {
+		 q = glm::normalize(q);
+		 R = glm::toMat3(q);
+		 I = (R)* I0 * glm::transpose(R);
+		 w = glm::inverse(I) * L;
+	 }
+
 	void eulerStep(float h) {
 
 		*this = add((this), &multiply(&derivative(*(this)), h));
-
+		//std::cout << glm::to_string(R) << std::endl;
 	}
 
 	void RK2step(float h) {
@@ -125,12 +155,80 @@ public:
 		*this = add(this, &multiply(&K4, h / 6));
 	}
 
-	bool isColliding(std::vector <glm::vec3> V, std::vector<std::vector<int>> F) {
-		std::vector<glm::vec3> orientedVertices = getOrientatedVertices();
-		for (int i = 0; i < vertices.size(); i++) {
+	void CollisionTest(std::vector <glm::vec3> Vert, std::vector<std::vector<int>> indices, float h) {
+		
+		Body nextState = *this;
 
+		
+		bool collide;
+		nextState.RK4step(h);
+
+		std::vector<glm::vec3> V1 = getOrientatedVertices();
+		std::vector<glm::vec3> V2 = nextState.getOrientatedVertices();
+		glm::vec3 normal;
+		
+		for (int i = 0; i < V1.size(); i++) {
+
+			collide = false;
+			if (collide) break;
+
+			for (int j = 0; j < indices.size(); j++) {
+
+				std::tie(collide, normal) = isCollidingFace(V1[i], V2[i], Vert, indices[j]);
+				//printf("Loop: %d %d\n", i, j);
+
+				if(collide){
+				//if (((V1[i][0] - Vert[3][0])*(V2[i][0] - Vert[3][0])) < 0) {
+					//printf("%f %f %f\n", V1[i][0], Vert[indices[j][0]][0], V2[i][0]);
+				
+					glm::vec3 ra = R*vertices[i];
+					glm::vec3 p_dot_a = p/m + glm::cross(w, ra); 
+					float v_ = glm::dot(p_dot_a, normal);
+					float j_imp = (-(1.0f + Cr)*v_) / (1.0f/m + glm::dot(normal,glm::cross(glm::inverse(I)*ra*normal,ra)));
+					printf("Loop(collide): %d %d %f\n", i, j, j_imp);
+					for(int k=0;k<V1.size();k++){ printf("%f %f %f\n", V1[k][0],V1[k][1],V1[k][2]); }
+					if (abs(j_imp) > 20) j_imp = 20*j_imp/abs(j_imp);
+					p += j_imp * normal;
+					//printf("%f %f %f \n", p);
+					L += j_imp * glm::cross(ra, normal);
+
+					//L = { 0,0,0 }; p = {0,0,0};
+					
+					update();
+					RK4step(h);
+					//w = { 0,0,0 }; V = { 0,0,0 };
+				}
+			}
 		}
+		
 	}
+
+	std::tuple<bool,glm::vec3> isCollidingFace(glm::vec3 oldPos, glm::vec3 newPos, std::vector<glm::vec3> Vert, std::vector<int> indices_) {
+		
+		glm::vec3 p1 = Vert[indices_[0]]; glm::vec3 p2 = Vert[indices_[1]]; glm::vec3 p3 = Vert[indices_[2]];
+			float a1 = p2.x - p1.x;
+			float b1 = p2.y - p1.y;
+			float c1 = p2.z - p1.z;
+			float a2 = p3.x - p1.x;
+			float b2 = p3.y - p1.y;
+			float c2 = p3.z - p1.z;
+			float a = b1 * c2 - b2 * c1;
+			float b = a2 * c1 - a1 * c2;
+			float c = a1 * b2 - b1 * a2;
+			float d = (-a * p1.x - b * p1.y - c * p1.z);
+			float norm = sqrt(a*a + b*b + c*c);
+			a = a / norm; b = b / norm; c = c / norm; d = d / norm;
+			float x = a*oldPos.x + b*oldPos.y + c*oldPos.z + d;
+			float y = a*newPos.x + b*newPos.y + c*newPos.z + d;
+			bool planeCollide = ((x < 0) == (y < 0));
+			glm::vec3 normal(a, b, c);
+			for (int i = 0; i < indices_.size(); i++) {
+			
+			}
+			
+			return std::make_tuple(!planeCollide, normal);
+	}
+
 	~Body();
 };
 

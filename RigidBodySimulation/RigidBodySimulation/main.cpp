@@ -1,7 +1,7 @@
 #include "Body.h"
 #include <stdio.h>
 #include <glut.h>
-#include <glm/gtx/string_cast.hpp>
+
 
 using namespace std;
 
@@ -15,6 +15,10 @@ float spinup = 0.0;
 
 Body body("cuboid");
 std::vector<glm::vec3> orientedVertices;
+
+std::vector <glm::vec3> Vert;
+std::vector<std::vector<int>> indices;
+bool bounding = true;
 
 void init(void)
 {
@@ -50,6 +54,22 @@ void init(void)
 	glLightfv(GL_LIGHT1, GL_AMBIENT, light1color);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, light1color);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, light1color);
+	
+	if (bounding) {
+		Vert.push_back(glm::vec3(100.0, 0, -200));
+		Vert.push_back(glm::vec3(100.0, 200, 0));
+		Vert.push_back(glm::vec3(100.0, 0, 200));
+		Vert.push_back(glm::vec3(100.0, -200, 0));
+		Vert.push_back(glm::vec3(-100.0, 0, -200));
+		Vert.push_back(glm::vec3(-100.0, 200, 0));
+		Vert.push_back(glm::vec3(-100.0, 0, 200));
+		Vert.push_back(glm::vec3(-100.0, -200, 0));
+		indices.push_back({ 0,1,2,3 });
+		indices.push_back({ 4,5,6,7 });
+		
+		bounding = false;
+	}
+	//printf("%d ", indices.size());
 }
 
 void drawBody() {
@@ -57,6 +77,7 @@ void drawBody() {
 	orientedVertices = body.getOrientatedVertices();
 	for (int i = 0; i < body.faces.size();i++) {
 		
+		/*
 		glBegin(GL_POLYGON);
 		glColor3f(0.0, 0.0, 0.5);
 		glVertex3f(body.X[0] + orientedVertices[body.faces[i][0]][0], body.X[1] + orientedVertices[body.faces[i][0]][1], body.X[2] + orientedVertices[body.faces[i][0]][2]);
@@ -64,7 +85,8 @@ void drawBody() {
 		glVertex3f(body.X[0] + orientedVertices[body.faces[i][3]][0], body.X[1] + orientedVertices[body.faces[i][3]][1], body.X[2] + orientedVertices[body.faces[i][3]][2]);
 		glVertex3f(body.X[0] + orientedVertices[body.faces[i][2]][0], body.X[1] + orientedVertices[body.faces[i][2]][1], body.X[2] + orientedVertices[body.faces[i][2]][2]);
 		glEnd();
-		
+		*/
+
 		glLineWidth(3.0);
 		GLfloat lineColor[3] = { 0.0,0.3,0.0 };
 		glBegin(GL_LINE_STRIP);
@@ -79,6 +101,26 @@ void drawBody() {
 	glPopMatrix();
 }
 
+void drawBounding() {
+	glPushMatrix();
+	
+	for (int i = 0; i < indices.size(); i++) {
+
+		glLineWidth(3.0);
+		GLfloat lineColor[3] = { 0.3,0.3,0.0 };
+		glBegin(GL_LINE_STRIP);
+		glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
+
+		for (int j = 0; j < indices[i].size(); j++) {
+			glVertex3f(Vert[indices[i][j]][0], Vert[indices[i][j]][1], Vert[indices[i][j]][2]);
+		}
+		glVertex3f(Vert[indices[i][0]][0], Vert[indices[i][0]][1], Vert[indices[i][0]][2]);
+
+		glEnd();
+	}
+	glPopMatrix();
+}
+
 void display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -88,6 +130,7 @@ void display() {
 	glRotatef(spin, 0.0, 1.0, 0.0);
 
 	drawBody();
+	drawBounding();
 
 	glPopMatrix();
 	glutSwapBuffers();
@@ -109,6 +152,7 @@ void reshapeFunc(GLint newWidth, GLint newHeight)
 
 void idle(void)
 {
+	
 	if (rotateon) {
 		spin += xchange / 250.0;
 		if (spin >= 360.0) spin -= 360.0;
@@ -119,7 +163,11 @@ void idle(void)
 	}
 
 	for (float t = 0; t < 1.0 / FPS; t += h) {
+		
+		body.CollisionTest(Vert, indices, h);
 		body.RK4step(h);
+		body.update();
+		
 	}
 	glutPostRedisplay();
 }
@@ -154,7 +202,7 @@ void mouse(int button, int state, int x, int y)
 }
 
 int main(int argc, char** argv) {
-
+	
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(500, 500);
