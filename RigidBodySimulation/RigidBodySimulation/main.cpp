@@ -24,7 +24,7 @@ Body body1("cuboid");
 
 void ObjectCollision(Body *b1, Body *b2, float h) {
 		
-	//b1->CollisionTest(b2->vertices, b2->faces, h);
+	b1->CollisionTest(b2->vertices, b2->faces, h);
 	//b2->CollisionTest(b1->vertices, b1->faces, h);
 }
 
@@ -79,9 +79,9 @@ void init(void)
 		
 		bounding = false;
 		body1.p = {-10.0,0,0};
-		body.X = { -100,0,0 };
+		body.X = { 0,0,0 };
 		body1.X = { 100,0,0 };
-		body1.L = { -4000,0,0 };
+		body1.L = { 0,0,0 };
 	}
 	//printf("%d ", indices.size());
 }
@@ -108,8 +108,8 @@ void drawBody(Body body) {
 		glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
 		glVertex3f(body.X[0] + orientedVertices[body.faces[i][0]][0], body.X[1] + orientedVertices[body.faces[i][0]][1], body.X[2] + orientedVertices[body.faces[i][0]][2]);
 		glVertex3f(body.X[0] + orientedVertices[body.faces[i][1]][0], body.X[1] + orientedVertices[body.faces[i][1]][1], body.X[2] + orientedVertices[body.faces[i][1]][2]);
-		glVertex3f(body.X[0] + orientedVertices[body.faces[i][3]][0], body.X[1] + orientedVertices[body.faces[i][3]][1], body.X[2] + orientedVertices[body.faces[i][3]][2]);
 		glVertex3f(body.X[0] + orientedVertices[body.faces[i][2]][0], body.X[1] + orientedVertices[body.faces[i][2]][1], body.X[2] + orientedVertices[body.faces[i][2]][2]);
+		glVertex3f(body.X[0] + orientedVertices[body.faces[i][3]][0], body.X[1] + orientedVertices[body.faces[i][3]][1], body.X[2] + orientedVertices[body.faces[i][3]][2]);
 		glVertex3f(body.X[0] + orientedVertices[body.faces[i][0]][0], body.X[1] + orientedVertices[body.faces[i][0]][1], body.X[2] + orientedVertices[body.faces[i][0]][2]);
 		glEnd();
 	}
@@ -154,8 +154,8 @@ void display() {
 	glRotatef(spin, 0.0, 1.0, 0.0);
 
 	drawBody(body);
-	drawBody(body1);
-	//drawBounding();
+	//drawBody(body1);
+	drawBounding();
 
 	glPopMatrix();
 	glutSwapBuffers();
@@ -189,13 +189,13 @@ void idle(void)
 
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 		
-		//body.CollisionTest(Vert, indices, h);
-		ObjectCollision(&body, &body1, h);
+		body.CollisionTest(Vert, indices, h);
+		//ObjectCollision(&body, &body1, h);
 		body.RK4step(h);
 		body.update();
 
-		body1.RK4step(h);
-		body1.update();
+		//body1.RK4step(h);
+		//body1.update();
 		
 	}
 	glutPostRedisplay();

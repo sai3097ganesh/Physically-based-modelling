@@ -32,7 +32,7 @@ public:
 		
 		if (strcmp(input, "cuboid")==0) {
 
-			float l = 50, b = 100, h = 20;
+			float l = 50, b = 50, h = 20;
 
 			X = { 0,0,0 }; m = 1; p = { 10.0f ,0.0f, 0.0 }; L = { 400.0,0,0.0 };
 			
@@ -63,12 +63,12 @@ public:
 				vertices[i][2] -= h / 2;
 			}
 
-			faces.push_back({ 0,1,2,4 });
-			faces.push_back({ 3,5,6,7 });
-			faces.push_back({ 1,4,5,7 });
-			faces.push_back({ 0,2,3,6 });
-			faces.push_back({ 0,1,3,5 });
-			faces.push_back({ 2,4,6,7 });
+			faces.push_back({ 0,1,4,2 });
+			faces.push_back({ 3,5,7,6 });
+			faces.push_back({ 1,4,7,5 });
+			faces.push_back({ 0,2,6,3 });
+			faces.push_back({ 0,1,5,3 });
+			faces.push_back({ 2,4,7,6 });
 
 		}
 		
@@ -188,7 +188,7 @@ public:
 					float v_ = glm::dot(p_dot_a, normal);
 					float j_imp = (-(1.0f + Cr)*v_) / (1.0f/m + glm::dot(normal,glm::cross(glm::inverse(I)*ra*normal,ra)));
 					printf("Loop(collide): %d %d %f\n", i, j, j_imp);
-					printf("%f %f %f\n", V1[i][0], Vert[indices[j][0]][0], V2[i][0]);
+					
 					for(int k=0;k<V1.size();k++){ printf("%f %f %f\n", V1[k][0],V1[k][1],V1[k][2]); }
 					if (abs(j_imp) > 20) j_imp = 20*j_imp/abs(j_imp);
 					p += j_imp * normal;
@@ -226,7 +226,8 @@ public:
 			bool planeCollide = ((x < 0) == (y < 0));
 
 			glm::vec3 normal(a, b, c);
-			
+
+			/*
 			if (!planeCollide) {
 
 				Point polygon[10], point;
@@ -238,7 +239,7 @@ public:
 
 				planeCollide = isInside(polygon, indices_.size(), point);
 			}
-
+			*/
 
 			return std::make_tuple(!planeCollide, normal);
 	}
