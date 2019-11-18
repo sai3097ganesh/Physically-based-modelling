@@ -6,6 +6,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include "geometry.h"
 #include <tuple>
 #include <vector>
 
@@ -31,9 +32,9 @@ public:
 		
 		if (strcmp(input, "cuboid")==0) {
 
-			float l = 100, b = 100, h = 100;
+			float l = 50, b = 100, h = 20;
 
-			X = { 0,0,0 }; m = 1; p = { -10.0f ,0.0, 0.0 }; L = { 5000.0,0,0.0 };
+			X = { 0,0,0 }; m = 1; p = { 10.0f ,0.0f, 0.0 }; L = { 400.0,0,0.0 };
 			
 			float I_arr[9] = { m / 12 * (b*b + h*h), 0, 0,
 				0, m / 12 * (l*l + h*h), 0,
@@ -42,9 +43,9 @@ public:
 			I0 = glm::make_mat3(I_arr);
 			I0_inv = glm::inverse(I0);
 
-			q = glm::angleAxis((float)3.14/3, glm::vec3(1));
+			q = glm::angleAxis((float)3.14/6, glm::vec3(1));
 
-			//R = glm::toMat3(q);
+			R = glm::toMat3(q);
 			//w = R*I0_inv* glm::transpose(R)*L;
 			
 			vertices.push_back({ 0.0,0.0,0.0 });
@@ -113,7 +114,7 @@ public:
 	 std::vector<glm::vec3> getOrientatedVertices() {
 		 std::vector<glm::vec3> orientedVertices;
 		 for (int i = 0; i < vertices.size(); i++) {
-			 orientedVertices.push_back(X + glm::toMat3(q) * vertices[i]);
+			 orientedVertices.push_back(X + glm::toMat3(glm::normalize(q)) * vertices[i]);
 		 }
 		 return orientedVertices;
 	 }
@@ -178,14 +179,16 @@ public:
 				//printf("Loop: %d %d\n", i, j);
 
 				if(collide){
+
 				//if (((V1[i][0] - Vert[3][0])*(V2[i][0] - Vert[3][0])) < 0) {
-					//printf("%f %f %f\n", V1[i][0], Vert[indices[j][0]][0], V2[i][0]);
+					
 				
 					glm::vec3 ra = R*vertices[i];
 					glm::vec3 p_dot_a = p/m + glm::cross(w, ra); 
 					float v_ = glm::dot(p_dot_a, normal);
 					float j_imp = (-(1.0f + Cr)*v_) / (1.0f/m + glm::dot(normal,glm::cross(glm::inverse(I)*ra*normal,ra)));
 					printf("Loop(collide): %d %d %f\n", i, j, j_imp);
+					printf("%f %f %f\n", V1[i][0], Vert[indices[j][0]][0], V2[i][0]);
 					for(int k=0;k<V1.size();k++){ printf("%f %f %f\n", V1[k][0],V1[k][1],V1[k][2]); }
 					if (abs(j_imp) > 20) j_imp = 20*j_imp/abs(j_imp);
 					p += j_imp * normal;
@@ -221,11 +224,22 @@ public:
 			float x = a*oldPos.x + b*oldPos.y + c*oldPos.z + d;
 			float y = a*newPos.x + b*newPos.y + c*newPos.z + d;
 			bool planeCollide = ((x < 0) == (y < 0));
+
 			glm::vec3 normal(a, b, c);
-			for (int i = 0; i < indices_.size(); i++) {
 			
+			if (!planeCollide) {
+
+				Point polygon[10], point;
+				for (int i = 0; i < indices_.size(); i++) {
+					polygon[i] = Point(Vert[indices_[i]][0], Vert[indices_[i]][1], Vert[indices_[i]][2]);
+				}
+
+				point = Point(oldPos[0], oldPos[1], oldPos[2]);
+
+				planeCollide = isInside(polygon, indices_.size(), point);
 			}
-			
+
+
 			return std::make_tuple(!planeCollide, normal);
 	}
 

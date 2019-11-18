@@ -20,6 +20,14 @@ std::vector <glm::vec3> Vert;
 std::vector<std::vector<int>> indices;
 bool bounding = true;
 
+Body body1("cuboid");
+
+void ObjectCollision(Body *b1, Body *b2, float h) {
+		
+	//b1->CollisionTest(b2->vertices, b2->faces, h);
+	//b2->CollisionTest(b1->vertices, b1->faces, h);
+}
+
 void init(void)
 {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -56,23 +64,30 @@ void init(void)
 	glLightfv(GL_LIGHT1, GL_SPECULAR, light1color);
 	
 	if (bounding) {
-		Vert.push_back(glm::vec3(100.0, 0, -200));
-		Vert.push_back(glm::vec3(100.0, 200, 0));
-		Vert.push_back(glm::vec3(100.0, 0, 200));
-		Vert.push_back(glm::vec3(100.0, -200, 0));
-		Vert.push_back(glm::vec3(-100.0, 0, -200));
-		Vert.push_back(glm::vec3(-100.0, 200, 0));
-		Vert.push_back(glm::vec3(-100.0, 0, 200));
-		Vert.push_back(glm::vec3(-100.0, -200, 0));
+		Vert.push_back(glm::vec3(100.0, -100, -100));
+		Vert.push_back(glm::vec3(100.0, 100, -100));
+		Vert.push_back(glm::vec3(100.0, 100, 100));
+		Vert.push_back(glm::vec3(100.0, -100, 100));
+		Vert.push_back(glm::vec3(-100.0, -100, -100));
+		Vert.push_back(glm::vec3(-100.0, 100, -100));
+		Vert.push_back(glm::vec3(-100.0, 100, 100));
+		Vert.push_back(glm::vec3(-100.0, -100, 100));
 		indices.push_back({ 0,1,2,3 });
 		indices.push_back({ 4,5,6,7 });
+		//indices.push_back({ 1,2,6,5 });
+		//indices.push_back({ 0,3,7,4 });
 		
 		bounding = false;
+		body1.p = {-10.0,0,0};
+		body.X = { -100,0,0 };
+		body1.X = { 100,0,0 };
+		body1.L = { -4000,0,0 };
 	}
 	//printf("%d ", indices.size());
 }
 
-void drawBody() {
+void drawBody(Body body) {
+
 	glPushMatrix();
 	orientedVertices = body.getOrientatedVertices();
 	for (int i = 0; i < body.faces.size();i++) {
@@ -106,6 +121,15 @@ void drawBounding() {
 	
 	for (int i = 0; i < indices.size(); i++) {
 
+		glBegin(GL_POLYGON);
+		glColor3f(0.3, 0.3, 0.);
+		
+		for (int j = 0; j < indices[i].size(); j++) {
+			glVertex3f(Vert[indices[i][j]][0], Vert[indices[i][j]][1], Vert[indices[i][j]][2]);
+		}
+		glVertex3f(Vert[indices[i][0]][0], Vert[indices[i][0]][1], Vert[indices[i][0]][2]);
+		glEnd();
+
 		glLineWidth(3.0);
 		GLfloat lineColor[3] = { 0.3,0.3,0.0 };
 		glBegin(GL_LINE_STRIP);
@@ -129,8 +153,9 @@ void display() {
 	glRotatef(spinup, 1.0, 0.0, 0.0);
 	glRotatef(spin, 0.0, 1.0, 0.0);
 
-	drawBody();
-	drawBounding();
+	drawBody(body);
+	drawBody(body1);
+	//drawBounding();
 
 	glPopMatrix();
 	glutSwapBuffers();
@@ -164,9 +189,13 @@ void idle(void)
 
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 		
-		body.CollisionTest(Vert, indices, h);
+		//body.CollisionTest(Vert, indices, h);
+		ObjectCollision(&body, &body1, h);
 		body.RK4step(h);
 		body.update();
+
+		body1.RK4step(h);
+		body1.update();
 		
 	}
 	glutPostRedisplay();
