@@ -19,12 +19,12 @@ std::vector<glm::vec3> orientedVertices;
 std::vector <glm::vec3> Vert;
 std::vector<std::vector<int>> indices;
 bool bounding = true;
-
+glm::vec3 collisionPoint;
 Body body1("cuboid");
 
 void ObjectCollision(Body *b1, Body *b2, float h) {
 		
-	b1->CollisionTest(b2->vertices, b2->faces, h);
+	//b1->CollisionTest(b2->vertices, b2->faces, h);
 	//b2->CollisionTest(b1->vertices, b1->faces, h);
 }
 
@@ -64,22 +64,24 @@ void init(void)
 	glLightfv(GL_LIGHT1, GL_SPECULAR, light1color);
 	
 	if (bounding) {
-		Vert.push_back(glm::vec3(100.0, -100, -100));
-		Vert.push_back(glm::vec3(100.0, 100, -100));
-		Vert.push_back(glm::vec3(100.0, 100, 100));
-		Vert.push_back(glm::vec3(100.0, -100, 100));
+		Vert.push_back(glm::vec3(50.0, -100, -100));
+		Vert.push_back(glm::vec3(50.0, 100, -100));
+		Vert.push_back(glm::vec3(50.0, 100, 100));
+		Vert.push_back(glm::vec3(50.0, -100, 100));
 		Vert.push_back(glm::vec3(-100.0, -100, -100));
 		Vert.push_back(glm::vec3(-100.0, 100, -100));
 		Vert.push_back(glm::vec3(-100.0, 100, 100));
 		Vert.push_back(glm::vec3(-100.0, -100, 100));
-		indices.push_back({ 0,1,2,3 });
-		indices.push_back({ 4,5,6,7 });
+
+		indices.push_back({ 0,1,2 });
+		indices.push_back({ 4,7,6,5 });
+		
 		//indices.push_back({ 1,2,6,5 });
 		//indices.push_back({ 0,3,7,4 });
 		
 		bounding = false;
 		body1.p = {-10.0,0,0};
-		body.X = { 0,0,0 };
+		body.X = { 0,0,80 };
 		body1.X = { 100,0,0 };
 		body1.L = { 0,0,0 };
 	}
@@ -106,11 +108,11 @@ void drawBody(Body body) {
 		GLfloat lineColor[3] = { 0.0,0.3,0.0 };
 		glBegin(GL_LINE_STRIP);
 		glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
-		glVertex3f(body.X[0] + orientedVertices[body.faces[i][0]][0], body.X[1] + orientedVertices[body.faces[i][0]][1], body.X[2] + orientedVertices[body.faces[i][0]][2]);
-		glVertex3f(body.X[0] + orientedVertices[body.faces[i][1]][0], body.X[1] + orientedVertices[body.faces[i][1]][1], body.X[2] + orientedVertices[body.faces[i][1]][2]);
-		glVertex3f(body.X[0] + orientedVertices[body.faces[i][2]][0], body.X[1] + orientedVertices[body.faces[i][2]][1], body.X[2] + orientedVertices[body.faces[i][2]][2]);
-		glVertex3f(body.X[0] + orientedVertices[body.faces[i][3]][0], body.X[1] + orientedVertices[body.faces[i][3]][1], body.X[2] + orientedVertices[body.faces[i][3]][2]);
-		glVertex3f(body.X[0] + orientedVertices[body.faces[i][0]][0], body.X[1] + orientedVertices[body.faces[i][0]][1], body.X[2] + orientedVertices[body.faces[i][0]][2]);
+		glVertex3f(orientedVertices[body.faces[i][0]][0], orientedVertices[body.faces[i][0]][1], orientedVertices[body.faces[i][0]][2]);
+		glVertex3f(orientedVertices[body.faces[i][1]][0], orientedVertices[body.faces[i][1]][1], orientedVertices[body.faces[i][1]][2]);
+		glVertex3f(orientedVertices[body.faces[i][2]][0], orientedVertices[body.faces[i][2]][1], orientedVertices[body.faces[i][2]][2]);
+		glVertex3f(orientedVertices[body.faces[i][3]][0], orientedVertices[body.faces[i][3]][1], orientedVertices[body.faces[i][3]][2]);
+		glVertex3f(orientedVertices[body.faces[i][0]][0], orientedVertices[body.faces[i][0]][1], orientedVertices[body.faces[i][0]][2]);
 		glEnd();
 	}
 	glPopMatrix();
@@ -156,6 +158,16 @@ void display() {
 	drawBody(body);
 	//drawBody(body1);
 	drawBounding();
+	
+	if (!(collisionPoint[0] == 0 && collisionPoint[1] == 0 && collisionPoint[2] == 0)) {
+		glPushMatrix();
+		GLfloat ballColor[3] = { 0.7,0.2,0.1 };
+		glMaterialfv(GL_FRONT, GL_AMBIENT, ballColor);
+		glTranslatef(collisionPoint[0], collisionPoint[1], collisionPoint[2]);
+		glutSolidSphere(3, 40, 40);
+		glPopMatrix();
+		for (int i = 100000000; i > 0; i--);
+	}
 
 	glPopMatrix();
 	glutSwapBuffers();
@@ -189,13 +201,14 @@ void idle(void)
 
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 		
-		body.CollisionTest(Vert, indices, h);
+		collisionPoint = body.CollisionTest(Vert, indices, h);
 		//ObjectCollision(&body, &body1, h);
 		body.RK4step(h);
 		body.update();
 
 		//body1.RK4step(h);
 		//body1.update();
+		
 		
 	}
 	glutPostRedisplay();

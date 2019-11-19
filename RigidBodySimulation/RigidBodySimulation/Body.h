@@ -156,11 +156,10 @@ public:
 		*this = add(this, &multiply(&K4, h / 6));
 	}
 
-	void CollisionTest(std::vector <glm::vec3> Vert, std::vector<std::vector<int>> indices, float h) {
+	glm::vec3 CollisionTest(std::vector <glm::vec3> Vert, std::vector<std::vector<int>> indices, float h) {
 		
 		Body nextState = *this;
 
-		
 		bool collide;
 		nextState.RK4step(h);
 
@@ -170,9 +169,6 @@ public:
 		
 		for (int i = 0; i < V1.size(); i++) {
 
-			collide = false;
-			if (collide) break;
-
 			for (int j = 0; j < indices.size(); j++) {
 
 				std::tie(collide, normal) = isCollidingFace(V1[i], V2[i], Vert, indices[j]);
@@ -181,8 +177,7 @@ public:
 				if(collide){
 
 				//if (((V1[i][0] - Vert[3][0])*(V2[i][0] - Vert[3][0])) < 0) {
-					
-				
+
 					glm::vec3 ra = R*vertices[i];
 					glm::vec3 p_dot_a = p/m + glm::cross(w, ra); 
 					float v_ = glm::dot(p_dot_a, normal);
@@ -197,12 +192,16 @@ public:
 
 					//L = { 0,0,0 }; p = {0,0,0};
 					
-					update();
-					RK4step(h);
+					//update();
+					//RK4step(h);
 					//w = { 0,0,0 }; V = { 0,0,0 };
+					return (V1[i]);
+
 				}
 			}
 		}
+
+		return glm::vec3(0, 0, 0);
 		
 	}
 
@@ -223,25 +222,31 @@ public:
 			a = a / norm; b = b / norm; c = c / norm; d = d / norm;
 			float x = a*oldPos.x + b*oldPos.y + c*oldPos.z + d;
 			float y = a*newPos.x + b*newPos.y + c*newPos.z + d;
-			bool planeCollide = ((x < 0) == (y < 0));
+			bool planeCollide = !((x < 0) == (y < 0));
 
 			glm::vec3 normal(a, b, c);
 
-			/*
-			if (!planeCollide) {
+			
+			if (planeCollide) {
 
 				Point polygon[10], point;
 				for (int i = 0; i < indices_.size(); i++) {
 					polygon[i] = Point(Vert[indices_[i]][0], Vert[indices_[i]][1], Vert[indices_[i]][2]);
+					printf("Polygon Vertices %f %f %f\n", Vert[indices_[i]][0], Vert[indices_[i]][1], Vert[indices_[i]][2]);
 				}
 
 				point = Point(oldPos[0], oldPos[1], oldPos[2]);
+				printf("Vertex Check %f %f %f\n", oldPos[0], oldPos[1], oldPos[2]);
 
-				planeCollide = isInside(polygon, indices_.size(), point);
+				if (!(isInside_yz(polygon, indices_.size(), point) || isInside(polygon, indices_.size(), point)))
+				{
+					planeCollide = false;
+					printf("%d\n", planeCollide);
+				}
 			}
-			*/
+			
 
-			return std::make_tuple(!planeCollide, normal);
+			return std::make_tuple(planeCollide, normal);
 	}
 
 	~Body();
