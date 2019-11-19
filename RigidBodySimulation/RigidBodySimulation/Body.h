@@ -7,8 +7,10 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include "geometry.h"
+
 #include <tuple>
 #include <vector>
+
 
 class Body
 {
@@ -22,6 +24,7 @@ public:
 
 	std::vector <glm::vec3> vertices;
 	std::vector<std::vector<int>> faces;
+	std::vector<std::vector<int>> edge;
 	float Cr = 1;
 
 	Body() {
@@ -34,7 +37,7 @@ public:
 
 			float l = 50, b = 50, h = 20;
 
-			X = { 0,0,0 }; m = 1; p = { 10.0f ,0.0f, 0.0 }; L = { 400.0,0,0.0 };
+			X = { 0,0,0 }; m = 1; p = { 0.0f ,10.0f, 0.0 }; L = { 400.0,0,0.0 };
 			
 			float I_arr[9] = { m / 12 * (b*b + h*h), 0, 0,
 				0, m / 12 * (l*l + h*h), 0,
@@ -48,6 +51,7 @@ public:
 			R = glm::toMat3(q);
 			//w = R*I0_inv* glm::transpose(R)*L;
 			
+		
 			vertices.push_back({ 0.0,0.0,0.0 });
 			vertices.push_back({ l,0,0 });
 			vertices.push_back({ 0,b,0 });
@@ -70,6 +74,18 @@ public:
 			faces.push_back({ 0,1,5,3 });
 			faces.push_back({ 2,4,7,6 });
 
+			edge.push_back({ 0,1 });
+			edge.push_back({ 1,4 });
+			edge.push_back({ 4,2 });
+			edge.push_back({ 2,0 });
+			edge.push_back({ 3,5 });
+			edge.push_back({ 5,7 });
+			edge.push_back({ 7,6 });
+			edge.push_back({ 6,3 });
+			edge.push_back({ 0,3 });
+			edge.push_back({ 5,1 });
+			edge.push_back({ 7,4 });
+			edge.push_back({ 6,2 });
 		}
 		
 	};
@@ -165,12 +181,12 @@ public:
 
 		std::vector<glm::vec3> V1 = getOrientatedVertices();
 		std::vector<glm::vec3> V2 = nextState.getOrientatedVertices();
-		glm::vec3 normal;
+		glm::vec3 normal, delP, delL;
 		
 		for (int i = 0; i < V1.size(); i++) {
 
 			for (int j = 0; j < indices.size(); j++) {
-
+				//printf("Loop(collide): %d %d\n", i, j);
 				std::tie(collide, normal) = isCollidingFace(V1[i], V2[i], Vert, indices[j]);
 				//printf("Loop: %d %d\n", i, j);
 
@@ -178,18 +194,9 @@ public:
 
 				//if (((V1[i][0] - Vert[3][0])*(V2[i][0] - Vert[3][0])) < 0) {
 
-					glm::vec3 ra = R*vertices[i];
-					glm::vec3 p_dot_a = p/m + glm::cross(w, ra); 
-					float v_ = glm::dot(p_dot_a, normal);
-					float j_imp = (-(1.0f + Cr)*v_) / (1.0f/m + glm::dot(normal,glm::cross(glm::inverse(I)*ra*normal,ra)));
-					printf("Loop(collide): %d %d %f\n", i, j, j_imp);
-					
-					for(int k=0;k<V1.size();k++){ printf("%f %f %f\n", V1[k][0],V1[k][1],V1[k][2]); }
-					if (abs(j_imp) > 20) j_imp = 20*j_imp/abs(j_imp);
-					p += j_imp * normal;
-					//printf("%f %f %f \n", p);
-					L += j_imp * glm::cross(ra, normal);
+					std::tie(delP,delL) = collisionResponse(V1[i],normal);
 
+					p += delP; L += delL;
 					//L = { 0,0,0 }; p = {0,0,0};
 					
 					//update();
@@ -236,17 +243,28 @@ public:
 				}
 
 				point = Point(oldPos[0], oldPos[1], oldPos[2]);
-				printf("Vertex Check %f %f %f\n", oldPos[0], oldPos[1], oldPos[2]);
-
-				if (!(isInside_yz(polygon, indices_.size(), point) || isInside(polygon, indices_.size(), point)))
+				
+				printf("\n", planeCollide);
+				if (!(isInside_yz(polygon, indices_.size(), point) || isInside(polygon, indices_.size(), point) || isInside_xz(polygon, indices_.size(), point)))
 				{
+					printf("Vertex Check %f %f %f\n", oldPos[0], oldPos[1], oldPos[2]);
 					planeCollide = false;
 					printf("%d\n", planeCollide);
 				}
 			}
-			
 
 			return std::make_tuple(planeCollide, normal);
+	}
+
+	std::tuple<glm::vec3,glm::vec3> collisionResponse(glm::vec3 ra, glm::vec3 normal) {
+
+		glm::vec3 p_dot_a = p / m + glm::cross(w, ra);
+		float v_ = glm::dot(p_dot_a, normal);
+		float j_imp = (-(1.0f + Cr)*v_) / (1.0f / m + glm::dot(normal, glm::cross(glm::inverse(I)*ra*normal, ra)));
+		if (abs(j_imp) > 20) j_imp = 20 * j_imp / abs(j_imp);
+
+		return std::make_tuple(j_imp * normal, j_imp * glm::cross(ra, normal));
+
 	}
 
 	~Body();

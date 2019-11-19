@@ -1,7 +1,7 @@
 #include "Body.h"
 #include <stdio.h>
 #include <glut.h>
-
+#include <omp.h>
 
 using namespace std;
 
@@ -24,8 +24,93 @@ Body body1("cuboid");
 
 void ObjectCollision(Body *b1, Body *b2, float h) {
 		
+	Body nextState = *b1;
+
+	bool collide;
+	nextState.RK4step(h);
+
+	std::vector<glm::vec3> V1 = b1->getOrientatedVertices();
+	std::vector<glm::vec3> V2 = nextState.getOrientatedVertices();
+	glm::vec3 normal, delP, delL;
+
+	for (int i = 0; i < V1.size(); i++) {
+
+		for (int j = 0; j < b2->faces.size(); j++) {
+
+			std::tie(collide, normal) = b1->isCollidingFace(V1[i], V2[i], b2->getOrientatedVertices(), b2->faces[j]);
+
+
+			if (collide) {
+				std::tie(delP, delL) = b1->collisionResponse(V1[i]-b1->X, normal);
+
+				b1->p += delP / 2.0f; b1->L += delL / 2.0f;
+				b2->p -= delP / 2.0f; b2->L -= delL / 2.0f;
+				return;
+			}
+		}
+	}
+
+	nextState = *b2;
+
+	nextState.RK4step(h);
+
+	V1 = b2->getOrientatedVertices();
+	V2 = nextState.getOrientatedVertices();
+
+	for (int i = 0; i < V1.size(); i++) {
+
+		for (int j = 0; j < b1->faces.size(); j++) {
+
+			std::tie(collide, normal) = b2->isCollidingFace(V1[i], V2[i], b1->getOrientatedVertices(), b1->faces[j]);
+
+
+			if (collide) {
+				std::tie(delP, delL) = b2->collisionResponse(V1[i]-b2->X, normal);
+
+				b2->p += delP / 2.0f; b2->L += delL / 2.0f;
+				b1->p -= delP / 2.0f; b1->L -= delL / 2.0f;
+				return;
+			}
+		}
+	}
+
 	//b1->CollisionTest(b2->vertices, b2->faces, h);
 	//b2->CollisionTest(b1->vertices, b1->faces, h);
+}
+
+void EdgeCollision(Body *b1, Body *b2, float h) {
+	glm::vec3 delP, delL;
+#pragma omp parallel for
+	for (int i = 0; i < b1->edge.size(); i++) {
+		for (int j = 0; j < b2->edge.size(); j++) {
+
+			glm::vec3 a = (b1->getOrientatedVertices()[b1->edge[i][0]] - b1->getOrientatedVertices()[b1->edge[i][1]]);
+			glm::vec3 b = (b2->getOrientatedVertices()[b2->edge[j][0]] - b2->getOrientatedVertices()[b2->edge[j][1]]);
+
+				glm::vec3 normal = glm::cross(a,b) / (glm::length(a) * glm::length(b));
+				glm::vec3 r = b2->getOrientatedVertices()[b2->edge[j][0]] - b1->getOrientatedVertices()[b1->edge[i][0]];
+				
+				float s = glm::dot(r, glm::cross(b, normal)) / glm::dot(a, glm::cross(b, normal));
+				float t = -glm::dot(r, glm::cross(a, normal)) / glm::dot(b, glm::cross(a, normal));
+				
+				glm::vec3 pa, qa, m;
+
+				pa = b1->getOrientatedVertices()[b1->edge[i][0]]*t+ b1->getOrientatedVertices()[b1->edge[i][1]];
+				qa = b2->getOrientatedVertices()[b2->edge[j][0]]*s + b2->getOrientatedVertices()[b2->edge[j][1]];
+
+				m = pa - qa;
+				
+				
+				if((0<s)&&(s<1)&&(0<t)&&(t<1)){
+					if (glm::length(m) < 50) {
+						printf("%f %f %f \n", s, t, glm::length(m));
+						std::tie(delP, delL) = b1->collisionResponse(pa-b1->X, normal);
+						b1->p += delP / 0.50f; b1->L += delL / 2.0f;
+						b2->p -= delP / 0.50f; b2->L -= delL / 2.0f;
+					}
+				}
+		}
+	}
 }
 
 void init(void)
@@ -80,11 +165,15 @@ void init(void)
 		//indices.push_back({ 0,3,7,4 });
 		
 		bounding = false;
-		body1.p = {-10.0,0,0};
-		body.X = { 0,0,80 };
-		body1.X = { 100,0,0 };
+		body1.p = {0,0,0};
+		body.X = { 0,-50,0 };
+		body1.X = { -20,20,0 };
 		body1.L = { 0,0,0 };
+		body.L = {0,0,0 };
+		body1.q = glm::angleAxis((float)3.14 / 3, glm::vec3(0,1,0));
 	}
+
+	//for (int i = 100000000000; i > 0; i--);
 	//printf("%d ", indices.size());
 }
 
@@ -94,13 +183,13 @@ void drawBody(Body body) {
 	orientedVertices = body.getOrientatedVertices();
 	for (int i = 0; i < body.faces.size();i++) {
 		
-		/*
+	/*
 		glBegin(GL_POLYGON);
 		glColor3f(0.0, 0.0, 0.5);
-		glVertex3f(body.X[0] + orientedVertices[body.faces[i][0]][0], body.X[1] + orientedVertices[body.faces[i][0]][1], body.X[2] + orientedVertices[body.faces[i][0]][2]);
-		glVertex3f(body.X[0] + orientedVertices[body.faces[i][1]][0], body.X[1] + orientedVertices[body.faces[i][1]][1], body.X[2] + orientedVertices[body.faces[i][1]][2]);
-		glVertex3f(body.X[0] + orientedVertices[body.faces[i][3]][0], body.X[1] + orientedVertices[body.faces[i][3]][1], body.X[2] + orientedVertices[body.faces[i][3]][2]);
-		glVertex3f(body.X[0] + orientedVertices[body.faces[i][2]][0], body.X[1] + orientedVertices[body.faces[i][2]][1], body.X[2] + orientedVertices[body.faces[i][2]][2]);
+		glVertex3f(orientedVertices[body.faces[i][0]][0], orientedVertices[body.faces[i][0]][1], orientedVertices[body.faces[i][0]][2]);
+		glVertex3f(orientedVertices[body.faces[i][1]][0], orientedVertices[body.faces[i][1]][1], orientedVertices[body.faces[i][1]][2]);
+		glVertex3f(orientedVertices[body.faces[i][2]][0], orientedVertices[body.faces[i][2]][1], orientedVertices[body.faces[i][2]][2]);
+		glVertex3f(orientedVertices[body.faces[i][3]][0], orientedVertices[body.faces[i][3]][1], orientedVertices[body.faces[i][3]][2]);
 		glEnd();
 		*/
 
@@ -114,8 +203,21 @@ void drawBody(Body body) {
 		glVertex3f(orientedVertices[body.faces[i][3]][0], orientedVertices[body.faces[i][3]][1], orientedVertices[body.faces[i][3]][2]);
 		glVertex3f(orientedVertices[body.faces[i][0]][0], orientedVertices[body.faces[i][0]][1], orientedVertices[body.faces[i][0]][2]);
 		glEnd();
+	
+	}
+	/*
+	for (int i = 0; i < body.edge.size(); i++)
+	{
+		glLineWidth(3.0);
+		GLfloat lineColor[3] = { 0.0,0.3,0.0 };
+		glBegin(GL_LINE_STRIP);
+		glMaterialfv(GL_FRONT, GL_AMBIENT, lineColor);
+		glVertex3f(orientedVertices[body.edge[i][0]][0], orientedVertices[body.edge[i][0]][1], orientedVertices[body.edge[i][0]][2]);
+		glVertex3f(orientedVertices[body.edge[i][1]][0], orientedVertices[body.edge[i][1]][1], orientedVertices[body.edge[i][1]][2]);
+		glEnd();
 	}
 	glPopMatrix();
+	*/
 }
 
 void drawBounding() {
@@ -156,8 +258,8 @@ void display() {
 	glRotatef(spin, 0.0, 1.0, 0.0);
 
 	drawBody(body);
-	//drawBody(body1);
-	drawBounding();
+	drawBody(body1);
+	//drawBounding();
 	
 	if (!(collisionPoint[0] == 0 && collisionPoint[1] == 0 && collisionPoint[2] == 0)) {
 		glPushMatrix();
@@ -201,15 +303,14 @@ void idle(void)
 
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 		
-		collisionPoint = body.CollisionTest(Vert, indices, h);
+		//collisionPoint = body.CollisionTest(Vert, indices, h);
 		//ObjectCollision(&body, &body1, h);
+		EdgeCollision(&body, &body1, h);
 		body.RK4step(h);
 		body.update();
 
-		//body1.RK4step(h);
-		//body1.update();
-		
-		
+		body1.RK4step(h);
+		body1.update();
 	}
 	glutPostRedisplay();
 }

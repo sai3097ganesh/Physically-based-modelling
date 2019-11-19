@@ -50,3 +50,4 @@ struct Plane{
 
 bool isInside(Point polygon[], int n, Point p);
 bool isInside_yz(Point polygon[], int n, Point p);
+bool isInside_xz(Point polygon[], int n, Point p);
