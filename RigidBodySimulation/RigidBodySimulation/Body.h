@@ -35,9 +35,9 @@ public:
 		
 		if (strcmp(input, "cuboid")==0) {
 
-			float l = 50, b = 50, h = 20;
+			float l = 50, b = 50, h = 50;
 
-			X = { 0,0,0 }; m = 1; p = { 0.0f ,10.0f, 0.0 }; L = { 400.0,0,0.0 };
+			X = { 0,0,0 }; m = 1; p = { 0.0f ,20.0f, 0.0 }; L = { 400.0,0,0.0 };
 			
 			float I_arr[9] = { m / 12 * (b*b + h*h), 0, 0,
 				0, m / 12 * (l*l + h*h), 0,
@@ -46,7 +46,7 @@ public:
 			I0 = glm::make_mat3(I_arr);
 			I0_inv = glm::inverse(I0);
 
-			q = glm::angleAxis((float)3.14/6, glm::vec3(1));
+			q = glm::angleAxis((float)3.14/3, glm::vec3(0,1,1));
 
 			R = glm::toMat3(q);
 			//w = R*I0_inv* glm::transpose(R)*L;
@@ -194,7 +194,7 @@ public:
 
 				//if (((V1[i][0] - Vert[3][0])*(V2[i][0] - Vert[3][0])) < 0) {
 
-					std::tie(delP,delL) = collisionResponse(V1[i],normal);
+					std::tie(delP,delL) = collisionResponse(V1[i]-X,normal);
 
 					p += delP; L += delL;
 					//L = { 0,0,0 }; p = {0,0,0};

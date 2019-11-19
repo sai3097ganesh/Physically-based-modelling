@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <glut.h>
 #include <omp.h>
+#include "objloader.hpp"
 
 using namespace std;
 
@@ -20,7 +21,8 @@ std::vector <glm::vec3> Vert;
 std::vector<std::vector<int>> indices;
 bool bounding = true;
 glm::vec3 collisionPoint;
-Body body1("cuboid");
+
+Body body1("cuboid"), body2("cuboid");
 
 void ObjectCollision(Body *b1, Body *b2, float h) {
 		
@@ -43,8 +45,8 @@ void ObjectCollision(Body *b1, Body *b2, float h) {
 			if (collide) {
 				std::tie(delP, delL) = b1->collisionResponse(V1[i]-b1->X, normal);
 
-				b1->p += delP / 2.0f; b1->L += delL / 2.0f;
-				b2->p -= delP / 2.0f; b2->L -= delL / 2.0f;
+				b1->p += delP / 0.30f; b1->L += delL / 2.0f;
+				b2->p -= delP / 0.30f; b2->L -= delL / 2.0f;
 				return;
 			}
 		}
@@ -67,8 +69,8 @@ void ObjectCollision(Body *b1, Body *b2, float h) {
 			if (collide) {
 				std::tie(delP, delL) = b2->collisionResponse(V1[i]-b2->X, normal);
 
-				b2->p += delP / 2.0f; b2->L += delL / 2.0f;
-				b1->p -= delP / 2.0f; b1->L -= delL / 2.0f;
+				b2->p += delP / .30f; b2->L += delL / 2.0f;
+				b1->p -= delP / .30f; b1->L -= delL / 2.0f;
 				return;
 			}
 		}
@@ -149,6 +151,29 @@ void init(void)
 	glLightfv(GL_LIGHT1, GL_SPECULAR, light1color);
 	
 	if (bounding) {
+
+		std::vector< glm::vec3 > normals;
+		bool res = loadOBJfacenormal("dodecahedron.obj", Vert, normals);
+		Point point;
+		
+		for (int i = 0; i < Vert.size()/3; i++)
+		{	
+			float scale = 150;
+			Vert[3 * i][0] *= scale;
+			Vert[3 * i+1][0] *= scale;
+			Vert[3 * i+2][0] *= scale;
+
+			Vert[3 * i][1] *= scale;
+			Vert[3 * i + 1][1] *= scale;
+			Vert[3 * i + 2][1] *= scale;
+
+			Vert[3 * i][2] *= scale;
+			Vert[3 * i + 1][2] *= scale;
+			Vert[3 * i + 2][2] *= scale;
+
+			indices.push_back({ 3 * i,3 * i + 1,3 * i + 2 });
+		}
+		/*
 		Vert.push_back(glm::vec3(50.0, -100, -100));
 		Vert.push_back(glm::vec3(50.0, 100, -100));
 		Vert.push_back(glm::vec3(50.0, 100, 100));
@@ -163,14 +188,23 @@ void init(void)
 		
 		//indices.push_back({ 1,2,6,5 });
 		//indices.push_back({ 0,3,7,4 });
-		
+		*/
 		bounding = false;
-		body1.p = {0,0,0};
-		body.X = { 0,-50,0 };
-		body1.X = { -20,20,0 };
+
+		body.X = { -30,50,0 };
+		body.L = { 600,300,0 };
+		body.p = { 0,-30,0 };
+		body1.q = glm::angleAxis((float)3.14 / 2, glm::vec3(0, 1, 0));
+
+		body1.p = {0,-10,0};
+		body1.X = { 0,0,0 };
 		body1.L = { 0,0,0 };
-		body.L = {0,0,0 };
-		body1.q = glm::angleAxis((float)3.14 / 3, glm::vec3(0,1,0));
+		body1.q = glm::angleAxis((float)3.14 / 2, glm::vec3(0,1,0));
+
+		body2.p = { 0,30,0 };
+		body2.X = { 0,-150,0 };
+		body2.L = { 0,0,0 };
+		//body2.q = glm::angleAxis((float)3.14 / 3, glm::vec3(0, 1, 0));
 	}
 
 	//for (int i = 100000000000; i > 0; i--);
@@ -225,6 +259,7 @@ void drawBounding() {
 	
 	for (int i = 0; i < indices.size(); i++) {
 
+		/*
 		glBegin(GL_POLYGON);
 		glColor3f(0.3, 0.3, 0.);
 		
@@ -233,7 +268,7 @@ void drawBounding() {
 		}
 		glVertex3f(Vert[indices[i][0]][0], Vert[indices[i][0]][1], Vert[indices[i][0]][2]);
 		glEnd();
-
+		*/
 		glLineWidth(3.0);
 		GLfloat lineColor[3] = { 0.3,0.3,0.0 };
 		glBegin(GL_LINE_STRIP);
@@ -258,8 +293,9 @@ void display() {
 	glRotatef(spin, 0.0, 1.0, 0.0);
 
 	drawBody(body);
-	drawBody(body1);
-	//drawBounding();
+	//drawBody(body1);
+	//drawBody(body2);
+	drawBounding();
 	
 	if (!(collisionPoint[0] == 0 && collisionPoint[1] == 0 && collisionPoint[2] == 0)) {
 		glPushMatrix();
@@ -303,14 +339,19 @@ void idle(void)
 
 	for (float t = 0; t < 1.0 / FPS; t += h) {
 		
-		//collisionPoint = body.CollisionTest(Vert, indices, h);
+		collisionPoint = body.CollisionTest(Vert, indices, h);
 		//ObjectCollision(&body, &body1, h);
-		EdgeCollision(&body, &body1, h);
+		//ObjectCollision(&body1, &body2, h);
+		//ObjectCollision(&body, &body2, h);
+		//EdgeCollision(&body, &body1, h);
 		body.RK4step(h);
 		body.update();
 
-		body1.RK4step(h);
-		body1.update();
+		//body1.RK4step(h);
+		//body1.update();
+
+		//body2.RK4step(h);
+		//body2.update();
 	}
 	glutPostRedisplay();
 }
