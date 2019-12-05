@@ -1,12 +1,4 @@
-#include "fluid.h"
+#include "Fluid.h"
 
 
 
-fluid::fluid()
-{
-}
-
-
-fluid::~fluid()
-{
-}
