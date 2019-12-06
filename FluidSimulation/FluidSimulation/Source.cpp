@@ -11,9 +11,12 @@ int main() {
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
 			fluid.VelocityField[fluid.indexXY(i, j)] = { 0.0,0.0 };
+			fluid.PressureField[fluid.indexXY(i, j)] = 0;
+			fluid.AccelerationField[fluid.indexXY(i, j)] = { 0.0,0.0 };
 		}
 	}
-	fluid.advectVelocity();
+	fluid.timestepVelocity();
+	fluid.timestepDye();
 	std::cout << "Team Turbulence";
 	getchar();
 }

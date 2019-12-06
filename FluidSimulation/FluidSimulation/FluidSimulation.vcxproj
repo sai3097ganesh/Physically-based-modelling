@@ -123,9 +123,11 @@
   <ItemGroup>
     <ClCompile Include="Fluid.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="vectorOperations.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fluid.h" />
+    <ClInclude Include="vectorOperations.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -21,9 +21,15 @@
     <ClCompile Include="Fluid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="vectorOperations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fluid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vectorOperations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
