@@ -6,9 +6,6 @@
 
 #define EPSILON 1.0e-5
 
-
-
-
 class Fluid
 {
 
@@ -33,16 +30,14 @@ class Fluid
 		}
 	}
 
-	void findPressureField(float divergence[]) {
+	void findPressureField() {
 
 		int i = 0;
 		int iMax = 1000;
 		float alpha, beta, rSqrLen, rSqrLenOld, u;
 
-
-
 		equateVec(totalCells, PressureField, divergence);
-
+		/**/
 		equateVec(totalCells, r, divergence);
 		ApplyLaplace(PressureField, temp);
 		subtractVec(totalCells, r, temp);
@@ -103,7 +98,7 @@ class Fluid
 				addVec(totalCells, d, r);
 			}
 		}
-
+		
 	}
 
 
@@ -116,6 +111,7 @@ public:
 	float *d;
 	float *t ;
 	float *temp;
+	float *divergence;
 
 	int indexXY(int x, int y) {
 		return y*gridSize + x;
@@ -124,12 +120,13 @@ public:
 	Fluid(int size, float viscocity, float h) :gridSize(size), viscosity(viscocity), h(h), totalCells(size*size) {
 		VelocityField = new glm::vec2[totalCells];
 		AccelerationField = new glm::vec2[totalCells];
-		PressureField = new float[totalCells];
+		PressureField = new float[totalCells]();
 		color = new glm::vec3[totalCells];
 		r = new float[totalCells];
 		 d = new float[totalCells];
 		t = new float[totalCells];
 		temp = new float[totalCells];
+		divergence = new float[totalCells]();
 	}
 
 	/*************	VELOCITY UPDATE		**************************************/
@@ -189,15 +186,17 @@ public:
 
 	void projectVelocity() {
 
-		float *divergence = new float[totalCells];
+		
 
 		for (int i = 1; i < gridSize - 1; i++) {
 			for (int j = 1; j < gridSize - 1; j++) {
 				divergence[indexXY(i, j)] = VelocityField[indexXY(i + 1, j)][0] - VelocityField[indexXY(i, j)][0] + VelocityField[indexXY(i, j + 1)][1] - VelocityField[indexXY(i, j)][1];
+				
 			}
 		}
 
-		findPressureField(divergence);
+		
+		findPressureField();
 
 		for (int i = 1; i < gridSize - 1; i++) {
 			for (int j = 1; j < gridSize - 1; j++) {
@@ -223,7 +222,7 @@ public:
 				}
 			}
 		}
-		delete[] divergence;
+		
 	}
 
 	glm::vec2 bilinearInterpolation(glm::vec2 &pos) {
@@ -253,8 +252,9 @@ public:
 	}
 
 	void AddDye() {
-		color[indexXY(2, 2)] = { 1.0,0.0,0.5 };
+		color[indexXY(2, 2)] = { 1.0,0.0,0.0 };
 	}
+
 	void AdvectDye() {
 		float *newField = new float[totalCells];
 
@@ -296,6 +296,7 @@ public:
 		delete[] t;
 		delete[] temp;
 		delete[] color;
+		delete[] divergence;
 	}
 };
 

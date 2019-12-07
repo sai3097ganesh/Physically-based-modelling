@@ -20,7 +20,7 @@ void subtractVec(int n, float r[], const float v[])
 
 void equateVec(int n, float v1[], const float v2[])
 {
-	memcpy(v1, v2, n * sizeof(double));
+	memcpy(v1, v2, n * sizeof(float));
 }
 
 void scalarMult(int n, float v[], float s)
@@ -33,7 +33,7 @@ void scalarMult(int n, float v[], float s)
 
 float dotProduct(int n, const float v1[], const float v2[])
 {
-	double dot = 0;
+	float dot = 0;
 	for (int i = 0; i < n; i++)
 	{
 		dot += v1[i] * v2[i];
