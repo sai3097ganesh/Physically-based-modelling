@@ -4,7 +4,7 @@
 #include "vectorOperations.h"
 
 
-#define EPSILON 1.0e-5
+#define EPSILON 1.0e-10
 
 class Fluid
 {
@@ -132,8 +132,8 @@ public:
 	/*************	VELOCITY UPDATE		**************************************/
 	void timestepVelocity() {
 		AddForce();
-		advectVelocity();
-		projectVelocity();
+		//advectVelocity();
+		//projectVelocity();
 	}
 
 	void AddForce() {
@@ -175,8 +175,8 @@ public:
 				}
 				else
 				{
-					VelocityField[indexXY(i, j)][1] = 0.5 * (VelocityField[indexXY(i, j)][1]
-						+ VelocityField[indexXY(i, j - 1)][1]);
+					VelocityField[indexXY(i, j)][1] = 0.5 * (newVelField[indexXY(i, j)][1]
+						+ newVelField[indexXY(i, j - 1)][1]);
 				}
 			}
 		}
@@ -252,7 +252,7 @@ public:
 	}
 
 	void AddDye() {
-		color[indexXY(2, 2)] = { 1.0,0.0,0.0 };
+
 	}
 
 	void AdvectDye() {
@@ -264,10 +264,12 @@ public:
 		
 				glm::vec2 currentPos = { i - 0.5,j - 0.5 };
 				glm::vec2 CenterVel = bilinearInterpolation(currentPos);
-				glm::vec2 oldPos = currentPos - CenterVel*h;
+				
+				glm::vec2 oldPos = currentPos - CenterVel*(h);
 				color[indexXY(i, j)] = scalarColorInterpolation(oldPos);
 			}
 		}
+		delete[] newField;
 
 	}
 
