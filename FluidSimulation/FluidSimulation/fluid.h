@@ -132,13 +132,13 @@ public:
 	/*************	VELOCITY UPDATE		**************************************/
 	void timestepVelocity() {
 		AddForce();
-		//advectVelocity();
-		//projectVelocity();
+		advectVelocity();
+		projectVelocity();
 	}
 
 	void AddForce() {
 		for (int i = 0; i < totalCells; i++) {
-			VelocityField[i] = h*AccelerationField[i];
+			VelocityField[i] += h*AccelerationField[i];
 		}
 	}
 
@@ -265,7 +265,7 @@ public:
 				glm::vec2 currentPos = { i - 0.5,j - 0.5 };
 				glm::vec2 CenterVel = bilinearInterpolation(currentPos);
 				
-				glm::vec2 oldPos = currentPos - CenterVel*(h);
+				glm::vec2 oldPos = currentPos - CenterVel*(h*1000);
 				color[indexXY(i, j)] = scalarColorInterpolation(oldPos);
 			}
 		}

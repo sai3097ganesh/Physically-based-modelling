@@ -17,15 +17,15 @@ static int WinX, WinY;
 static float Force = 1, Source =10, Temp;
 Fluid fluid( 50,  viscocity,  h);
 static int MouseDown[3];
-static int ClickOriginMouseX, ClickOriginMouseY, MouseX, MouseY;
+static int ClickOriginMouseX, ClickOriginMouseY, MouseX, MouseY, windowsID;
 
 
 void initializeField() {
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
 			fluid.VelocityField[fluid.indexXY(i, j)] = { 0.0,0.0 };
-			fluid.PressureField[fluid.indexXY(i, j)] = 0;
-			fluid.AccelerationField[fluid.indexXY(i, j)] = { 0.01,1.0 };
+			fluid.PressureField[fluid.indexXY(i, j)] = 0.0;
+			fluid.AccelerationField[fluid.indexXY(i, j)] = { 0.0,0.0 };
 			fluid.color[fluid.indexXY(i, j)] = { 0.0,0.0,0.0 };
 		}
 	}
@@ -49,8 +49,17 @@ static void MotionFunc(int x, int y)
 	MouseY = y;
 }
 
-void velocityDisplay() {
+void preDisplay() {
+	glViewport(0, 0, WinX, WinY);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0.0, 1.0, 0.0, 1.0);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
 
+void velocityDisplay() {
+	preDisplay();
 	int i, j;
 	float x, y, spacing;
 	spacing = 1.0f / fluid.gridSize;
@@ -63,6 +72,7 @@ void velocityDisplay() {
 
 			x = (i + 0.5f) * spacing; y = (j + 0.5f) * spacing;
 			glVertex2f(x, y);
+			//glVertex2f(x + 0.01, y);
 			glVertex2f(x + fluid.VelocityField[fluid.indexXY(i, j)][0], y + fluid.VelocityField[fluid.indexXY(i, j)][1]);
 		}
 	}
@@ -107,22 +117,25 @@ static void GetFromUI()
 	ClickOriginMouseX = MouseX;
 	ClickOriginMouseY = MouseY;
 }
+
 void idle(void)
 {
 
 	GetFromUI();
-	for (float t = 0; t < 1.0 / FPS; t += h) {
+
+	//for (float t = 0; t < 1.0 / FPS; t += h) {
 		fluid.timestepVelocity();
 		fluid.timestepDye();
-	}
+	//}
 
 	finalTime = clock();
 	timeTaken = (float)((finalTime - initialTime)) / CLOCKS_PER_SEC;
 	initialTime = finalTime;
 	timeSinceLast += timeTaken;
-	while ((timeSinceLast + (float)(clock() - initialTime) / CLOCKS_PER_SEC)  < 1.0 / FPS);
+	//while ((timeSinceLast + (float)(clock() - initialTime) / CLOCKS_PER_SEC)  < 1.0 / FPS);
 
 	timeSinceLast = 0;
+	glutSetWindow(windowsID);
 	glutPostRedisplay();
 }
 
@@ -130,13 +143,10 @@ void timer(int v) {
 	glutTimerFunc(1000 / FPS, timer, v);
 }
 
-void reshapeFunc(GLint newWidth, GLint newHeight)
+void reshapeFunc(int newWidth, int newHeight)
 {
-	if (newWidth > newHeight) // Keep a square viewport
-		glViewport((newWidth - newHeight) / 2, 0, newHeight, newHeight);
-	else
-		glViewport(0, (newHeight - newWidth) / 2, newWidth, newWidth);
-
+	glutSetWindow(windowsID);
+	glutReshapeWindow(newWidth, newHeight);
 	WinX = newWidth;
 	WinY = newHeight;
 	glutPostRedisplay();
@@ -174,7 +184,8 @@ void glutloop() {
 	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(WinX, WinY);
 
-	glutCreateWindow("Stable fluids");
+	windowsID = glutCreateWindow("Stable fluids");
+
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glutSwapBuffers();
@@ -185,19 +196,14 @@ void glutloop() {
 	glEnable(GL_POLYGON_SMOOTH);
 
 
-	glViewport(0, 0, WinX, WinY);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluOrtho2D(0.0, 1.0, 0.0, 1.0);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	preDisplay();
 
 	glutTimerFunc(100, timer, 0);
 	glutMouseFunc(MouseFunc);
 	glutMotionFunc(MotionFunc);
 	glutReshapeFunc(reshapeFunc);
 	glutIdleFunc(idle);
-	glutDisplayFunc(velocityDisplay);
+	glutDisplayFunc(display);
 
 }
 int main(int argc, char** argv) {
@@ -210,16 +216,6 @@ int main(int argc, char** argv) {
 
 	WinX = 512;
 	WinY = 512;
-
-
-
-	glViewport(0, 0, WinX, WinY);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluOrtho2D(0.0, 1.0, 0.0, 1.0);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
 
 	glutloop();
 	glutMainLoop();
