@@ -106,12 +106,11 @@ public:
 	int gridSize, totalCells;
 	glm::vec2 *VelocityField, *AccelerationField;
 	glm::vec3 *color;
-	float viscosity, density, h, *PressureField;
+	float viscosity, density, h, *PressureField, *divergence;
 	float *r;
 	float *d;
 	float *t ;
 	float *temp;
-	float *divergence;
 
 	int indexXY(int x, int y) {
 		return y*gridSize + x;
@@ -185,8 +184,6 @@ public:
 	}
 
 	void projectVelocity() {
-
-		
 
 		for (int i = 1; i < gridSize - 1; i++) {
 			for (int j = 1; j < gridSize - 1; j++) {

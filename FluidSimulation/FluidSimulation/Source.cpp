@@ -16,8 +16,8 @@ static int WinId;
 static int WinX, WinY;
 static float Force = 1, Source =10, Temp;
 Fluid fluid( 50,  viscocity,  h);
-static int MouseDown[3];
-static int ClickOriginMouseX, ClickOriginMouseY, MouseX, MouseY, windowsID;
+static int Mouse_clicked[3];
+static int click_x, click_y, xVel_Mouse, yVel_Mouse, windowsID;
 
 
 void initializeField() {
@@ -33,20 +33,20 @@ void initializeField() {
 
 static void MouseFunc(int button, int state, int x, int y)
 {
-	ClickOriginMouseX = MouseX = x;
-	ClickOriginMouseY = MouseY = y;
+	click_x = xVel_Mouse = x;
+	click_y = yVel_Mouse = y;
 
 	if (glutGetModifiers() & GLUT_ACTIVE_SHIFT)
 	{
 		button = 2;
 	}
 
-	MouseDown[button] = state == GLUT_DOWN;
+	Mouse_clicked[button] = state == GLUT_DOWN;
 }
 static void MotionFunc(int x, int y)
 {
-	MouseX = x;
-	MouseY = y;
+	xVel_Mouse = x;
+	yVel_Mouse = y;
 }
 
 void preDisplay() {
@@ -80,33 +80,31 @@ void velocityDisplay() {
 	glutSwapBuffers();
 }
 
-static void GetFromUI()
+static void inputVelCol()
 {
 	int x, y;
 
-	// Initialize fields
 	for (x = 0; x < fluid.totalCells; x++)
 	{
 		fluid.AccelerationField[x] = { 0.0,0.0 };
 	}
 
-	// If there is no mouse input, then everything stays empty
-	if (!MouseDown[0] && !MouseDown[2]) return;
+	if (!Mouse_clicked[0] && !Mouse_clicked[2]) return;
 
 	// Convert the mouse position to a grid position
-	x = static_cast<int>((MouseX / static_cast<float>(WinX)) * fluid.gridSize);
-	y = static_cast<int>(((WinY - MouseY) / static_cast<float>(WinY)) * fluid.gridSize);
+	x = static_cast<int>((xVel_Mouse / static_cast<float>(WinX)) * fluid.gridSize);
+	y = static_cast<int>(((WinY - yVel_Mouse) / static_cast<float>(WinY)) * fluid.gridSize);
 
-	// Force on velocity field
-	if (MouseDown[0])
+	// Enfore the clicking to the velocity
+	if (Mouse_clicked[0])
 	{
 	
-		fluid.AccelerationField[fluid.indexXY(x, y)][0] = Force * (MouseX - ClickOriginMouseX) *0.5;
-		fluid.AccelerationField[fluid.indexXY(x, y)][1] = Force * (ClickOriginMouseY - MouseY) *0.5;
+		fluid.AccelerationField[fluid.indexXY(x, y)][0] = Force * (xVel_Mouse - click_x) *0.5;
+		fluid.AccelerationField[fluid.indexXY(x, y)][1] = Force * (click_y - yVel_Mouse) *0.5;
 	}
 
 	// Add fluid
-	if (MouseDown[2])
+	if (Mouse_clicked[2])
 	{
 		printf("clicked!\n");
 		glm::vec3 a = { 0.5f, 0.5f, 0.5f };
@@ -114,14 +112,14 @@ static void GetFromUI()
 
 	}
 
-	ClickOriginMouseX = MouseX;
-	ClickOriginMouseY = MouseY;
+	click_x = xVel_Mouse;
+	click_y = yVel_Mouse;
 }
 
 void idle(void)
 {
 
-	GetFromUI();
+	inputVelCol();
 
 	//for (float t = 0; t < 1.0 / FPS; t += h) {
 		fluid.timestepVelocity();
