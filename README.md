@@ -18,7 +18,7 @@ Simulation of a cuboid bouncing inside a Dodecahedron. Representation of the ori
 ## Flocking Behavior
 <img src="Gifs/Spiral.gif">
 
-Group behaviour of a flock of birds or school of fish, or insects is fascinating. However, it is interesting modeling the same turns to be very simple. Every individual follows a set of three simple rules guiding how it accelerates in response to the positions and velocities of its nearby neighbor individuals. The rules are (1) Collision Avoidance, (2) Velocity Matching, (3) Centering
+Group behaviour of a flock of birds or school of fish, or insects is fascinating. However, it is interesting that modeling the same turns to be incredibly simple. Every individual follows a set of three simple rules guiding how it accelerates in response to the positions and velocities of its nearby neighbor individuals. The rules are (1) Collision Avoidance, (2) Velocity Matching, (3) Centering
 
 This is a fun little game I created. The goal is to use the lead particle (colored red, controlled by keys) to direct the impatient insect group to the center of the spiral.
 
