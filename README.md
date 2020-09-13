@@ -15,15 +15,18 @@ Springy mesh is basically consrtucted by replacing the edges with a spring-mass-
 <img src="Gifs/RigidBody.gif">
 Simulation of a cuboid bouncing inside a Dodecahedron. Representation of the orientation of the rigid body is done using quarernions. Forgive my bad rendering skills.
 
-## Flocking
-<img src="Gifs/Steering.gif">
+## Flocking Behavior
+<img src="Gifs/Spiral.gif">
+
 Group behaviour of a flock of birds or school of fish, or insects is fascinating. However, it is interesting modeling the same turns to be very simple. Every individual follows a set of three simple rules guiding how it accelerates in response to the positions and velocities of its nearby neighbor individuals. The rules are (1) Collision Avoidance, (2) Velocity Matching, (3) Centering
 
-This simulation also shows the 'boids' steering around obstacles.
+This is a fun little game I created. The goal is to use the lead particle (colored red, controlled by keys) to direct the impatient insect group to the center of the spiral.
+
 <b>References:</b> [Flocks, Herds, and Schools: A Distributed Behavioral Model](https://team.inria.fr/imagine/files/2014/10/flocks-hers-and-schools.pdf)
 
-<img src="Gifs/Spiral.gif">
-This is a fun little game I created. The goal is to use the lead particle (colored red, controlled by keys) to direct the impatient insect group to the center of the spiral.
+## Steering
+<img src="Gifs/Steering.gif">
+This simulation shows the 'boids' steering around obstacles.
 
 ## Fireworks
 <img src="Gifs/FireWorks.gif">
