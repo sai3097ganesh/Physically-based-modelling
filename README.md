@@ -34,4 +34,4 @@ A simple 3D particle animation with gravity and colors.
 
 ## Ball Collision
 <img src="Gifs/Collision.gif">
-This is the basic simulation - the ball is represented simply by its position. Collision detection and response are implemented. Gravity can be enabled/disabled. Wind can be controlled using keys.
+This is the basic simulation I started with. The ball is represented simply by its position. Collision detection and response are implemented. Gravity can be enabled/disabled. Wind can be controlled using keys.
