@@ -17,10 +17,7 @@ Simulation of a cuboid bouncing inside a Dodecahedron. Representation of the ori
 
 ## Flocking
 <img src="Gifs/Steering.gif">
-Group behaviour of a flock of birds or school of fish, or insects is fascinating. However, it is interesting modeling the same turns to be very simple. Every individual follows a set of three simple rules guiding how it accelerates in response to the positions and velocities of its nearby neighbor individuals. The rules are 
-- Collision Avoidance 
-- Velocity Matching 
-- Centering
+Group behaviour of a flock of birds or school of fish, or insects is fascinating. However, it is interesting modeling the same turns to be very simple. Every individual follows a set of three simple rules guiding how it accelerates in response to the positions and velocities of its nearby neighbor individuals. The rules are (1) Collision Avoidance, (2) Velocity Matching, (3) Centering
 
 This simulation also shows the 'boids' steering around obstacles.
 <b>References:</b> [Flocks, Herds, and Schools: A Distributed Behavioral Model](https://team.inria.fr/imagine/files/2014/10/flocks-hers-and-schools.pdf)
